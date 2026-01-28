@@ -32,8 +32,7 @@
   /**
    * Blazy public compat methods.
    *
-   * @namespace
-   */
+   * @namespace   */
   Drupal.blazy = $.extend(Drupal.blazy || {}, {
 
     clearCompat: function (el) {
@@ -82,8 +81,7 @@
    * Callback function to animate blur, or any animated, element, if any.
    *
    * @param {Element} el
-   *   The DIV or image element.
-   */
+   *   The DIV or image element.   */
   function animate(el) {
     // Blur, animate.css, for CSS background, picture, image, media.
     var an = $.aniElement && $.aniElement(el);
@@ -115,8 +113,7 @@
    *   If the resize event is triggered.
    *
    * @todo this should be at bio.js, but bLazy has no support which prevents it.
-   * Unless made generic for a ping-pong.
-   */
+   * Unless made generic for a ping-pong.   */
   function updateRatio(cn, i, isResized) {
     var data;
     var isPicture;
@@ -170,8 +167,7 @@
   /**
    * Resize Fluid aspect ratio.
    *
-   * @todo this should be at bio.js, but bLazy has no support which prevents it.
-   */
+   * @todo this should be at bio.js, but bLazy has no support which prevents it.   */
   function resize() {
     var me = this;
     var doc = me.context;
@@ -185,8 +181,7 @@
   }
 
   /**
-   * Processes DOM observations.
-   */
+   * Processes DOM observations.   */
   function process() {
     var me = this;
 
@@ -205,8 +200,7 @@
   /**
    * Attaches blazy behavior to HTML elements.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyCompat = {
     attach: function (context) {
 

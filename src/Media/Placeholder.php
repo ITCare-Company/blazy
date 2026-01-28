@@ -17,20 +17,17 @@ use Drupal\blazy\Theme\Attributes;
 class Placeholder {
 
   /**
-   * Defines constant placeholder  blank URL.
-   */
+   * Defines constant placeholder  blank URL.   */
   const BLANK = 'about:blank';
 
   /**
    * Defines constant placeholder Data URI image.
    *
-   * <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>
-   */
+   * <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>   */
   const DATA = "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201%201'%2F%3E";
 
   /**
-   * Defines constant placeholder Data URI image.
-   */
+   * Defines constant placeholder Data URI image.   */
   const GIF = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
   /**
@@ -42,8 +39,7 @@ class Placeholder {
    * Blur and hook_alter for Views rewrite issues, unless global UI is set
    * which was already warned about anyway.
    *
-   * Since 2.10, using client-size solution, too many bytes for a short life.
-   */
+   * Since 2.10, using client-size solution, too many bytes for a short life.   */
   public static function blur(array &$variables, array &$settings) {
     $attributes = &$variables['attributes'];
 
@@ -116,8 +112,7 @@ class Placeholder {
    *   The image height.
    *
    * @return string
-   *   Returns a string containing an SVG.
-   */
+   *   Returns a string containing an SVG.   */
   public static function generate($width = 100, $height = 100): string {
     $width = $width ?: 100;
     $height = $height ?: 100;
@@ -145,8 +140,7 @@ class Placeholder {
    *
    * @see \Drupal\blazy\Blazy:prepared()
    * @see self:blurs()
-   * @see self:thumbnails()
-   */
+   * @see self:thumbnails()   */
   public static function prepare(array &$attributes, array &$settings) {
     // Requires dimensions and image style setup.
     self::blurs($settings);
@@ -168,8 +162,7 @@ class Placeholder {
   }
 
   /**
-   * Checks for blur settings, required Image style and dimensions setup.
-   */
+   * Checks for blur settings, required Image style and dimensions setup.   */
   private static function blurs(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -196,8 +189,7 @@ class Placeholder {
    *
    * Ensures at least a hook_alter is always respected. This still allows
    * Blur and hook_alter for Views rewrite issues, unless global UI is set
-   * which was already warned about anyway.
-   */
+   * which was already warned about anyway.   */
   private static function dataImage(array &$settings, $uri, $tn_uri, $tn_url, $style): void {
     $manager = Internals::blazy();
     if (!$manager) {
@@ -240,8 +232,7 @@ class Placeholder {
   }
 
   /**
-   * Ensures the thumbnail exists before creating a dataURI.
-   */
+   * Ensures the thumbnail exists before creating a dataURI.   */
   private static function derivative(&$blazies, $uri, $tn_uri, $style, $key = 'blur'): bool {
     if (BlazyFile::isValidUri($tn_uri)) {
       $blazies->set($key . '.uri', $tn_uri);
@@ -263,8 +254,7 @@ class Placeholder {
    * placeholder, thumbnailed slider arrows, zoomed/ projected image like
    * Splidebox/ PhotoSwipe, etc.
    *
-   * @see self::prepare()
-   */
+   * @see self::prepare()   */
   private static function thumbnails(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];

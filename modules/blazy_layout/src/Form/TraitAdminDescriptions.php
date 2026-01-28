@@ -17,8 +17,7 @@ trait TraitAdminDescriptions {
    *   The data being passed.
    *
    * @return array
-   *   The form item descriptions.
-   */
+   *   The form item descriptions.   */
   protected function description(array $data = []): array {
     $max = $data['max'] ?? 0;
     $url = $data['url'] ?? '';

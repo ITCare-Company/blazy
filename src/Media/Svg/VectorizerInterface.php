@@ -46,21 +46,18 @@ namespace Drupal\blazy\Media\Svg;
 interface VectorizerInterface {
 
   /**
-   * Defines constant direction horizontal.
-   */
+   * Defines constant direction horizontal.   */
   const DIRECTION_HORIZONTAL = 1;
 
   /**
-   * Defines constant direction horizontal.
-   */
+   * Defines constant direction horizontal.   */
   const DIRECTION_VERTICAL = 2;
 
   /**
    * Getd threshold value.
    *
    * @return int
-   *   Current threshold value.
-   */
+   *   Current threshold value.   */
   public function getThreshold(): int;
 
   /**
@@ -70,8 +67,7 @@ interface VectorizerInterface {
    *   The threshold.
    *
    * @return $this
-   *   The class instance.
-   */
+   *   The class instance.   */
   public function setThreshold(int $threshold): self;
 
   /**
@@ -81,24 +77,21 @@ interface VectorizerInterface {
    *   Url or path to a file.
    *
    * @return $this
-   *   The class instance.
-   */
+   *   The class instance.   */
   public function loadImage(string $path): self;
 
   /**
    * Returns the current path.
    *
    * @return string
-   *   The loaded image path.
-   */
+   *   The loaded image path.   */
   public function getLoadedImagePath(): string;
 
   /**
    * Generates SVG from raster.
    *
    * @return string
-   *   The generated SVG.
-   */
+   *   The generated SVG.   */
   public function vectorize(): string;
 
   /**
@@ -108,16 +101,14 @@ interface VectorizerInterface {
    *   Path where to save the generated SVG.
    *
    * @return int
-   *   The result of saving.
-   */
+   *   The result of saving.   */
   public function saveSvg(string $path): int;
 
   /**
    * Generates svg from raster.
    *
    * @return \DOMDocument
-   *   The DPM document object.
-   */
+   *   The DPM document object.   */
   public function toXml(): \DOMDocument;
 
 }

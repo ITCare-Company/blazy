@@ -18,13 +18,11 @@ trait TraitDescriptions {
   /**
    * The Blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
+   * @var \Drupal\blazy\BlazyManagerInterface   */
   protected $blazyManager;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function nativeGridDescription() {
     $lb = $this->isAdminLb();
 
@@ -84,8 +82,7 @@ Use one line per row (100% total or 12 columns) for readability.
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function baseDescriptions(): array {
     $scopes = $this->scopes;
     $namespace = static::$namespace;
@@ -235,8 +232,7 @@ Image styles and video dimensions must match the ratio, or distortion will occur
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function gridDescriptions(): array {
     $scopes = $this->scopes;
     $lb = $this->isAdminLb();
@@ -274,15 +270,13 @@ Image styles and video dimensions must match the ratio, or distortion will occur
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function gridHeaderDescription() {
     return $this->t('Depends on the <strong>Display style</strong>.');
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function openingDescriptions(): array {
     $lb = $this->isAdminLb();
     return [
@@ -315,8 +309,7 @@ Image styles and video dimensions must match the ratio, or distortion will occur
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function svgDescriptions(): array {
     $sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
     return [
@@ -361,8 +354,7 @@ Requires <a href=":url2">SVG Sanitizer</a>.',
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function closingDescriptions(): array {
     $lb = $this->isAdminLb();
 
@@ -380,8 +372,7 @@ Requires <a href=":url2">SVG Sanitizer</a>.',
    * Returns formatter base descriptions.
    *
    * @return string
-   *   The form item description.
-   */
+   *   The form item description.   */
   protected function resimageDescriptions(): string {
     $scopes = $this->scopes;
     if (!$scopes->is('responsive_image')) {
@@ -406,8 +397,7 @@ Requires <a href=":url2">SVG Sanitizer</a>.',
    * Returns background description, due to dups till sub-module updates.
    *
    * @return string
-   *   The form item description.
-   */
+   *   The form item description.   */
   private function background(): string {
     $lb = $this->isAdminLb();
 

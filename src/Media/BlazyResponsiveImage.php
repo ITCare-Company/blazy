@@ -20,16 +20,14 @@ class BlazyResponsiveImage {
   /**
    * The Responsive image styles.
    *
-   * @var array
-   */
+   * @var array   */
   private static $styles;
 
   /**
    * Retrieves the breakpoint manager.
    *
    * @return \Drupal\breakpoint\BreakpointManager
-   *   The breakpoint manager.
-   */
+   *   The breakpoint manager.   */
   public static function breakpointManager() {
     return Internals::service('breakpoint.manager');
   }
@@ -39,8 +37,7 @@ class BlazyResponsiveImage {
    *
    * ResponsiveImage is the most temperamental module. Unlike plain old Image,
    * it explodes when the image is missing as much as when fed wrong URI, etc.
-   * Do not let SVG alike mess up with ResponsiveImage, else fatal.
-   */
+   * Do not let SVG alike mess up with ResponsiveImage, else fatal.   */
   public static function transformed(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
@@ -69,8 +66,7 @@ class BlazyResponsiveImage {
    * This is per item dependent on URI, the self::dimensions() is global.
    *
    * @todo use resimage.dimensions once BlazyFormatter + BlazyFilter synced,
-   * and Picture are checked with its multiple dimensions aka art direction.
-   */
+   * and Picture are checked with its multiple dimensions aka art direction.   */
   public static function background(array &$attributes, array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
@@ -129,8 +125,7 @@ class BlazyResponsiveImage {
    *
    * Do not limit to preload or fluid, to re-use this for background, etc.
    *
-   * @requires Drupal\blazy\Media\Preloader::prepare()
-   */
+   * @requires Drupal\blazy\Media\Preloader::prepare()   */
   public static function dimensions(
     array &$settings,
     $resimage = NULL,
@@ -195,8 +190,7 @@ class BlazyResponsiveImage {
    *   The responsive image style entity.
    *
    * @return array
-   *   The responsive image styles and cache tags.
-   */
+   *   The responsive image styles and cache tags.   */
   public static function styles($resimage): array {
     $manager = Internals::blazy();
     if (!$manager) {
@@ -231,8 +225,7 @@ class BlazyResponsiveImage {
    * - Provide URL, URI, style from a non-empty fallback, also for Blur, etc.
    *
    * @todo deprecate this when `Image style` has similar `_empty image_` option
-   * to reduce complication at Blazy UI, and here.
-   */
+   * to reduce complication at Blazy UI, and here.   */
   public static function fallback(array &$settings, $placeholder): void {
     $manager = Internals::blazy();
     if (!$manager) {
@@ -317,8 +310,7 @@ class BlazyResponsiveImage {
    * using the 'sizes' attribute. in
    * responsive_image_build_source_attributes() (line 386...".
    *
-   * @requires `unstyled` defined
-   */
+   * @requires `unstyled` defined   */
   public static function toStyle(array $settings, $unstyled = FALSE): ?object {
     $manager = Internals::blazy();
     if (!$manager) {
@@ -343,8 +335,7 @@ class BlazyResponsiveImage {
   }
 
   /**
-   * Defines the Responsive image id, styles and caches tags.
-   */
+   * Defines the Responsive image id, styles and caches tags.   */
   private static function define(&$blazies, $resimage) {
     $id = $resimage->id();
     $styles = self::styles($resimage);
@@ -356,8 +347,7 @@ class BlazyResponsiveImage {
   /**
    * Provides Responsive image sources relevant for link preload.
    *
-   * @see self::dimensions()
-   */
+   * @see self::dimensions()   */
   private static function sources(array &$settings, $style = NULL): array {
     if (!($manager = self::breakpointManager())) {
       return [];

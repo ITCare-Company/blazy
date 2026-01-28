@@ -8,8 +8,7 @@ namespace Drupal\blazy\Skin;
 class SkinManager extends SkinManagerBase implements SkinManagerInterface {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getDependencies(): array {
     return ['blazy/dblazy'];
   }

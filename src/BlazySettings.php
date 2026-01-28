@@ -22,30 +22,26 @@ class BlazySettings implements \Countable {
   /**
    * Stores the settings.
    *
-   * @var \stdClass[]
-   */
+   * @var \stdClass[]   */
   protected $storage = [];
 
   /**
    * Creates a new BlazySettings instance.
    *
    * @param \stdClass[] $storage
-   *   The storage.
-   */
+   *   The storage.   .*/
   public function __construct(array $storage = []) {
     $this->storage = $storage ? Arrays::filter($storage) : [];
   }
 
   /**
-   * Counts total items, might be unreal, tweaked by slider grids.
-   */
+   * Counts total items, might be unreal, tweaked by slider grids.   */
   public function count(): int {
     return $this->get('count', 0);
   }
 
   /**
-   * Returns total items, the untweakable count.
-   */
+   * Returns total items, the untweakable count.   */
   public function total(): int {
     return $this->get('total', 0);
   }
@@ -59,8 +55,7 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return mixed
-   *   A mixed value (array, string, bool, null, int, etc.).
-   */
+   *   A mixed value (array, string, bool, null, int, etc.).   */
   public function get($key = NULL, $default_value = NULL) {
     if (empty($key)) {
       return $this->storage;
@@ -84,8 +79,7 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return array
-   *   The array of items inside the data key, or empty array.
-   */
+   *   The array of items inside the data key, or empty array.   */
   public function data($key, array $default_value = []): array {
     return $this->get('data.' . $key, $default_value) ?: [];
   }
@@ -101,8 +95,7 @@ class BlazySettings implements \Countable {
    *   The plugin namespace.
    *
    * @return mixed
-   *   A mixed value (array, string, bool, null, etc.).
-   */
+   *   A mixed value (array, string, bool, null, etc.).   */
   public function filter($key, $default_value = NULL, $namespace = 'blazy') {
     return $this->get('filter.' . $namespace . '.' . $key, $default_value);
   }
@@ -116,8 +109,7 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return bool
-   *   Returns TRUE or FALSE.
-   */
+   *   Returns TRUE or FALSE.   */
   public function form($key, $default_value = FALSE): bool {
     return $this->get('form.' . $key, $default_value) ?: FALSE;
   }
@@ -131,8 +123,7 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return bool
-   *   Returns TRUE or FALSE.
-   */
+   *   Returns TRUE or FALSE.   */
   public function is($key, $default_value = FALSE): bool {
     return $this->get('is.' . $key, $default_value) ?: FALSE;
   }
@@ -146,8 +137,7 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return bool
-   *   Returns TRUE or FALSE.
-   */
+   *   Returns TRUE or FALSE.   */
   public function no($key, $default_value = FALSE): bool {
     return $this->get('no.' . $key, $default_value) ?: FALSE;
   }
@@ -163,8 +153,7 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return bool
-   *   Returns TRUE or FALSE.
-   */
+   *   Returns TRUE or FALSE.   */
   public function was($key, $default_value = FALSE): bool {
     return $this->get('was.' . $key, $default_value) ?: FALSE;
   }
@@ -178,8 +167,7 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return bool
-   *   Returns TRUE or FALSE.
-   */
+   *   Returns TRUE or FALSE.   */
   public function use($key, $default_value = FALSE): bool {
     return $this->get('use.' . $key, $default_value) ?: FALSE;
   }
@@ -193,15 +181,13 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return mixed
-   *   A mixed value (array, string, bool, null, etc.).
-   */
+   *   A mixed value (array, string, bool, null, etc.).   */
   public function ui($key, $default_value = NULL) {
     return $this->get('ui.' . $key, $default_value);
   }
 
   /**
-   * Sets values for a key.
-   */
+   * Sets values for a key.   */
   public function set($key, $value = NULL, $merge = TRUE): self {
     if (is_array($key)) {
       // Ensures to merge to not nullify previous values.
@@ -222,8 +208,7 @@ class BlazySettings implements \Countable {
    *   An array containing data to merge.
    *
    * @return $this
-   *   The configuration object.
-   */
+   *   The configuration object.   */
   public function merge(array $data_to_merge): self {
     // Preserve integer keys so that configuration keys are not changed.
     $this->setData(NestedArray::mergeDeepArray([$this->storage, $data_to_merge], TRUE));
@@ -239,8 +224,7 @@ class BlazySettings implements \Countable {
    *   The optional limited keys.
    *
    * @return object
-   *   The object.
-   */
+   *   The object.   */
   public function objectify(array $data, array $keys = []): object {
     $item = new \stdClass();
     $keys = $keys ?: array_keys($data);
@@ -259,8 +243,7 @@ class BlazySettings implements \Countable {
    *   The new configuration data.
    *
    * @return $this
-   *   The configuration object.
-   */
+   *   The configuration object.   */
   public function setData(array $data): self {
     $this->storage = $data;
     return $this;
@@ -273,8 +256,7 @@ class BlazySettings implements \Countable {
    *   The key to unset.
    *
    * @return $this
-   *   The configuration object.
-   */
+   *   The configuration object.   */
   public function unset($key): self {
     $parts = array_map('trim', explode('.', $key));
     if (count($parts) == 1) {
@@ -295,8 +277,7 @@ class BlazySettings implements \Countable {
    *   The BlazySettings as sub-key to check for, or a parent key string.
    *
    * @return bool
-   *   True if found.
-   */
+   *   True if found.   */
   public function isset($key, $group = NULL): bool {
     $found = FALSE;
     $parts = array_map('trim', explode('.', $key));
@@ -326,13 +307,11 @@ class BlazySettings implements \Countable {
    *
    * @param array<string, mixed> $settings
    *   The settings to reset/ renew the instance.
-   * @param-out array<string, mixed> $settings
    * @param string $key
    *   The key identifying this reset object.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The new BlazySettings instance.
-   */
+   *   The new BlazySettings instance.   */
   public function reset(array &$settings, $key = 'blazies'): self {
     $data = $this->storage;
 
@@ -347,8 +326,7 @@ class BlazySettings implements \Countable {
   }
 
   /**
-   * Returns the whole array.
-   */
+   * Returns the whole array.   */
   public function storage(): array {
     return $this->storage;
   }
@@ -362,15 +340,13 @@ class BlazySettings implements \Countable {
    * @return object
    *   The object.
    *
-   * @todo remove at 3.x when ImageItem is removed.
-   */
+   * @todo remove at 3.x when ImageItem is removed.   */
   public function toImage(array $data): object {
     return $this->objectify($data, BlazyDefault::imageProperties());
   }
 
   /**
-   * Sets values for a key.
-   */
+   * Sets values for a key.   */
   private function setInternal($key, $value = NULL, $merge = TRUE): self {
     $parts = array_map('trim', explode('.', $key));
 
@@ -394,8 +370,7 @@ class BlazySettings implements \Countable {
   /**
    * Sorts recursively.
    *
-   * @phpstan-ignore-next-line
-   */
+   * @phpstan-ignore-next-line   */
   private function rksort(&$a): bool {
     if (!is_array($a)) {
       return FALSE;

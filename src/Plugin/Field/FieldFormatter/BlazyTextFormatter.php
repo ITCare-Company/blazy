@@ -29,55 +29,46 @@ class BlazyTextFormatter extends FormatterBase {
   use BlazyFormatterTrait;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $captionId = 'caption';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $fieldType = 'text';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     return static::injectServices($instance, $container, static::$fieldType);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function defaultSettings() {
     return BlazyDefault::gridSettings();
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     return $this->baseViewElements($items, $langcode);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
     $this->admin()->buildSettingsForm($element, $this->getScopedFormElements());
@@ -85,15 +76,13 @@ class BlazyTextFormatter extends FormatterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getFieldStorageDefinition()->isMultiple();
   }
 
   /**
-   * Build the grid text elements.
-   */
+   * Build the grid text elements.   */
   protected function buildElements(array &$build, $items, $langcode) {
     foreach ($this->getElements($items) as $element) {
       $build['items'][] = $element;
@@ -101,8 +90,7 @@ class BlazyTextFormatter extends FormatterBase {
   }
 
   /**
-   * Returns the Blazy elements, also for sub-modules to re-use.
-   */
+   * Returns the Blazy elements, also for sub-modules to re-use.   */
   protected function getElements($items): \Generator {
     // The ProcessedText element already handles cache context & tag bubbling.
     // @see \Drupal\filter\Element\ProcessedText::preRenderText()
@@ -128,8 +116,7 @@ class BlazyTextFormatter extends FormatterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getPluginScopes(): array {
     return [
       'grid_form'        => TRUE,
@@ -143,8 +130,7 @@ class BlazyTextFormatter extends FormatterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function preSettings(array &$settings, $langcode): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];

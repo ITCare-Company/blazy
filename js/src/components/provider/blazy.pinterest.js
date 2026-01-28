@@ -69,8 +69,7 @@
    * Pinterest utility functions.
    *
    * @param {HTMLElement} el
-   *   The [data-pin-do] HTML element.
-   */
+   *   The [data-pin-do] HTML element.   */
   function process(el) {
     var provider = $.pinterest;
     var pin = $.find(el, DATA_PIN_DO);
@@ -111,8 +110,7 @@
   /**
    * Attaches Pinterest behavior to HTML element.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyPinterest = {
     attach: function (context) {
       $.once(process, ID_ONCE, S_ELEMENT, context);

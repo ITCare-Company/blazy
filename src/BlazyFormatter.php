@@ -11,23 +11,19 @@ use Drupal\blazy\Utility\Check;
 class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function fieldSettings(array &$settings, $items): void {
     Check::fields($settings, $items);
   }
@@ -35,8 +31,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   /**
    * {@inheritdoc}
    *
-   * @todo make it protected after sub-modules, mostly are just tests + BVEF.
-   */
+   * @todo make it protected after sub-modules, mostly are just tests + BVEF.   */
   public function buildSettings(array &$build, $items) {
     // @todo remove $this->hashtag($build);.
     /** @var array<string, mixed> $settings */
@@ -56,15 +51,13 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function minimalSettings(array &$settings, $items): void {
     Check::grids($settings);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function preBuildElements(array &$build, $items, array $entities = []) {
     // @todo remove $this->hashtag($build);.
     /** @var array<string, mixed> $settings */
@@ -103,8 +96,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function preElements(array &$build, $items, array $entities = []): void {
     $this->preBuildElements($build, $items, $entities);
 
@@ -123,8 +115,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function postBuildElements(array &$build, $items, array $entities = []) {
     /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];

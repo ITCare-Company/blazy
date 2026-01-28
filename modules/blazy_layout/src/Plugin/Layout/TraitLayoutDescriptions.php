@@ -17,8 +17,7 @@ trait TraitLayoutDescriptions {
    *   The data being passed.
    *
    * @return array
-   *   The form item descriptions.
-   */
+   *   The form item descriptions.   */
   protected function description(array $data = []): array {
     $bl_help = $data['bl_help'] ?? '';
     $blazy_help = $data['blazy_help'] ?? '';

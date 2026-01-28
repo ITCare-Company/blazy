@@ -17,27 +17,23 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * The blazy oembed service.
    *
-   * @var \Drupal\blazy\Media\BlazyOEmbedInterface
-   */
+   * @var \Drupal\blazy\Media\BlazyOEmbedInterface   */
   protected $oembed;
 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
+   * @var \Drupal\blazy\BlazyManagerInterface   */
   protected $blazyManager;
 
   /**
    * The blazy media service.
    *
-   * @var \Drupal\blazy\Media\BlazyMediaInterface
-   */
+   * @var \Drupal\blazy\Media\BlazyMediaInterface   */
   protected $blazyMedia;
 
   /**
-   * Constructs a BlazyEntity instance.
-   */
+   * Constructs a BlazyEntity instance.   */
   public function __construct(BlazyOEmbedInterface $oembed) {
     $this->oembed = $oembed;
     $this->blazyManager = $oembed->blazyManager();
@@ -45,8 +41,7 @@ class BlazyEntity implements BlazyEntityInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('blazy.oembed')
@@ -54,29 +49,25 @@ class BlazyEntity implements BlazyEntityInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function oembed() {
     return $this->oembed;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function blazyManager() {
     return $this->blazyManager;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function blazyMedia() {
     return $this->blazyMedia;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function build(array $data): array {
     $manager = $this->blazyManager;
     $manager->hashtag($data);
@@ -159,8 +150,7 @@ class BlazyEntity implements BlazyEntityInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function prepare(array &$data): void {
     $manager = $this->blazyManager;
     $manager->hashtag($data);
@@ -187,8 +177,7 @@ class BlazyEntity implements BlazyEntityInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function view(array $data): array {
     $manager  = $this->blazyManager;
     $settings = $manager->toHashtag($data);
@@ -221,8 +210,7 @@ class BlazyEntity implements BlazyEntityInterface {
   }
 
   /**
-   * Modifies the common settings extracted from the given entity.
-   */
+   * Modifies the common settings extracted from the given entity.   */
   public static function settings(array &$settings, $entity): void {
     // Might be accessed by tests, or anywhere outside the workflow.
     $blazies  = Internals::verify($settings);

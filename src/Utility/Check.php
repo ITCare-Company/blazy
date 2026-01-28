@@ -23,8 +23,7 @@ class Check {
   /**
    * Checks for container stuffs, mostly re-definition in case set earlier.
    *
-   * @todo remove some settings after sub-modules.
-   */
+   * @todo remove some settings after sub-modules.   */
   public static function container(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies      = $settings['blazies'];
@@ -50,8 +49,7 @@ class Check {
   /**
    * Checks for container defined by UI, where Blazy is not the formatter.
    *
-   * Mostly for third party settings, using the global UI settings.
-   */
+   * Mostly for third party settings, using the global UI settings.   */
   public static function uiContainer(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies      = $settings['blazies'];
@@ -140,8 +138,7 @@ class Check {
    * Checks for Blazy formatter such as from within a Views style plugin.
    *
    * @see \Drupal\blazy\Blazy::preserve()
-   * @see \Drupal\blazy\BlazyManager::isBlazy()
-   */
+   * @see \Drupal\blazy\BlazyManager::isBlazy()   */
   public static function blazyOrNot(array &$settings, array $data = []): void {
     // Retrieves Blazy formatter related settings from within Views style.
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -195,8 +192,7 @@ class Check {
   /**
    * Checks for field formatter settings.
    *
-   * @todo remove fallback settings after migration and sub-modules.
-   */
+   * @todo remove fallback settings after migration and sub-modules.   */
   public static function fields(array &$settings, $items): void {
     $entity = $items->getEntity();
 
@@ -261,8 +257,7 @@ class Check {
   }
 
   /**
-   * Checks for grids, also supports Slick which requires no `style`.
-   */
+   * Checks for grids, also supports Slick which requires no `style`.   */
   public static function grids(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
@@ -301,8 +296,7 @@ class Check {
   }
 
   /**
-   * Checks for lightboxes.
-   */
+   * Checks for lightboxes.   */
   public static function lightboxes(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -352,8 +346,7 @@ class Check {
   }
 
   /**
-   * Checks for settings alter.
-   */
+   * Checks for settings alter.   */
   public static function settingsAlter(array &$settings, $entity = NULL): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];

@@ -38,8 +38,7 @@
    *   If true, returns HTML nodes instead of a string.
    *
    * @return {String|NodeList}
-   *   The sanitized string or nodes.
-   */
+   *   The sanitized string or nodes.   */
   function sanitize(str, config, nodes) {
     // Save for extra checks.
     if (!str) {
@@ -112,8 +111,7 @@
    *   The attribute value.
    *
    * @return {Boolean}
-   *   If true, the attribute is potentially dangerous.
-   */
+   *   If true, the attribute is potentially dangerous.   */
   function isDangerous(name, value) {
     var key = name.toLowerCase();
     var val = value.replace(/\s+/g, '').toLowerCase();
@@ -133,8 +131,7 @@
    *   The string to convert.
    *
    * @return {Node}
-   *   An HTML document.
-   */
+   *   An HTML document.   */
   function toNode(str) {
     var parser = new DOMParser();
     var doc = parser.parseFromString(str, 'text/html');

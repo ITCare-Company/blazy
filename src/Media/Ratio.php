@@ -23,8 +23,7 @@ class Ratio {
    *   The settings array.
    *
    * @return array
-   *   The ratio and hack array.
-   */
+   *   The ratio and hack array.   */
   public static function hack(array $settings): array {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
@@ -71,8 +70,7 @@ class Ratio {
    * A failsafe for BG, else collapsed.
    *
    * @todo decide if to provide NULL or 0 instead.
-   * @todo converts to blazies at/by 3.x.
-   */
+   * @todo converts to blazies at/by 3.x.   */
   public static function compute(array $data) {
     $no_dims = empty($data['height']) || empty($data['width']);
     return $no_dims ? 0 : round((($data['height'] / $data['width']) * 100), 2);
@@ -87,8 +85,7 @@ class Ratio {
    *   Whether to force the output.
    *
    * @return string|null
-   *   The fluid value or NULL.
-   */
+   *   The fluid value or NULL.   */
   public static function fluid(array $data, bool $force = FALSE): ?string {
     $width  = $data['width'] ?? 0;
     $height = $data['height'] ?? 0;
@@ -138,8 +135,7 @@ class Ratio {
    *   The last value.
    *
    * @return int
-   *   The closest value to the exact ratio.
-   */
+   *   The closest value to the exact ratio.   */
   private static function gcd(int $a, int $b): int {
     while ($b !== 0) {
       [$a, $b] = [$b, $a % $b];
@@ -162,8 +158,7 @@ class Ratio {
    *   The closest tolerance.
    *
    * @return string|null
-   *   The aspect ratio or empty.
-   */
+   *   The aspect ratio or empty.   */
   private static function resolve(
     int $width,
     int $height,

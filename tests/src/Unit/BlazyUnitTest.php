@@ -19,8 +19,7 @@ class BlazyUnitTest extends UnitTestCase {
   use BlazyManagerUnitTestTrait;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -38,8 +37,7 @@ class BlazyUnitTest extends UnitTestCase {
    * @param mixed|bool|int $expected
    *   The expected output.
    *
-   * @dataProvider providerTestBuildIframe
-   */
+   * @dataProvider providerTestBuildIframe   */
   public function testBuildIframe(array $data, $expected) {
     /** @var array<string, mixed> $variables */
     $variables = ['attributes' => [], 'image' => []];
@@ -64,8 +62,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Provide test cases for ::testBuildIframe().
-   */
+   * Provide test cases for ::testBuildIframe().   */
   public static function providerTestBuildIframe() {
     return [
       [
@@ -99,8 +96,7 @@ class BlazyUnitTest extends UnitTestCase {
    * @param bool $expected_iframe
    *   Whether to expect an iframe, or not.
    *
-   * @dataProvider providerPreprocessBlazy
-   */
+   * @dataProvider providerPreprocessBlazy   */
   public function testPreprocessBlazy(array $settings, $item, $expected_image, $expected_iframe) {
     /** @var array<string, mixed> $variables */
     $variables = ['attributes' => []];
@@ -148,8 +144,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Provider for ::testPreprocessBlazy.
-   */
+   * Provider for ::testPreprocessBlazy.   */
   public static function providerPreprocessBlazy() {
     $uri = 'public://example.jpg';
     /** @var array<string, mixed> $data */
@@ -215,8 +210,7 @@ class BlazyUnitTest extends UnitTestCase {
    * @param array<string, mixed> $settings
    *   The settings being tested.
    *
-   * @dataProvider providerTestPreRenderImageLightbox
-   */
+   * @dataProvider providerTestPreRenderImageLightbox   */
   public function todoTestPreRenderImageLightbox(array $settings = []) {
     /** @var array<string, mixed> $build */
     $build = $this->data;
@@ -261,8 +255,7 @@ class BlazyUnitTest extends UnitTestCase {
    * Provide test cases for ::testPreRenderImageLightbox().
    *
    * @return array
-   *   An array of tested data.
-   */
+   *   An array of tested data.   */
   public static function providerTestPreRenderImageLightbox() {
     /** @var array<string, mixed> $data */
     $data = [];

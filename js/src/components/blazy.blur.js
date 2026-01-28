@@ -52,8 +52,7 @@
    * Processes blur element.
    *
    * @param {Element} target
-   *   The .b-lazy element, not the .b-blur one.
-   */
+   *   The .b-lazy element, not the .b-blur one.   */
   function blur(target) {
     var cn = $.aniElement(target);
     if (!$.isElm(cn)) {
@@ -149,8 +148,7 @@
    * Blur utility functions.
    *
    * @param {HTMLElement} el
-   *   The blur HTML element.
-   */
+   *   The blur HTML element.   */
   function process(el) {
     var cn = $.closest(el, '.media');
     blur(el);
@@ -166,8 +164,7 @@
   /**
    * Attaches Blazy blur behavior to HTML element.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyBlur = {
     attach: function (context) {
       $.once(process, ID_ONCE, S_ELEMENT, context);

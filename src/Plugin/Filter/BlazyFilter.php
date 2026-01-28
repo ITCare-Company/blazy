@@ -31,35 +31,29 @@ use Drupal\filter\FilterProcessResult;
 class BlazyFilter extends BlazyFilterBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $captionId = 'captions';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $shortcode = 'item';
 
   /**
    * {@inheritdoc}
    *
-   * @todo to support preload, split into two phases: collect uris and render.
-   */
+   * @todo to support preload, split into two phases: collect uris and render.   */
   public function process($text, $langcode) {
     $this->result = $result = new FilterProcessResult($text);
     $this->langcode = $langcode;
@@ -114,8 +108,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function tips($long = FALSE) {
     if ($long) {
       $text = file_get_contents(dirname(__FILE__) . "/FILTER_TIPS.md");
@@ -133,8 +126,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     // @todo add more sensible form items.
     $form['filter_tags'] = [
@@ -163,8 +155,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function buildImageItem(array &$build, &$node, $delta = 0): void {
     parent::buildImageItem($build, $node, $delta);
 
@@ -217,8 +208,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function init(array &$settings, $text): void {
     // @todo remove at 3.x or so.
     $this->deprecatedGridSettings($settings, $text);
@@ -227,8 +217,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function postSettings(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -255,8 +244,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Build the blazy, the node might be grid, or direct img/ iframe.
-   */
+   * Build the blazy, the node might be grid, or direct img/ iframe.   */
   private function build(\DOMElement $node, array &$settings, $delta = 0): array {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -284,8 +272,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Process grids and entities, not always images or iframes.
-   */
+   * Process grids and entities, not always images or iframes.   */
   private function processDom(\DOMDocument $dom, array $settings): bool {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
@@ -327,8 +314,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Process shortcode grids and entities, not always images or iframes.
-   */
+   * Process shortcode grids and entities, not always images or iframes.   */
   private function processShortcode(\DOMDocument $dom, array $settings): bool {
     $processed = FALSE;
     $nodes = $this->validNodes($dom, [static::$namespace]);
@@ -350,8 +336,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Build the blazy using the DOM lookups.
-   */
+   * Build the blazy using the DOM lookups.   */
   private function withDomShortcode(\DOMElement $object, array &$settings): array {
     $text = $this->getHtml($object);
     if (empty($text)) {
@@ -399,8 +384,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Build the individual item.
-   */
+   * Build the individual item.   */
   private function withDomElement(array &$build, $node, $delta): array {
     $media    = NULL;
     $settings = &$build['#settings'];
@@ -464,8 +448,7 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Build the blazy using the node ID and field_name.
-   */
+   * Build the blazy using the node ID and field_name.   */
   private function withEntityShortcode(array &$settings, $attribute): array {
     $list = $this->formatterSettings($settings, $attribute);
 
@@ -518,8 +501,7 @@ class BlazyFilter extends BlazyFilterBase {
    * Cleanups invalid nodes or those of which their contents are moved.
    *
    * @param \DOMDocument $dom
-   *   The HTML DOM object being modified.
-   */
+   *   The HTML DOM object being modified.   .*/
   private function cleanupNodes(\DOMDocument $dom): void {
     $xpath = new \DOMXPath($dom);
     $nodes = $xpath->query("//*[contains(@class, 'blazy-removed')]");
@@ -531,8 +513,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * {@inheritdoc}
    *
-   * @todo deprecate and remove for shortcodes at Blazy 3.x.
-   */
+   * @todo deprecate and remove for shortcodes at Blazy 3.x.   */
   protected function cleanupImageCaption(array &$build, &$node, &$item): void {
     /** @var array<string, mixed> $settings */
     $settings = $build['#settings'];
@@ -557,16 +538,13 @@ class BlazyFilter extends BlazyFilterBase {
    *
    * @param array<string, mixed> $settings
    *   The settings array.
-   *
-   * @param-out array<string, mixed> $settings
    * @param array $grid_nodes
    *   The grid nodes.
    * @param array $grid_items
    *   The renderable array of blazy item.
    *
    * @todo deprecate and remove for shortcodes at Blazy 4.x due to being
-   * too catch-all, not selective like field formatters.
-   */
+   * too catch-all, not selective like field formatters.   */
   private function buildDeprecatedGrid(array &$settings, array $grid_nodes, array $grid_items = []): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -645,8 +623,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Provides deprecated settings to be removed at 3.x or so.
    *
-   * @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
-   */
+   * @todo remove deprecated too-catch-all grid for shortcode at 3.x+.   */
   private function deprecatedGridSettings(array &$settings, $text = NULL): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];

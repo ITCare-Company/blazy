@@ -15,43 +15,37 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
   /**
    * Defines the nice name.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $niceName = 'Slick';
 
   /**
    * Defines machine name.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $machineName = 'slick';
 
   /**
    * The blazy admin service.
    *
-   * @var \Drupal\blazy\Form\BlazyAdminInterface
-   */
+   * @var \Drupal\blazy\Form\BlazyAdminInterface   */
   protected $admin;
 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
+   * @var \Drupal\blazy\BlazyManagerInterface   */
   protected $manager;
 
   /**
    * The form elements.
    *
-   * @var array
-   */
+   * @var array   */
   protected $formElements;
 
   /**
    * The form grid elements.
    *
-   * @var array
-   */
+   * @var array   */
   protected $formGrids = [
     'settings',
     ['options', 'layout'],
@@ -62,15 +56,13 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
   ];
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function admin() {
     return $this->admin;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function manager() {
     return $this->manager;
   }
@@ -79,8 +71,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    * {@inheritdoc}
    *
    * If you are overriding this, be sure to put parent at the bottom like below.
-   * So that grids know your new form items to work with.
-   */
+   * So that grids know your new form items to work with.   */
   public function form(array $form, FormStateInterface $form_state) {
     $this->attributes($form);
 
@@ -109,8 +100,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
   /**
    * Overrides Drupal\Core\Entity\EntityFormController::save().
    *
-   * @todo revert #1497268, or use config_update instead.
-   */
+   * @todo revert #1497268, or use config_update instead.   */
   public function save(array $form, FormStateInterface $form_state) {
     $entity = $this->entity;
 
@@ -159,10 +149,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    * Setup form attributes.
    *
    * @param array<string, mixed> $form
-   *   The form being modified.
-   *
-   * @param-out array<string, mixed> $form
-   */
+   *   The form being modified.   .*/
   protected function finalize(array &$form): void {
     $admin_css = $this->manager->config('admin_css', 'blazy.settings');
     if ($admin_css) {
@@ -177,11 +164,8 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
-   *
-   * @param-out array<string, mixed> $form
    * @param string $context
-   *   The string being passed.
-   */
+   *   The string being passed.   .*/
   protected function attributes(array &$form, $context = 'optionset'): void {
     if (!isset($form['#attributes'])) {
       $form['#attributes'] = [];
@@ -208,8 +192,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    * If you are overriding this, be sure to merge, not add (+), nor nullify.
    *
    * @return array
-   *   The form item grids.
-   */
+   *   The form item grids.   */
   protected function formGrids(): array {
     return $this->formGrids;
   }
@@ -220,11 +203,8 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    * @param array<string, mixed> $form
    *   The form being modified.
    *
-   * @param-out array<string, mixed> $form
-   *
    * @return array
-   *   The form item grids.
-   */
+   *   The form item grids.   */
   protected function toGrid(array &$form): array {
     $result = [];
     if ($grids = $this->formGrids()) {
@@ -277,11 +257,8 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    * @param array<string, mixed> $form
    *   The form being modified.
    *
-   * @param-out array<string, mixed> $form
-   *
    * @return array
-   *   The form item grids.
-   */
+   *   The form item grids.   */
   private function toNativeGrid(array &$form): array {
     $children = Element::children($form);
     $total    = count($children);

@@ -23,13 +23,11 @@ use Drupal\views\Views;
 class BlazyViewsFileTest extends BlazyViewsTestBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static $testViews = ['test_blazy_entity', 'test_blazy_entity_2'];
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp($import_test_views = TRUE): void {
     parent::setUp($import_test_views);
 
@@ -40,8 +38,7 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
   }
 
   /**
-   * Make sure that the HTML list style markup is correct.
-   */
+   * Make sure that the HTML list style markup is correct.   */
   public function testBlazyViewsForm() {
     $view = Views::getView('test_blazy_entity_2');
     $this->executeView($view);

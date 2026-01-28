@@ -26,8 +26,7 @@ class Grid {
    *   The given settings.
    *
    * @return array
-   *   The modified array of grid items.
-   */
+   *   The modified array of grid items.   */
   public static function build($items, array $settings): array {
     // Might be called outside the workflow like Slick/ Splide list builders.
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -97,8 +96,7 @@ class Grid {
    *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
-   *   The settings being passed.
-   */
+   *   The settings being passed.   .*/
   public static function attributes(array &$attrs, array $settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
@@ -148,8 +146,7 @@ class Grid {
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The blazies instance.
    * @param bool $root
-   *   Whether the container/root element.
-   */
+   *   Whether the container/root element.   .*/
   public static function checkAttributes(
     array &$attrs,
     array &$content_attrs,
@@ -179,8 +176,7 @@ class Grid {
    *   The options being passed.
    *
    * @return array
-   *   The attributes and settings.
-   */
+   *   The attributes and settings.   */
   public static function initGrid(array $options): array {
     $attrs   = ['class' => []];
     $count   = $options['count'] ?? 1;
@@ -265,8 +261,7 @@ class Grid {
    * @param-out array<string, mixed> $content_attrs
    *   The content attributes being modified.
    * @param array<string, mixed> $settings
-   *   The settings being passed.
-   */
+   *   The settings being passed.   .*/
   public static function itemAttributes(
     array &$attrs,
     array &$content_attrs,
@@ -298,8 +293,7 @@ class Grid {
    *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
-   *   The settings being passed.
-   */
+   *   The settings being passed.   .*/
   public static function toItemAttributes(array &$attrs, array $settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -351,8 +345,7 @@ class Grid {
    *   The key.
    *
    * @return bool
-   *   Whether a pair.
-   */
+   *   Whether a pair.   */
   public static function isFlexbox(array $settings, $key = 'grid'): bool {
     return self::isPair($settings, 'flexbox', $key);
   }
@@ -366,8 +359,7 @@ class Grid {
    *   The key.
    *
    * @return bool
-   *   Whether a pair.
-   */
+   *   Whether a pair.   */
   public static function isNativeGrid(array $settings, $key = 'grid'): bool {
     return self::isPair($settings, 'nativegrid', $key);
   }
@@ -381,8 +373,7 @@ class Grid {
    *   The key.
    *
    * @return bool
-   *   Whether a pair.
-   */
+   *   Whether a pair.   */
   public static function isNativeGridAsMasonry(array $settings, $key = 'grid'): bool {
     return self::isPair($settings, 'nativegrid', $key, TRUE);
   }
@@ -396,8 +387,7 @@ class Grid {
    *   The key.
    *
    * @return array
-   *   The grid dimensions.
-   */
+   *   The grid dimensions.   */
   public static function toDimensions(array $settings, $key = 'grid'): array {
     $dimensions = [];
     $nativegrid = self::isNativeGrid($settings, $key);
@@ -434,8 +424,7 @@ class Grid {
    * @param array<string, mixed> $settings
    *   The settings being modified.
    *
-   * @param-out array<string, mixed> $settings
-   */
+   * @param-out array<string, mixed> $settings   */
   public static function toNativeGrid(array &$settings): void {
     if (empty($settings['grid'])) {
       return;
@@ -459,8 +448,7 @@ class Grid {
    *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
-   *   The settings being passed.
-   */
+   *   The settings being passed.   .*/
   private static function containerAttributes(array &$attrs, array $settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -543,8 +531,7 @@ class Grid {
    * @param-out array<string, mixed> $settings
    *
    * @return array
-   *   The modified array of grid items.
-   */
+   *   The modified array of grid items.   */
   private static function content($items, array &$settings): array {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
@@ -636,8 +623,7 @@ class Grid {
    *   The blazies instance.
    *
    * @return string
-   *   The label.
-   */
+   *   The label.   */
   private static function label($blazies): string {
     if (!$blazies->use('theme_field')
       && $blazies->get('field.label_display') != 'hidden') {
@@ -659,8 +645,7 @@ class Grid {
    *   Whether a numeric.
    *
    * @return bool
-   *   Whether a value containing a pair.
-   */
+   *   Whether a value containing a pair.   */
   private static function isPair(
     array $settings,
     string $value,
@@ -681,8 +666,7 @@ class Grid {
    * @param array<string, mixed> $settings
    *   The settings being modified.
    *
-   * @param-out array<string, mixed> $settings
-   */
+   * @param-out array<string, mixed> $settings   */
   private static function toPair(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -714,8 +698,7 @@ class Grid {
    *   The array to convert.
    *
    * @return array
-   *   The array values.
-   */
+   *   The array values.   */
   private static function toValues(array $array): array {
     $values = [];
     array_walk($array, function ($val) use (&$values) {

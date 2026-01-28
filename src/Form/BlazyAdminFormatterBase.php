@@ -10,8 +10,7 @@ use Drupal\Component\Utility\Unicode;
 abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function basicImageForm(array &$form, array $definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
@@ -30,8 +29,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function imageStyleForm(array &$form, array $definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes     = $this->toScopes($definition);
@@ -73,8 +71,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getSettingsSummary(array $definition): array {
     if (empty($definition['settings'])) {
       return [];
@@ -146,10 +143,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * Exclude the field formatter settings summary as required.
    *
    * @param array<string, mixed> $definition
-   *   The definition being modified.
-   *
-   * @param-out array<string, mixed> $definition
-   */
+   *   The definition being modified.   .*/
   protected function getExcludedSettingsSummary(array &$definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes       = $this->toScopes($definition);

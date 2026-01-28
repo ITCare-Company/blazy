@@ -27,8 +27,7 @@
   /**
    * Attaches Blazy behavior to HTML element identified by .b-nativegrid.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyNativeGridMasonry = {
     attach: function (context) {
 

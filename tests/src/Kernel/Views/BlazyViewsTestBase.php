@@ -19,15 +19,13 @@ abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
    * views.view.test_blazy_entity.
    *
    * @var bool
-   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
-   */
+   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker   */
   protected $strictConfigSchema = TRUE;
 
   /**
    * {@inheritdoc}
    *
-   * @var array<string>
-   */
+   * @var array<string>   */
   protected static $modules = [
     'system',
     'user',
@@ -49,8 +47,7 @@ abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
   ];
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp($import_test_views = TRUE): void {
     parent::setUp($import_test_views);
 

@@ -28,64 +28,55 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * The app root.
    *
-   * @var string
-   */
+   * @var string   */
   protected $root;
 
   /**
    * The entity repository service.
    *
-   * @var \Drupal\Core\Entity\EntityRepositoryInterface
-   */
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface   */
   protected $entityRepository;
 
   /**
    * The entity type manager service.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface   */
   protected $entityTypeManager;
 
   /**
    * The blazy libraries service.
    *
-   * @var \Drupal\blazy\Asset\LibrariesInterface
-   */
+   * @var \Drupal\blazy\Asset\LibrariesInterface   */
   protected $libraries;
 
   /**
    * The module handler service.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
-   */
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface   */
   protected $moduleHandler;
 
   /**
    * The renderer.
    *
-   * @var \Drupal\Core\Render\RendererInterface
-   */
+   * @var \Drupal\Core\Render\RendererInterface   */
   protected $renderer;
 
   /**
    * The config factory.
    *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
+   * @var \Drupal\Core\Config\ConfigFactoryInterface   */
   protected $configFactory;
 
   /**
    * The cache backend.
    *
-   * @var \Drupal\Core\Cache\CacheBackendInterface
-   */
+   * @var \Drupal\Core\Cache\CacheBackendInterface   */
   protected $cache;
 
   /**
    * The language manager.
    *
-   * @var \Drupal\Core\Language\LanguageManagerInterface
-   */
+   * @var \Drupal\Core\Language\LanguageManagerInterface   */
   protected $languageManager;
 
   /**
@@ -94,27 +85,23 @@ abstract class BlazyBase implements BlazyInterface {
    * Unlike classes, slick_views, etc. will be under slick namespace with this.
    *
    * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php
-   */
+   * @see https://www.php.net/manual/en/reserved.keywords.php   */
   protected static $namespace = 'blazy';
 
   /**
    * The item property to store image or media: content, slide, box, etc.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $itemId = 'content';
 
   /**
    * The item prefix for captions, e.g.: blazy__caption, slide__caption, etc.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * Constructs a BlazyBase object.
-   */
+   * Constructs a BlazyBase object.   */
   public function __construct(
     LibrariesInterface $libraries,
     EntityRepositoryInterface $entity_repository,
@@ -134,8 +121,7 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('blazy.libraries'),
@@ -147,50 +133,43 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function root() {
     return $this->root;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function entityRepository() {
     return $this->entityRepository;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function entityTypeManager() {
     return $this->entityTypeManager;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function libraries() {
     return $this->libraries;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function moduleHandler() {
     return $this->moduleHandler;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function renderer() {
     return $this->renderer;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function renderInIsolation(array &$elements) {
     // @todo call directly ::renderInIsolation() when min D10.3.
     return Blazy::backwardsCompatibleCall(
@@ -203,64 +182,55 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function configFactory() {
     return $this->configFactory;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function cache() {
     return $this->cache;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function languageManager() {
     return $this->languageManager;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function routeMatch() {
     return $this->libraries->routeMatch();
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function config($key = NULL, $group = 'blazy.settings') {
     return $this->libraries->config($key, $group);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function configMultiple($group = 'blazy.settings'): array {
     return $this->libraries->configMultiple($group);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function myConfig($key = NULL) {
     return $this->config($key, static::$namespace . '.settings');
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function myConfigMultiple(): array {
     return $this->configMultiple(static::$namespace . '.settings');
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function configSchemaInfoAlter(
     array &$definitions,
     $formatter = 'blazy_base',
@@ -270,22 +240,19 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function denied($entity): array {
     return Internals::denied($entity);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function entityQuery($type, $conjunction = 'AND', $access = TRUE) {
     return $this->getStorage($type)->getQuery($conjunction)->accessCheck($access);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getCachedData(
     $cid,
     array $data = [],
@@ -295,8 +262,7 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getCachedOptions(
     $cid,
     array $data = [],
@@ -312,15 +278,13 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getCacheMetadata(array $build): array {
     return $this->libraries->getCacheMetadata($build);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getEntityAsOptions($entity_type): array {
     $options = [];
     if ($entities = $this->loadMultiple($entity_type)) {
@@ -333,36 +297,31 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getHtmlId($name = 'blazy', $id = ''): string {
     return Internals::getHtmlId($name, $id);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getLibrariesPath($name, $base_path = FALSE): ?string {
     return $this->libraries->getPath($name, $base_path);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getPath($type, $name, $absolute = FALSE): ?string {
     return Internals::getPath($type, $name, $absolute);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getStorage($type = 'media') {
     return $this->entityTypeManager->getStorage($type);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getTranslatedEntity($object, $langcode = NULL) {
     if ($object instanceof EntityInterface) {
       return $this->entityRepository->getTranslationFromContext($object, $langcode);
@@ -371,15 +330,13 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function gridAttributes(array &$attrs, array $settings): void {
     Grid::attributes($attrs, $settings);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function gridCheckAttributes(
     array &$attrs,
     array &$content_attrs,
@@ -390,8 +347,7 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function gridItemAttributes(
     array &$attrs,
     array &$content_attrs,
@@ -401,22 +357,19 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function import(array $options): void {
     $this->libraries->import($options);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function initGrid(array $options): array {
     return Grid::initGrid($options);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function load($id, $type = 'image_style') {
     if (strpos($type, '.settings') !== FALSE) {
       return $this->config($id, $type);
@@ -425,15 +378,13 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function loadMultiple($type = 'image_style', $ids = NULL): array {
     return $this->getStorage($type)->loadMultiple($ids);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function loadByProperties(
     array $values,
     $type = 'file',
@@ -454,8 +405,7 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function loadByProperty($porperty, $value, $type): ?object {
     $entity = NULL;
     if ($value && $entities = $this->loadByProperties([$porperty => $value], $type, TRUE)) {
@@ -465,78 +415,67 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function loadByUuid($uuid, $type = 'file'): ?object {
     return $this->entityRepository->loadEntityByUuid($type, $uuid);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function markdown($string, $help = TRUE, $sanitize = TRUE): string {
     return Internals::markdown($string, $help, $sanitize);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function merge(array $data, array $element, $key = NULL): array {
     return Arrays::merge($data, $element, $key);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function mergeSettings($keys, array $defaults, array $configs): array {
     return Arrays::mergeSettings($keys, $defaults, $configs);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function moduleExists($name): bool {
     return $this->moduleHandler->moduleExists($name);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function service($name): ?object {
     return Internals::service($name);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function settings(array $data = []): BlazySettings {
     return Internals::settings($data);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function toGrid($items, array $settings): array {
     return Grid::build($items, $settings);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function toHtml($content, $tag = 'div', $class = NULL): array {
     return Internals::toHtml($content, $tag, $class);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function toOptions(array $options): array {
     return $this->libraries->toOptions($options);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function toSettings(
     array &$settings,
     array $data = [],
@@ -558,22 +497,19 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function verifySafely(array &$settings, $key = 'blazies', array $defaults = []) {
     return Internals::verify($settings, $key, $defaults);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function verifyItem(array &$element, $delta): void {
     // Do nothing.
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function view(array $data): array {
     $access   = $data['#access'] ?? FALSE;
     $entity   = $data['#entity'] ?? NULL;
@@ -615,22 +551,19 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function withHashtag(array $data): array {
     return array_filter($data, fn($k) => strpos($k, '#') !== FALSE, ARRAY_FILTER_USE_KEY);
   }
 
   /**
-   * Allows Blazy add return type hint to its attach() method after sub-modules.
-   */
+   * Allows Blazy add return type hint to its attach() method after sub-modules.   */
   protected function attachments(array &$load, array $attach, $blazies): void {
     // Do nothing for sub-modules to use.
   }
 
   /**
-   * Builds an entity query.
-   */
+   * Builds an entity query.   */
   private function buildPropertyQuery($query, array $values, string $condition = 'IN'): void {
     foreach ($values as $name => $value) {
       // Cast scalars to array so we can consistently use an IN condition.
@@ -640,15 +573,13 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
     Internals::hashtag($data, $key, $unset);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function toHashtag(array $data, $key = 'settings', $default = []) {
     return Internals::toHashtag($data, $key, $default);
   }

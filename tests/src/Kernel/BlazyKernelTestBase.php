@@ -19,15 +19,13 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
    * resimage.styles.blazy_picture_test.
    *
    * @var bool
-   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
-   */
+   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker   */
   protected $strictConfigSchema = TRUE;
 
   /**
    * {@inheritdoc}
    *
-   * @var array<string>
-   */
+   * @var array<string>   */
   protected static $modules = [
     'system',
     'user',
@@ -48,8 +46,7 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
   ];
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 

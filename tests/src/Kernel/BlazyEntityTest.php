@@ -22,8 +22,7 @@ namespace Drupal\Tests\blazy\Kernel;
 class BlazyEntityTest extends BlazyKernelTestBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -49,8 +48,7 @@ class BlazyEntityTest extends BlazyKernelTestBase {
    * @param bool $expected
    *   The expected output.
    *
-   * @dataProvider providerTestGetEntityView
-   */
+   * @dataProvider providerTestGetEntityView   */
   public function testGetEntityView($entity, $fallback, $message, $expected) {
     if ($entity == 'node') {
       $entity = $this->entity ?? $this->setUpContentWithItems($this->bundle);
@@ -75,8 +73,7 @@ class BlazyEntityTest extends BlazyKernelTestBase {
    * Provide test cases for ::testGetEntityView().
    *
    * @return array
-   *   An array of tested data.
-   */
+   *   An array of tested data.   */
   public static function providerTestGetEntityView() {
     return [
       'Node' => [

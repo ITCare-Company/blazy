@@ -23,13 +23,11 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   /**
    * The blazy layout manager service.
    *
-   * @var \Drupal\blazy_layout\BlazyLayoutManagerInterface
-   */
+   * @var \Drupal\blazy_layout\BlazyLayoutManagerInterface   */
   protected $manager;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(ContainerInterface $container) {
     $instance = parent::create($container);
     $instance->setManager($container->get('blazy_layout'));
@@ -38,16 +36,14 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   }
 
   /**
-   * Sets manager service.
-   */
+   * Sets manager service.   */
   public function setManager(BlazyLayoutManagerInterface $manager) {
     $this->manager = $manager;
     return $this;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function formBase(array &$form, array $settings, array $options = []): void {
     $excludes = $options['excludes'] ?? [];
     $elements = [];
@@ -99,8 +95,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function formStyles(array &$form, array $settings, array $options = []): void {
     $this->checkDefinition($settings, $options);
 
@@ -333,8 +328,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   /**
    * {@inheritdoc}
    *
-   * @todo refine and merge with self::formWrappers().
-   */
+   * @todo refine and merge with self::formWrappers().   */
   public function formSettings(array &$form, array $settings, array $options = []): void {
     $excludes    = $options['excludes'] ?? [];
     $defaults    = Defaults::layoutSettings();
@@ -448,8 +442,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function formWrappers(
     array &$form,
     array $settings,
@@ -502,8 +495,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   }
 
   /**
-   * Checks for definition.
-   */
+   * Checks for definition.   */
   protected function checkDefinition(array $settings, array $options): void {
     $definition = [
       'background' => TRUE,
@@ -532,8 +524,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   }
 
   /**
-   * Checks for valid color excluding black (#000000) by design.
-   */
+   * Checks for valid color excluding black (#000000) by design.   */
   protected function getColor($key, array $settings) {
     $colors = $settings['styles'];
     return !empty($colors[$key]) && $colors[$key] != '#000000' ? $colors[$key] : FALSE;

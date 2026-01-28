@@ -32,8 +32,7 @@ class Lightbox {
    * @param array $attach
    *   The modified settings.
    * @param \Drupal\blazy\BlazySettings $blazies
-   *   The blazies instance.
-   */
+   *   The blazies instance.   .*/
   public static function attach(array &$load, array &$attach, $blazies): void {
     if ($name = $blazies->get('lightbox.name')) {
       $load['library'][] = 'blazy/lightbox';
@@ -54,8 +53,7 @@ class Lightbox {
    * Gets media switch elements: all lightboxes, not content, nor iframe.
    *
    * @param array $element
-   *   The element being modified.
-   */
+   *   The element being modified.   .*/
   public static function build(array &$element): void {
     /** @var array<string, mixed> $settings */
     $settings = &$element['#settings'];
@@ -260,8 +258,7 @@ class Lightbox {
    * Attaches Colorbox if so configured.
    *
    * @param array $load
-   *   The library to load.
-   */
+   *   The library to load.   .*/
   private static function attachColorbox(array &$load): void {
     if ($service = Internals::service('colorbox.attachment')) {
       $dummy = [];
@@ -291,8 +288,7 @@ class Lightbox {
    * @param array<string, mixed> $options
    *   The contextual options.
    * @param array<string, mixed> $settings
-   *   The contextual settings.
-   */
+   *   The contextual settings.   .*/
   private static function content(
     array &$element,
     array &$json,
@@ -477,8 +473,7 @@ class Lightbox {
   }
 
   /**
-   * Provides responsive image for lightboxes.
-   */
+   * Provides responsive image for lightboxes.   */
   private static function responsiveImage(array &$element, array $options): bool {
     $manager = Internals::blazy();
     if (!$manager) {
@@ -528,8 +523,7 @@ class Lightbox {
    *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item or \stdClass.
    *
    * @return array
-   *   The renderable array of caption, or empty array.
-   */
+   *   The renderable array of caption, or empty array.   */
   private static function getCaptions(array $settings, $item): array {
     $manager = Internals::blazy();
     if (!$manager) {

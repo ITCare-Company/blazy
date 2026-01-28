@@ -16,8 +16,7 @@ use Drupal\blazy\Internals\Internals;
 class AttributeParser {
 
   /**
-   * Returns a randomized id.
-   */
+   * Returns a randomized id.   */
   public static function getId($id = 'blazy-filter'): string {
     return Internals::getHtmlId(str_replace('_', '-', $id) . '-' . Crypt::randomBytesBase64(8));
   }
@@ -25,8 +24,7 @@ class AttributeParser {
   /**
    * Returns a image/ iframe src.
    *
-   * Checks if we have a valid file entity, not hard-coded image URL.
-   */
+   * Checks if we have a valid file entity, not hard-coded image URL.   */
   public static function getValidSrc($node, $use_data_uri = FALSE): ?string {
     $url = '';
 
@@ -67,8 +65,7 @@ class AttributeParser {
   }
 
   /**
-   * Returns attributes extracted from a DOMElement if any.
-   */
+   * Returns attributes extracted from a DOMElement if any.   */
   public static function getAttribute(\DOMElement $node, array $excludes = []): array {
     $attributes = [];
     /* @phpstan-ignore-next-line */
@@ -95,8 +92,7 @@ class AttributeParser {
   }
 
   /**
-   * Extract grids from the node attribute.
-   */
+   * Extract grids from the node attribute.   */
   public static function toGrid(\DOMElement $node, array &$settings): void {
     if ($check = $node->getAttribute('grid')) {
       /** @var \Drupal\blazy\BlazySettings $blazies */

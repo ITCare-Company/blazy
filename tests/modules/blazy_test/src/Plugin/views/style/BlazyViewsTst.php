@@ -24,35 +24,29 @@ use Drupal\blazy\Views\BlazyStylePluginBase;
 class BlazyViewsTst extends BlazyStylePluginBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemId = 'box';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemPrefix = 'box';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $captionId = 'caption';
 
   /**
-   * Returns the blazy admin.
-   */
+   * Returns the blazy admin.   */
   public function admin() {
     return Internals::service('blazy_test.admin');
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function defineOptions() {
     $options = [];
     $defaults = BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
@@ -63,8 +57,7 @@ class BlazyViewsTst extends BlazyStylePluginBase {
   }
 
   /**
-   * Overrides parent::buildOptionsForm().
-   */
+   * Overrides parent::buildOptionsForm().   */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     $fields = [
       'captions',
@@ -93,8 +86,7 @@ class BlazyViewsTst extends BlazyStylePluginBase {
   }
 
   /**
-   * Overrides StylePluginBase::render().
-   */
+   * Overrides StylePluginBase::render().   */
   public function render() {
     /** @var array<string, mixed> $settings */
     $settings = $this->buildSettings() + BlazyDefault::entitySettings();
@@ -126,8 +118,7 @@ class BlazyViewsTst extends BlazyStylePluginBase {
   }
 
   /**
-   * Returns blazy_test contents.
-   */
+   * Returns blazy_test contents.   */
   protected function buildElements(array $settings, $rows): \Generator {
     $view = $this->view;
 

@@ -14,13 +14,10 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The modified form.
-   *
-   * @param-out array<string, mixed> $form
    * @param array<string, mixed> $settings
    *   The settings being passed.
    * @param array<string, mixed> $options
-   *   The extra options containing: excluded form elements and entity data.
-   */
+   *   The extra options containing: excluded form elements and entity data.   .*/
   public function formBase(array &$form, array $settings, array $options = []): void;
 
   /**
@@ -28,13 +25,10 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The modified form.
-   *
-   * @param-out array<string, mixed> $form
    * @param array<string, mixed> $settings
    *   The settings being passed.
    * @param array<string, mixed> $options
-   *   The extra options containing: excluded form elements and entity data.
-   */
+   *   The extra options containing: excluded form elements and entity data.   .*/
   public function formStyles(array &$form, array $settings, array $options = []): void;
 
   /**
@@ -42,13 +36,10 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The modified form.
-   *
-   * @param-out array<string, mixed> $form
    * @param array<string, mixed> $settings
    *   The settings being passed.
    * @param array<string, mixed> $options
-   *   The extra options containing: excluded form elements and entity data.
-   */
+   *   The extra options containing: excluded form elements and entity data.   .*/
   public function formSettings(array &$form, array $settings, array $options = []): void;
 
   /**
@@ -56,15 +47,12 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The modified form.
-   *
-   * @param-out array<string, mixed> $form
    * @param array<string, mixed> $settings
    *   The stored settings.
    * @param array<string, mixed> $options
    *   The extra options containing: excluded form elements and entity data.
    * @param bool $root
-   *   Whether applicable to root, or region elements.
-   */
+   *   Whether applicable to root, or region elements.   .*/
   public function formWrappers(
     array &$form,
     array $settings,

@@ -8,8 +8,7 @@ namespace Drupal\blazy_layout\Plugin\Layout;
 class BlazyLayout extends BlazyLayoutForm {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function build(array $regions): array {
     $this->init();
 
@@ -51,14 +50,11 @@ class BlazyLayout extends BlazyLayoutForm {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
    * @param array<string, mixed> $build
    *   The build being passed.
    *
    * @return array
-   *   The $build element with modified attributes.
-   */
+   *   The $build element with modified attributes.   */
   private function interpolate(array &$settings, array $build): array {
     $sets = $settings;
     $sets['is_form'] = FALSE;

@@ -15,48 +15,41 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
   /**
    * The library discovery service.
    *
-   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface
-   */
+   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface   */
   protected $libraryDiscovery;
 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
+   * @var \Drupal\blazy\BlazyManagerInterface   */
   protected $manager;
 
   /**
    * The available options to check for.
    *
-   * @var array
-   */
+   * @var array   */
   protected $validatedOptions = [];
 
   /**
    * The available paths to check for.
    *
-   * @var array
-   */
+   * @var array   */
   protected $validatedPaths = [];
 
   /**
    * The allowed tags can be NULL for default, or array.
    *
-   * @var mixed
-   */
+   * @var mixed   */
   protected $allowedTags = NULL;
 
   /**
    * Whether to allow tags.
    *
-   * @var bool
-   */
+   * @var bool   */
   protected $stripTags = TRUE;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(ContainerInterface $container) {
     $instance = parent::create($container);
     $instance->libraryDiscovery = $container->get('library.discovery');
@@ -65,8 +58,7 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
 

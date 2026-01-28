@@ -15,8 +15,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
   use TraitConfigDescriptions;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected $validatedOptions = [
     'css_scope',
     'placeholder',
@@ -31,29 +30,25 @@ class BlazyConfigForm extends BlazyConfigFormBase {
   ];
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected $validatedPaths = [
     'placeholder',
   ];
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getFormId() {
     return 'blazy_settings_form';
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getEditableConfigNames() {
     return ['blazy.settings'];
   }
 
   /**
-   * Implements \Drupal\Core\Form\FormInterface::buildForm().
-   */
+   * Implements \Drupal\Core\Form\FormInterface::buildForm().   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('blazy.settings');
     $doms = ['DOMPurify', 'dompurify'];
@@ -423,8 +418,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
   }
 
   /**
-   * Implements \Drupal\Core\Form\FormInterface::submitForm().
-   */
+   * Implements \Drupal\Core\Form\FormInterface::submitForm().   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->configFactory->getEditable('blazy.settings');
     $config

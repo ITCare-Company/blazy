@@ -17,15 +17,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
   use TraitLayoutDescriptions;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function defaultConfiguration() {
     return Defaults::layoutSettings() + parent::defaultConfiguration();
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
     parent::validateConfigurationForm($form, $form_state);
 
@@ -69,8 +67,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
 
@@ -119,8 +116,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     // This form may be loaded as a subform Layout Builder, etc.
     // More info: #2536646, #2798261, #2774077, #2897557.
@@ -402,15 +398,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
   }
 
   /**
-   * Callback for count.
-   */
+   * Callback for count.   */
   public function countCallback(array $form, FormStateInterface $form_state) {
     return $form['layout_settings']['regions'];
   }
 
   /**
-   * Validate form styles.
-   */
+   * Validate form styles.   */
   protected function validateColors(
     FormStateInterface $form_state,
     array $keys = ['settings', 'styles', 'colors'],
@@ -428,8 +422,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
   /**
    * Extract data from the entity form.
    *
-   * @todo remove if Link field is a Media field, or no further use or change.
-   */
+   * @todo remove if Link field is a Media field, or no further use or change.   */
   private function getEntityData($entity_form): array {
     $id     = NULL;
     $bundle = NULL;

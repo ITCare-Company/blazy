@@ -16,25 +16,21 @@ use Drupal\views\Views;
 abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStylePluginInterface {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected $usesRowPlugin = TRUE;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected $usesGrouping = FALSE;
 
   /**
    * The Views as options.
    *
-   * @var array
-   */
+   * @var array   */
   protected $viewsOptions;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function buildElement(array &$element, $row, $delta) {
     $this->manager->hashtag($element);
 
@@ -94,8 +90,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   }
 
   /**
-   * Returns the caption elements.
-   */
+   * Returns the caption elements.   */
   protected function getCaption($index, array $settings, $row = NULL): array {
     $view     = $this->view;
     $captions = [];
@@ -129,8 +124,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   }
 
   /**
-   * Returns the rendered layout fields, normally just string.
-   */
+   * Returns the rendered layout fields, normally just string.   */
   protected function getLayout(array &$settings, $index): void {
     $layout = $settings['layout'] ?? '';
     // Replacing useless field_NAME with its useful value.
@@ -144,8 +138,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Returns the relevant elements based on the configuration.
    *
-   * @todo remove for BlazyElementTrait if similar to field formatters.
-   */
+   * @todo remove for BlazyElementTrait if similar to field formatters.   */
   protected function toElement($blazies, array &$data, array $captions): void {
     $delta    = $data['#delta'] ?? 0;
     $captions = array_filter($captions);
@@ -159,8 +152,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   }
 
   /**
-   * Returns available fields for select options.
-   */
+   * Returns available fields for select options.   */
   protected function getDefinedFieldOptions(array $defined_options = []): array {
     $field_names = $this->displayHandler->getFieldLabels();
     $definition = [];
@@ -289,8 +281,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Returns an array of views for option list.
    *
-   * Cannot use Views::getViewsAsOptions() as we need to limit to something.
-   */
+   * Cannot use Views::getViewsAsOptions() as we need to limit to something.   */
   protected function getViewsAsOptions($plugin = 'html_list'): array {
     if (!isset($this->viewsOptions[$plugin])) {
       $options = [];
@@ -313,8 +304,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Builds the item using theme_blazy(), if so-configured.
    *
-   * @todo remove for BlazyElementTrait if similar to field formatters.
-   */
+   * @todo remove for BlazyElementTrait if similar to field formatters.   */
   private function themeBlazy(array &$element, array $captions, $delta): void {
     $internal = $element;
 
@@ -334,8 +324,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Provides relevant attributes to feed into theme_blazy().
    *
-   * @todo remove for BlazyElementTrait if similar to field formatters.
-   */
+   * @todo remove for BlazyElementTrait if similar to field formatters.   */
   private function toBlazy(array &$data, array &$captions, $delta): array {
     // Call manager not formatter due to sub-module deviations.
     $this->manager->toBlazy($data, $captions, $delta);

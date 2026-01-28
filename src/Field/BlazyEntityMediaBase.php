@@ -18,8 +18,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   use BlazyDependenciesTrait;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -32,15 +31,13 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function defaultSettings() {
     return BlazyDefault::mediaSettings() + parent::defaultSettings();
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element = parent::settingsForm($form, $form_state);
 
@@ -52,8 +49,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getScopedDefinition(array $form): array {
     $definition = parent::getScopedDefinition($form);
     $existings = $definition['additional_descriptions'] ?? [];
@@ -83,8 +79,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function withElementDetail(array $build): array {
     [
       '#entity'   => $entity,
@@ -132,8 +127,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   }
 
   /**
-   * Returns the captions, if any.
-   */
+   * Returns the captions, if any.   */
   protected function getCaptions(array $element): array {
     [
       '#entity'   => $entity,
@@ -257,8 +251,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getPluginScopes(): array {
     $bundles  = $this->getAvailableBundles();
     $captions = $this->getFieldOptions();
@@ -319,12 +312,10 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    *
    * Protected function withElementThumbnail(array &$build, array $element) {
    * Do nothing, let extenders do their jobs.
-   * }
-   */
+   * }   */
 
   /**
-   * Build extra elements.
-   */
+   * Build extra elements.   */
   protected function withElementExtra(array &$element): void {
     // Do nothing, let extenders do their jobs.
   }

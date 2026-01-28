@@ -17,28 +17,24 @@ class BlazyAdminTst implements BlazyAdminTstInterface {
   /**
    * The blazy admin service.
    *
-   * @var \Drupal\blazy\Form\BlazyAdminInterface
-   */
+   * @var \Drupal\blazy\Form\BlazyAdminInterface   */
   protected $blazyAdmin;
 
   /**
    * The blazy_test manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
+   * @var \Drupal\blazy\BlazyManagerInterface   */
   protected $manager;
 
   /**
-   * Constructs a GridStackAdmin object.
-   */
+   * Constructs a GridStackAdmin object.   */
   public function __construct(BlazyAdminInterface $blazy_admin, BlazyManagerInterface $manager) {
     $this->blazyAdmin = $blazy_admin;
     $this->manager = $manager;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('blazy.admin.formatter'),
@@ -47,22 +43,19 @@ class BlazyAdminTst implements BlazyAdminTstInterface {
   }
 
   /**
-   * Returns the blazy admin.
-   */
+   * Returns the blazy admin.   */
   public function blazyAdmin() {
     return $this->blazyAdmin;
   }
 
   /**
-   * Returns the blazy_test manager.
-   */
+   * Returns the blazy_test manager.   */
   public function manager() {
     return $this->manager;
   }
 
   /**
-   * Returns all settings form elements.
-   */
+   * Returns all settings form elements.   */
   public function buildSettingsForm(array &$form, array $definition): void {
     $definition += [
       'namespace'  => 'blazy',
@@ -85,15 +78,13 @@ class BlazyAdminTst implements BlazyAdminTstInterface {
   }
 
   /**
-   * Returns the opening form elements.
-   */
+   * Returns the opening form elements.   */
   public function openingForm(array &$form, array &$definition): void {
     $this->blazyAdmin->openingForm($form, $definition);
   }
 
   /**
-   * Returns the main form elements.
-   */
+   * Returns the main form elements.   */
   public function mainForm(array &$form, array $definition): void {
     if (!empty($definition['image_style_form'])) {
       $this->blazyAdmin->imageStyleForm($form, $definition);
@@ -113,15 +104,13 @@ class BlazyAdminTst implements BlazyAdminTstInterface {
   }
 
   /**
-   * Returns the closing form elements.
-   */
+   * Returns the closing form elements.   */
   public function closingForm(array &$form, array $definition): void {
     $this->blazyAdmin->closingForm($form, $definition);
   }
 
   /**
-   * Returns default layout options for the core Image, or Views.
-   */
+   * Returns default layout options for the core Image, or Views.   */
   public function getLayoutOptions(): array {
     return [
       'bottom' => $this->t('Caption bottom'),
@@ -131,15 +120,13 @@ class BlazyAdminTst implements BlazyAdminTstInterface {
   }
 
   /**
-   * Return the field formatter settings summary.
-   */
+   * Return the field formatter settings summary.   */
   public function getSettingsSummary(array $definition): array {
     return $this->blazyAdmin->getSettingsSummary($definition);
   }
 
   /**
-   * Returns available fields for select options.
-   */
+   * Returns available fields for select options.   */
   public function getFieldOptions(
     array $target_bundles = [],
     array $allowed_field_types = [],
@@ -150,8 +137,7 @@ class BlazyAdminTst implements BlazyAdminTstInterface {
   }
 
   /**
-   * Returns re-usable logic, styling and assets across fields and Views.
-   */
+   * Returns re-usable logic, styling and assets across fields and Views.   */
   public function finalizeForm(array &$form, array $definition): void {
     $this->blazyAdmin->finalizeForm($form, $definition);
   }

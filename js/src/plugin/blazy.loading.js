@@ -16,8 +16,7 @@
    *   The loading HTML element(s), or dBlazy instance.
    *
    * @return {Object}
-   *   This dBlazy object.
-   */
+   *   This dBlazy object.   */
   function unloading(els) {
     var chainCallback = function (el) {
       var _loading = 'loading';

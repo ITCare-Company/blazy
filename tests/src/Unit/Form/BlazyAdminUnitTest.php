@@ -15,8 +15,7 @@ class BlazyAdminUnitTest extends UnitTestCase {
   use BlazyUnitTestTrait;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -27,8 +26,7 @@ class BlazyAdminUnitTest extends UnitTestCase {
   }
 
   /**
-   * Test Blazy admin constructor.
-   */
+   * Test Blazy admin constructor.   */
   public function testBlazyAdminCreate() {
     $container = $this->createMock(ContainerInterface::class);
     $exception = ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE;

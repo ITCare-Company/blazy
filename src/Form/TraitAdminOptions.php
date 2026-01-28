@@ -14,20 +14,17 @@ trait TraitAdminOptions {
   /**
    * The date formatter service.
    *
-   * @var \Drupal\Core\Datetime\DateFormatterInterface
-   */
+   * @var \Drupal\Core\Datetime\DateFormatterInterface   */
   protected $dateFormatter;
 
   /**
    * The entity type manager service.
    *
-   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
-   */
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface   */
   protected $entityDisplayRepository;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getCacheOptions(): array {
     $period = [
       0,
@@ -53,8 +50,7 @@ trait TraitAdminOptions {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getEntityAsOptions($entity_type): array {
     return $this->blazyManager->getEntityAsOptions($entity_type);
   }
@@ -62,8 +58,7 @@ trait TraitAdminOptions {
   /**
    * {@inheritdoc}
    *
-   * @todo deprecated for BlazyFormatterEntityTrait::getFieldOptionsWithBundles().
-   */
+   * @todo deprecated for BlazyFormatterEntityTrait::getFieldOptionsWithBundles().   */
   public function getFieldOptions(
     array $target_bundles = [],
     array $allowed_field_types = [],
@@ -110,8 +105,7 @@ trait TraitAdminOptions {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getLightboxCaptionOptions(): array {
     return [
       'auto'         => $this->t('Automatic'),
@@ -125,23 +119,20 @@ trait TraitAdminOptions {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getOptionsetOptions($entity_type): array {
     return $this->getEntityAsOptions($entity_type);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getViewModeOptions($target_type): array {
     $view_modes = $this->entityDisplayRepository->getViewModeOptions($target_type) ?: [];
     return $this->toOptions($view_modes);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getResponsiveImageOptions(): array {
     $options = [];
     if ($this->blazyManager->moduleExists('responsive_image')) {
@@ -169,8 +160,7 @@ trait TraitAdminOptions {
    *   The current scopes.
    *
    * @return array
-   *   A corresponding form API state.
-   */
+   *   A corresponding form API state.   */
   protected function getState($state, BlazySettings $scopes): array {
     $lightboxes = [];
 
@@ -226,8 +216,7 @@ trait TraitAdminOptions {
   /**
    * Declutters options from less relevant options, specific to captions.
    *
-   * @todo deprecated for BlazyFormatterEntityTrait::getExcludedFieldOptions().
-   */
+   * @todo deprecated for BlazyFormatterEntityTrait::getExcludedFieldOptions().   */
   protected function getExcludedFieldOptions(): array {
     // @todo figure out a more efficient way than blacklisting.
     // Do not exclude field_media_image as needed for Main stage.
@@ -245,8 +234,7 @@ trait TraitAdminOptions {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getTitleClasses(array $options = [], $flatten = FALSE) {
     $classes = [
       'form__title',
@@ -265,8 +253,7 @@ trait TraitAdminOptions {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getTooltipClasses(array $options = [], $flatten = FALSE): array {
     $classes = ['form-item--tooltip-bottom'];
     if ($options) {

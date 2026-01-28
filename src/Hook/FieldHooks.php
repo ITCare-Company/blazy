@@ -15,8 +15,7 @@ use Drupal\blazy\Internals\Internals;
 class FieldHooks {
 
   /**
-   * Implements hook_field_formatter_third_party_settings_form().
-   */
+   * Implements hook_field_formatter_third_party_settings_form().   */
   public static function fieldFormatterThirdPartySettingsForm(FormatterInterface $plugin): array {
     if (in_array($plugin->getPluginId(), self::thirdPartyFormatters())) {
       return [
@@ -31,8 +30,7 @@ class FieldHooks {
   }
 
   /**
-   * Implements hook_field_formatter_settings_summary_alter().
-   */
+   * Implements hook_field_formatter_settings_summary_alter().   */
   public static function fieldFormatterSettingsSummaryAlter(array &$summary, $context): void {
     if ($formatter = $context['formatter'] ?? NULL) {
       $on = $formatter->getThirdPartySetting('blazy', 'blazy', FALSE);
@@ -64,8 +62,7 @@ class FieldHooks {
   /**
    * Provides the third party formatters where full blown Blazy is not worthy.
    *
-   * @todo make it private after another sub-module check.
-   */
+   * @todo make it private after another sub-module check.   */
   public static function thirdPartyFormatters(): array {
     $formatters = ['file_audio', 'file_video'];
     if ($manager = Internals::blazy()) {

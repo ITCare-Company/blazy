@@ -30,70 +30,60 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * The module namespace.
    *
    * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php
-   */
+   * @see https://www.php.net/manual/en/reserved.keywords.php   */
   protected static $namespace = 'blazy';
 
   /**
    * The item property to store image or media: content, slide, box, etc.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $itemId = 'slide';
 
   /**
    * The item prefix for captions, e.g.: blazy__caption, slide__caption, etc.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $itemPrefix = 'slide';
 
   /**
    * The caption property to store captions.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $captionId = 'caption';
 
   /**
    * Tne navigation ID.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $navId = 'thumb';
 
   /**
    * The fake field type identifier for service DI, e.g: entity, image, text.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $fieldType = 'entity';
 
   /**
    * Whether displaying a single item by index, or not.
    *
-   * @var bool
-   */
+   * @var bool   */
   protected static $byDelta = FALSE;
 
   /**
    * Whether using the SVG.
    *
-   * @var bool
-   */
+   * @var bool   */
   protected static $useSvg = FALSE;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     return static::injectServices($instance, $container, static::$fieldType);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
     $definition = $this->getScopedDefinition($form);
@@ -103,8 +93,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $entities = $this->getEntitiesToView($items, $langcode);
 
@@ -121,13 +110,10 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *
    * @param array<string, mixed> $build
    *   The build array being passed.
-   *
-   * @param-out array<string, mixed> $build
    * @param array<string, mixed> $entities
    *   The entities array.
    * @param string $langcode
-   *   The langcode.
-   */
+   *   The langcode.   .*/
   protected function buildElements(array &$build, array $entities, $langcode): void {
     foreach ($this->getElements($build, $entities, $langcode) as $element) {
       if ($element) {
@@ -149,8 +135,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *   The langcode.
    *
    * @return \Generator
-   *   The \Generator items.
-   */
+   *   The \Generator items.   */
   private function getElements(array $data, array $entities, $langcode): \Generator {
     // @todo remove the helper at/ by 3.x post migrations:
     $this->formatter->hashtag($data);
@@ -209,8 +194,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Returns available bundles.
    *
    * @return array
-   *   The available bundles.
-   */
+   *   The available bundles.   */
   protected function getAvailableBundles(): array {
     $field = $this->fieldDefinition;
     return BlazyField::getAvailableBundles($field);
@@ -227,8 +211,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *   The element delta.
    *
    * @return array
-   *   The element array.
-   */
+   *   The element array.   */
   protected function getElement(array $data, $entity, $delta): array {
     $current            = $data;
     $current['#delta']  = $delta;
@@ -261,8 +244,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *   Whether to exclude.
    *
    * @return array
-   *   The available fields as options.
-   */
+   *   The available fields as options.   */
   protected function getFieldOptions(
     array $names = [],
     $entity_type = NULL,
@@ -279,8 +261,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Returns plugin scopes to limit the features.
    *
    * @return array
-   *   The plugin scopes.
-   */
+   *   The plugin scopes.   */
   protected function getPluginScopes(): array {
     $multiple = $this->isMultiple();
     return [
@@ -303,13 +284,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The blazies instance.
-   *
-   * @param-out \Drupal\blazy\BlazySettings $blazies
    * @param array<string, mixed> $settings
-   *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
-   */
+   *   The settings being modified.   .*/
   protected function pluginSettings(&$blazies, array &$settings): void {
     $this->traitPluginSettings($blazies, $settings);
   }
@@ -321,8 +297,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *   The build array being passed.
    *
    * @return array
-   *   The element with detailed output.
-   */
+   *   The element with detailed output.   */
   protected function withElementDetail(array $build): array {
     return [];
   }
@@ -334,8 +309,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *   The build array being passed.
    *
    * @return array
-   *   The element with vanilla output.
-   */
+   *   The element with vanilla output.   */
   protected function withElementVanilla(array $build): array {
     if ($element = $this->blazyEntity->view($build)) {
       return $this->withHashtag($build, $element);
@@ -350,8 +324,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *   The build array being passed.
    *
    * @return array
-   *   The element with detailed or vanilla output.
-   */
+   *   The element with detailed or vanilla output.   */
   private function withElement(array $build): array {
     $settings = &$build['#settings'];
     $langcode = $build['#langcode'];
@@ -379,11 +352,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *
    * @param array<string, mixed> $build
    *   The build array being modified.
-   *
-   * @param-out array<string, mixed> $build
    * @param array<string, mixed> $element
-   *   The build array being passed.
-   */
+   *   The build array being passed.   .*/
   private function withOverride(array &$build, array $element): void {
     foreach (['delta', 'entity', 'settings'] as $key) {
       $default = $key == 'settings' ? [] : NULL;
@@ -419,8 +389,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *   The form array being passed.
    *
    * @return array
-   *   The form definition.
-   */
+   *   The form definition.   */
   protected function getScopedDefinition(array $form): array {
     $definition = $this->getScopedFormElements();
     $definition['_views'] = isset($form['field_api_classes']);

@@ -17,34 +17,29 @@ trait TraitAdminBase {
   /**
    * The typed config manager service.
    *
-   * @var \Drupal\Core\Config\TypedConfigManagerInterface
-   */
+   * @var \Drupal\Core\Config\TypedConfigManagerInterface   */
   protected $typedConfig;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getEntityDisplayRepository() {
     return $this->entityDisplayRepository;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getTypedConfig() {
     return $this->typedConfig;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function blazyManager() {
     return $this->blazyManager;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function isAdminCss(): bool {
     $admin_css = $this->blazyManager->config('admin_css', 'blazy.settings') ?: FALSE;
     // Disable the admin css in the off canvas menu, to avoid conflicts with
@@ -63,37 +58,32 @@ trait TraitAdminBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function isAdminLb(): bool {
     $uris = $this->getUri();
     return strpos($uris['uri'], '/layout_builder/') !== FALSE;
   }
 
   /**
-   * Provides tabs menu.
-   */
+   * Provides tabs menu.   */
   public function tabify(array &$form, $form_id, $region): void {
     Admin::tabify($form, $form_id, $region);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function themeDescription(array &$form, array $parents = []): void {
     Admin::themeDescription($form, $parents);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function toOptions(array $data): array {
     return $this->blazyManager->toOptions($data);
   }
 
   /**
-   * Returns the current request object.
-   */
+   * Returns the current request object.   */
   protected function getCurrentRequest() {
     if ($request = Path::requestStack()) {
       return $request->getCurrentRequest();
@@ -102,33 +92,28 @@ trait TraitAdminBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function buildSettingsForm(array &$form, array $definition): void {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function fieldableForm(array &$form, array $definition): void {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function imageStyleForm(array &$form, array $definition): void {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getSettingsSummary(array $definition): array {
     return [];
   }
 
   /**
-   * Returns form opening classes.
-   */
+   * Returns form opening classes.   */
   protected function getOpeningClasses($scopes): array {
     $namespace = $scopes->get('namespace', 'blazy');
     $classes = [];
@@ -162,8 +147,7 @@ trait TraitAdminBase {
   }
 
   /**
-   * Returns the admin URI.
-   */
+   * Returns the admin URI.   */
   protected function getUri(): array {
     $uri = $wrapper_format = '';
     if ($current = $this->getCurrentRequest()) {
@@ -174,8 +158,7 @@ trait TraitAdminBase {
   }
 
   /**
-   * Initialize the grid.
-   */
+   * Initialize the grid.   */
   protected function initGrid($total, $classes): array {
     $options = [
       'count'   => $total,
@@ -193,8 +176,7 @@ trait TraitAdminBase {
   }
 
   /**
-   * Returns the supported multi-breakpoint grids.
-   */
+   * Returns the supported multi-breakpoint grids.   */
   protected function isMultiBreakpoint(array $definition): bool {
     $settings = $definition['settings'] ?? [];
     if ($style = $settings['style'] ?? '') {

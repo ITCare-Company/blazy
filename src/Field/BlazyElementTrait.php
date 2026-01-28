@@ -19,15 +19,13 @@ trait BlazyElementTrait {
   /**
    * The svg manager service.
    *
-   * @var \Drupal\blazy\Media\Svg\SvgInterface
-   */
+   * @var \Drupal\blazy\Media\Svg\SvgInterface   */
   protected $svgManager;
 
   /**
    * Returns the relevant elements based on the configuration.
    *
-   * @todo remove caption for captions at 3.x.
-   */
+   * @todo remove caption for captions at 3.x.   */
   protected function toElement($blazies, array &$data, array $captions = []): array {
     $delta    = $data['#delta'] ?? 0;
     $captions = $captions ?: ($data['captions'] ?? $data['caption'] ?? []);
@@ -48,8 +46,7 @@ trait BlazyElementTrait {
   /**
    * Provides inline SVG if so-configured.
    *
-   * @todo move it into ::getBlazy() for more available data, like title, etc.
-   */
+   * @todo move it into ::getBlazy() for more available data, like title, etc.   */
   protected function viewSvg(array &$element): void {
     /** @var array<string, mixed> $settings */
     $settings = $this->formatter->toHashtag($element);
@@ -87,16 +84,14 @@ trait BlazyElementTrait {
   /**
    * Merges source with element array, excluding renderable array.
    *
-   * Since 2.17, $source is no longer accessible downtream for just $element.
-   */
+   * Since 2.17, $source is no longer accessible downtream for just $element.   */
   protected function withHashtag(array $source, array $element): array {
     $data = $this->formatter->withHashtag($source);
     return array_merge($data, $element);
   }
 
   /**
-   * Builds the item using theme_blazy(), if so-configured.
-   */
+   * Builds the item using theme_blazy(), if so-configured.   */
   private function themeBlazy(array $data, array $captions, $delta): array {
     $internal = $data;
 
@@ -132,8 +127,7 @@ trait BlazyElementTrait {
   }
 
   /**
-   * Provides relevant attributes to feed into theme_blazy().
-   */
+   * Provides relevant attributes to feed into theme_blazy().   */
   private function toBlazy(array &$data, array &$captions, $delta): array {
     // Call manager not formatter due to sub-module deviations.
     $this->manager->toBlazy($data, $captions, $delta);

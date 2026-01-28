@@ -24,8 +24,7 @@ class Css {
    *   Raw user CSS.
    *
    * @return string
-   *   Sanitized CSS safe for <style>.
-   */
+   *   Sanitized CSS safe for <style>.   */
   public static function sanitizeInline(string $css): string {
     // Normalize line endings.
     $css = str_replace("\r\n", "\n", $css);
@@ -71,8 +70,7 @@ class Css {
    *   The parent selector to scope users' input.
    *
    * @return string
-   *   The scoped CSS safe for UGC.
-   */
+   *   The scoped CSS safe for UGC.   */
   public static function scope(string $css, string $scope): string {
     return preg_replace(
       '/(^|})\s*([^@{}][^{]+)\s*{/m',

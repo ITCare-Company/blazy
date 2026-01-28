@@ -159,8 +159,7 @@
    * Blazy MagnificPopup utility functions.
    *
    * @param {HTMLElement} box
-   *   The [data-mfp-gallery] container HTML element.
-   */
+   *   The [data-mfp-gallery] container HTML element.   */
   function process(box) {
     var elms = $.findAll(box, S_TRIGGER);
     var items = build(elms);
@@ -276,8 +275,7 @@
   /**
    * Attaches blazy magnific popup behavior to HTML element.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyMagnificPopup = {
     attach: function (context) {
 

@@ -22,8 +22,7 @@ use Drupal\blazy\Theme\Attributes;
 class CheckItem {
 
   /**
-   * Provides autoplay URL for lightbox nested iframes to save another click.
-   */
+   * Provides autoplay URL for lightbox nested iframes to save another click.   */
   public static function autoplay($url, $check = TRUE): string {
     $func = function ($str, $key) {
       $format1 = '%s&%s=1';
@@ -46,8 +45,7 @@ class CheckItem {
   }
 
   /**
-   * Returns entity data.
-   */
+   * Returns entity data.   */
   public static function entity($entity, $langcode): array {
     if (!$entity instanceof EntityInterface) {
       return [];
@@ -106,8 +104,7 @@ class CheckItem {
    * normally seen at slider option name: `initialSlide` or `start`.
    *
    * Image URI might be NULL given rich media like Facebook, etc., no problem.
-   * That is why this is called twice. Once to check, another to re-check.
-   */
+   * That is why this is called twice. Once to check, another to re-check.   */
   public static function essentials(array &$settings, $item, $called = FALSE): void {
     // Define the multimedia, needed for media ALT and TITLE checks below.
     // Also VEF will convert its video_embed_field into a fake image item here.
@@ -163,8 +160,7 @@ class CheckItem {
   }
 
   /**
-   * A simple wrapper for stripos().
-   */
+   * A simple wrapper for stripos().   */
   public static function has($content, $needle): bool {
     if ($content && $needle = trim($needle ?: '')) {
       // stripos() won't work with diacritical signs.
@@ -190,8 +186,7 @@ class CheckItem {
    * - Respects `Loading: slider`, the initial is not lazyloaded, the rest are.
    *
    * @todo needs a recap to move some container-level here if they must live at
-   * individual level, such as non-blazy Image formatter within Blazy ecosystem.
-   */
+   * individual level, such as non-blazy Image formatter within Blazy ecosystem.   */
   public static function insanity(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
@@ -246,8 +241,7 @@ class CheckItem {
    * Extensions without image styles: SVG, etc.
    * APNG, animated GIF are reasonable for thumbnails conversions, though.
    *
-   * @requires CheckItem::essentials()
-   */
+   * @requires CheckItem::essentials()   */
   public static function unstyled(array &$settings, $uri): bool {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
@@ -291,8 +285,7 @@ class CheckItem {
    *
    * @todo remove $type, a legacy VEF period, which knew no bundles, or sources.
    * @todo recheck BlazyFilter multimedia after moving some into BlazyMedia.
-   * @todo remove $settings['type'], only after BVEF synced/ updated, or at 3.x.
-   */
+   * @todo remove $settings['type'], only after BVEF synced/ updated, or at 3.x.   */
   private static function multimedia(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies   = $settings['blazies'];

@@ -14,28 +14,23 @@ use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInterface {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemId = 'box';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $captionId = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getClasses(array $settings): array {
     if ($classes = $settings['classes'] ?? '') {
       $classes = array_map(
@@ -48,8 +43,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getKeys(array $elements): array {
     return array_keys(
       array_filter(
@@ -61,8 +55,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getRegions($count = NULL): array {
     $regions = [];
     $count = $count ?: Defaults::REGION_COUNT;
@@ -81,8 +74,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function layoutSettings(array $settings, $count): array {
     $settings['blazy_layout'] = TRUE;
     $settings['ete'] = FALSE;
@@ -146,8 +138,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function parseClasses(array &$output, array $settings): void {
     if ($classes = $this->getClasses($settings)) {
       foreach ($classes as $class) {
@@ -157,8 +148,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function selector($key, $region, array $options = []): string {
     $empty    = $options['empty'] ?? FALSE;
     $block_bg = $options['block_bg'] ?? FALSE;
@@ -211,8 +201,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function toRules(array $data, array $options): string {
     $id = $options['id'] ?? '';
     $custom_css = $options['custom_css'] ?? '';
@@ -267,8 +256,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getMediaLibraries(): array {
     $libraries = [];
     $admin_theme = $this->config('admin', 'system.theme');
@@ -293,8 +281,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function semantic(array &$settings): void {
     if (!empty($settings['semantic_layout'])) {
       $settings['wrapper'] = 'ul';

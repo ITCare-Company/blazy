@@ -14,8 +14,7 @@ class BlazySkin extends Plugin {
   /**
    * The plugin ID.
    *
-   * @var string
-   */
+   * @var string   */
   public $id;
 
   /**
@@ -23,8 +22,7 @@ class BlazySkin extends Plugin {
    *
    * @var \Drupal\Core\Annotation\Translation
    *
-   * @ingroup plugin_translatable
-   */
+   * @ingroup plugin_translatable   */
   public $label;
 
 }

@@ -23,8 +23,7 @@ trait PluginScopesTrait {
    *   The scopes being passed.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings instance.
-   */
+   *   The BlazySettings instance.   */
   protected function toPluginScopes(array $scopes = []): BlazySettings {
     $current = [];
     $definitions = [];
@@ -100,8 +99,7 @@ trait PluginScopesTrait {
    * @param array<string, mixed> $settings
    *   The settings being modified.
    *
-   * @param-out array<string, mixed> $settings
-   */
+   * @param-out array<string, mixed> $settings   */
   protected function pluginSettings(&$blazies, array &$settings): void {
     if ($settings['namespace'] == 'blazy') {
       $id = 'blazy';

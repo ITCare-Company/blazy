@@ -18,16 +18,14 @@ interface SvgInterface extends BlazyFileInterface {
    *   Availables options: sanitize, sanitize_remote.
    *
    * @return string
-   *   File content, or empty string if not applicable.
-   */
+   *   File content, or empty string if not applicable.   */
   public function sanitize($uri, array $options = []): ?string;
 
   /**
    * Returns the Sanitizer instance.
    *
    * @return object|null
-   *   The Sanitizer instance if installed, else NULL.
-   */
+   *   The Sanitizer instance if installed, else NULL.   */
   public function sanitizer(): ?object;
 
   /**
@@ -64,8 +62,7 @@ interface SvgInterface extends BlazyFileInterface {
    * @todo use Symfony Process with Timer.
    * @see https://imagemagick.org/Usage/color_basics/#fuzz_distance
    * @see https://imagemagick.org/script/formats.php
-   * @see https://stackoverflow.com/questions/11285397
-   */
+   * @see https://stackoverflow.com/questions/11285397   */
   public function transparentize(
     $uri,
     $destination,
@@ -82,8 +79,7 @@ interface SvgInterface extends BlazyFileInterface {
    *   Availables options: sanitize, sanitize_remote.
    *
    * @return string
-   *   The SVG markup, or empty string if not applicable.
-   */
+   *   The SVG markup, or empty string if not applicable.   */
   public function view($uri, array $options = []): ?string;
 
   /**
@@ -98,8 +94,7 @@ interface SvgInterface extends BlazyFileInterface {
    *   The options for conversion.
    *
    * @return string
-   *   The SVG markup.
-   */
+   *   The SVG markup.   */
   public function vectorize($url, array $options = []): string;
 
 }

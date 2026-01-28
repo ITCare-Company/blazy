@@ -18,8 +18,7 @@ use Drupal\blazy\BlazyDefault;
 abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function defaultSettings() {
     return BlazyDefault::extendedSettings()
       + BlazyDefault::gridSettings()
@@ -27,8 +26,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getScopedDefinition(array $form): array {
     $definition   = parent::getScopedDefinition($form);
     $existings    = $definition['additional_descriptions'] ?? [];
@@ -50,8 +48,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   /**
    * {@inheritdoc}
    *
-   * This method is used but not called by sub-modules. Not used by blazy.
-   */
+   * This method is used but not called by sub-modules. Not used by blazy.   */
   protected function withElementExtra(array &$element): void {
     parent::withElementExtra($element);
 
@@ -81,8 +78,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   }
 
   /**
-   * Builds the captions.
-   */
+   * Builds the captions.   */
   protected function getCaptions(array $element): array {
     $captions = parent::getCaptions($element);
 
@@ -103,8 +99,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getPluginScopes(): array {
     $parent   = parent::getPluginScopes();
     $_strings = ['text', 'string', 'list_string'];

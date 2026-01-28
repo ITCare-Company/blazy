@@ -13,8 +13,7 @@ use Drupal\views\ResultRow;
 class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function render(ResultRow $values) {
     /** @var \Drupal\media\Entity\Media $entity */
     // @todo recheck relationship and remove this $entity = $values->_entity;
@@ -57,8 +56,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getPluginScopes(): array {
     return [
       'multimedia' => TRUE,

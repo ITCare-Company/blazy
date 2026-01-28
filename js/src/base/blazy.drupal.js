@@ -31,8 +31,7 @@
   /**
    * Blazy public properties and methods.
    *
-   * @namespace
-   */
+   * @namespace   */
   Drupal.blazy = {
     context: _doc,
     name: NAME,

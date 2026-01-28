@@ -14,8 +14,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 class BlazyImageFormatter extends BlazyFormatterBlazy {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $byDelta = TRUE;
 
 }

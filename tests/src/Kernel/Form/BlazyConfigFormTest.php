@@ -26,29 +26,25 @@ use Drupal\blazy_ui\Form\BlazyConfigForm;
 class BlazyConfigFormTest extends KernelTestBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected $defaultTheme = 'stark';
 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
+   * @var \Drupal\blazy\BlazyManagerInterface   */
   protected $blazyManager;
 
   /**
    * The Blazy form object under test.
    *
-   * @var \Drupal\blazy_ui\Form\BlazyConfigForm
-   */
+   * @var \Drupal\blazy_ui\Form\BlazyConfigForm   */
   protected $blazySettingsForm;
 
   /**
    * {@inheritdoc}
    *
-   * @var array<string>
-   */
+   * @var array<string>   */
   protected static $modules = [
     'system',
     'file',
@@ -59,8 +55,7 @@ class BlazyConfigFormTest extends KernelTestBase {
   ];
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -74,8 +69,7 @@ class BlazyConfigFormTest extends KernelTestBase {
   }
 
   /**
-   * Tests for \Drupal\blazy_ui\Form\BlazyConfigForm.
-   */
+   * Tests for \Drupal\blazy_ui\Form\BlazyConfigForm.   */
   public function testBlazyConfigForm() {
     $nojs = BlazyDefault::nojs();
     // Emulate a form state of a submitted form.

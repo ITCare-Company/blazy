@@ -18,20 +18,17 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
   /**
    * The blazy media service.
    *
-   * @var \Drupal\blazy\Media\BlazyMediaInterface
-   */
+   * @var \Drupal\blazy\Media\BlazyMediaInterface   */
   protected $mediaManager;
 
   /**
    * The svg manager service.
    *
-   * @var \Drupal\blazy\Media\Svg\SvgInterface
-   */
+   * @var \Drupal\blazy\Media\Svg\SvgInterface   */
   protected $svgManager;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -57,8 +54,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *   The field image.
    *
    * @return array
-   *   The doable flag and item object.
-   */
+   *   The doable flag and item object.   */
   protected function getImageArray($row, $index, $field_image): array {
     if ($image = $this->getFieldRenderable($row, $index, $field_image)) {
 
@@ -85,8 +81,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *   The stored image.
    *
    * @return object|null
-   *   The image item or NULL.
-   */
+   *   The image item or NULL.   */
   protected function getImageItem(array $image): ?object {
     $item = NULL;
 
@@ -118,8 +113,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *   The Views index.
    *
    * @return array
-   *   The renderable array.
-   */
+   *   The renderable array.   */
   protected function getImageRenderable(array &$settings, $row, $index): array {
     $_image = $settings['image'] ?? NULL;
     if (!$_image) {
@@ -193,8 +187,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    * @return array
    *   The doable flag and item object.
    *
-   * @todo remove the new param default NULL at/ by 3.x after sub-modules.
-   */
+   * @todo remove the new param default NULL at/ by 3.x after sub-modules.   */
   protected function getThumbnail(array &$sets, $row, $index, $field_caption = NULL): array {
     $name = $sets['thumbnail'] ?? NULL;
 
@@ -237,8 +230,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    * @param array<string, mixed> $rendered
    *   The contextual rendered.
    * @param int $index
-   *   The views row index.
-   */
+   *   The views row index.   .*/
   protected function withBlazyFormatter(array &$settings, array $rendered, $index): void {
     // Pass Blazy field formatter settings into Views style plugin.
     // This allows richer contents such as multimedia/ lightbox for free.
@@ -290,8 +282,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    * @param array<string, mixed> $rendered
    *   The contextual rendered.
    * @param int $index
-   *   The views row index.
-   */
+   *   The views row index.   .*/
   protected function withImageFormatter(array &$settings, array $rendered, $index): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -336,8 +327,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *   The views row index.
    *
    * @return array
-   *   The doable flag and item object.
-   */
+   *   The doable flag and item object.   */
   private function getWorkableThumbnail(array &$sets, $row, $name, $index): array {
     if (!$name) {
       return ['doable' => FALSE, 'item' => NULL];

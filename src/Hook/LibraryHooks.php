@@ -15,13 +15,11 @@ class LibraryHooks {
   /**
    * The blazy library info.
    *
-   * @var array|null
-   */
+   * @var array|null   */
   protected static $libraryInfoBuild;
 
   /**
-   * Implements hook_library_info_alter().
-   */
+   * Implements hook_library_info_alter().   */
   public static function libraryInfoAlter(&$libraries, $extension): void {
     if (!self::isAlterable($libraries, $extension)) {
       return;
@@ -85,8 +83,7 @@ class LibraryHooks {
   }
 
   /**
-   * Implements hook_library_info_build().
-   */
+   * Implements hook_library_info_build().   */
   public static function libraryInfoBuild() {
     if (!isset(static::$libraryInfoBuild)) {
       $libraries = [];
@@ -143,8 +140,7 @@ class LibraryHooks {
   }
 
   /**
-   * Checks if we need to alter the library.
-   */
+   * Checks if we need to alter the library.   */
   private static function isAlterable(array &$libraries, $extension): bool {
     $core = $extension === 'core' && isset($libraries['drupal.debounce']);
     $check = in_array($extension, [

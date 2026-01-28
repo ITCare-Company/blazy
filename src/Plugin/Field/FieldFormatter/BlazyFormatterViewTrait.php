@@ -18,8 +18,7 @@ trait BlazyFormatterViewTrait {
   use BlazyFormatterViewBaseTrait;
 
   /**
-   * Returns similar view elements across sub-modules.
-   */
+   * Returns similar view elements across sub-modules.   */
   protected function commonViewElements(
     FieldItemListInterface $items,
     $langcode,

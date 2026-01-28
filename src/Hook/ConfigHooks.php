@@ -12,8 +12,7 @@ use Drupal\blazy\Internals\Internals;
 class ConfigHooks {
 
   /**
-   * Implements hook_config_schema_info_alter().
-   */
+   * Implements hook_config_schema_info_alter().   */
   public static function configSchemaInfoAlter(array &$definitions): void {
     // @todo use BlazyManager DI.
     Internals::configSchemaInfoAlter($definitions, 'blazy_base');

@@ -17,8 +17,7 @@ class BlazyManagerBaseUnitTest extends UnitTestCase {
   use BlazyManagerUnitTestTrait;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -26,8 +25,7 @@ class BlazyManagerBaseUnitTest extends UnitTestCase {
   }
 
   /**
-   * Test Blazy manager constructor.
-   */
+   * Test Blazy manager constructor.   */
   public function testBlazyManagerCreate() {
     $container = $this->createMock(ContainerInterface::class);
     $exception = ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE;

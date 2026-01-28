@@ -8,8 +8,7 @@ namespace Drupal\blazy\Utility;
 class Animation {
 
   /**
-   * Returns animations options.
-   */
+   * Returns animations options.   */
   public static function animations() {
     return [
       'bounce',

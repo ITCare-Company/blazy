@@ -15,16 +15,14 @@ interface BlazyMediaInterface {
    * Returns the http client service.
    *
    * @return \GuzzleHttp\Client
-   *   The http client.
-   */
+   *   The http client.   */
   public function httpClient(): Client;
 
   /**
    * Returns the blazy manager service.
    *
    * @return \Drupal\blazy\BlazyManagerInterface
-   *   The blazy manager.
-   */
+   *   The blazy manager.   */
   public function manager(): BlazyManagerInterface;
 
   /**
@@ -36,8 +34,7 @@ interface BlazyMediaInterface {
    *     - #settings array.
    *
    * @return array
-   *   The renderable array of the media field, or empty if not applicable.
-   */
+   *   The renderable array of the media field, or empty if not applicable.   */
   public function build(array $data): array;
 
   /**
@@ -53,8 +50,7 @@ interface BlazyMediaInterface {
    *     - #settings array.
    *
    * @return array
-   *   The renderable array of the media field, or empty if not applicable.
-   */
+   *   The renderable array of the media field, or empty if not applicable.   */
   public function view(array $build): array;
 
   /**
@@ -69,8 +65,7 @@ interface BlazyMediaInterface {
    *     - #settings array.
    *
    * @return object
-   *   The media, or NULL if not applicable.
-   */
+   *   The media, or NULL if not applicable.   */
   public function fromFile(array $data): ?object;
 
   /**
@@ -81,8 +76,7 @@ interface BlazyMediaInterface {
    * @param string $field_name
    *   The field_name to query by.
    * @param array|string $values
-   *   The optional values of field_name.
-   */
+   *   The optional values of field_name.   .*/
   public function fromField($entity, $field_name, $values = NULL): ?object;
 
   /**
@@ -96,8 +90,7 @@ interface BlazyMediaInterface {
    *   The langcode.
    *
    * @return array
-   *   The media info containing metadata and translated entity.
-   */
+   *   The media info containing metadata and translated entity.   */
   public function getMetadata(MediaInterface $media, $view_mode, $langcode): array;
 
   /**
@@ -112,8 +105,7 @@ interface BlazyMediaInterface {
    *   The file entity.
    *
    * @return string
-   *   The media source, limited to some known.
-   */
+   *   The media source, limited to some known.   */
   public function getSource($file): ?string;
 
   /**
@@ -126,11 +118,8 @@ interface BlazyMediaInterface {
    * @param array<string, mixed> $settings
    *   The settings being modified.
    *
-   * @param-out array<string, mixed> $settings
-   *
    * @return bool
-   *   Returns TRUE if iframeable with some modified settings.
-   */
+   *   Returns TRUE if iframeable with some modified settings.   */
   public function iframeable(array &$item, array &$settings): bool;
 
   /**
@@ -139,8 +128,7 @@ interface BlazyMediaInterface {
    * @param array $data
    *   The array containing:
    *     - #entity the Media entity.
-   *     - #settings array, etc.
-   */
+   *     - #settings array, etc.   .*/
   public function prepare(array &$data): MediaInterface;
 
   /**
@@ -154,8 +142,7 @@ interface BlazyMediaInterface {
    *   The optional parameters, normally just autoplay.
    *
    * @return string
-   *   The media oembed url.
-   */
+   *   The media oembed url.   */
   public function toEmbedUrl($input, $iframe_domain, array $parameters = []): string;
 
 }

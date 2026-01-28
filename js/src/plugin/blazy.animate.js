@@ -38,8 +38,7 @@
    *   Any custom animation name, fallbacks to [data-animation], or a callback.
    *
    * @return {Object}
-   *   This dBlazy object.
-   */
+   *   This dBlazy object.   */
   function animate(els, cb) {
     var me = this;
 

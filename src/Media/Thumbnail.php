@@ -24,8 +24,7 @@ class Thumbnail {
    *   - Captions can already be merged as part of theme_blazy().
    *   - Adding caption fields, such as File description, are easier to update
    *     than walking through each sub-modules due to their hard-coded natures.
-   *   - Shortly, economy maintenance.
-   */
+   *   - Shortly, economy maintenance.   */
   public static function view(array $settings, $item = NULL, array $captions = []): array {
     $blazies       = Internals::verify($settings);
     $prefix        = $blazies->get('item.prefix', 'slide');
@@ -57,8 +56,7 @@ class Thumbnail {
    *
    * Given SVG and co, data URI, UGC, even thumbnails are no longer peaceful.
    *
-   * @see https://www.drupal.org/node/2489544
-   */
+   * @see https://www.drupal.org/node/2489544   */
   private static function image(array $settings, $item = NULL, $class = NULL): array {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -89,8 +87,7 @@ class Thumbnail {
     CheckItem::unstyled($settings, $uri);
 
     // @todo figure out for phpstan.
-    $settings = is_array($settings) ? $settings : [];
-
+    // $settings = is_array($settings) ? $settings : [];.
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 

@@ -13,8 +13,7 @@ interface SkinPluginInterface extends ContainerFactoryPluginInterface {
    * Returns the plugin label.
    *
    * @return string
-   *   The plugin label.
-   */
+   *   The plugin label.   */
   public function label();
 
   /**
@@ -40,8 +39,7 @@ interface SkinPluginInterface extends ContainerFactoryPluginInterface {
    * - provider: A module name registering the skins.
    *
    * @return array
-   *   The array of the main and thumbnail skins.
-   */
+   *   The array of the main and thumbnail skins.   */
   public function skins();
 
 }

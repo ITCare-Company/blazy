@@ -18,57 +18,49 @@ trait BlazyFormatterTrait {
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyFormatterInterface
-   */
+   * @var \Drupal\blazy\BlazyFormatterInterface   */
   protected $formatter;
 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
+   * @var \Drupal\blazy\BlazyManagerInterface   */
   protected $blazyManager;
 
   /**
    * The blazy-related manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
+   * @var \Drupal\blazy\BlazyManagerInterface   */
   protected $manager;
 
   /**
    * The logger factory.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
-   */
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface   */
   protected $loggerFactory;
 
   /**
    * The blazy entity service.
    *
-   * @var \Drupal\blazy\BlazyEntityInterface
-   */
+   * @var \Drupal\blazy\BlazyEntityInterface   */
   protected $blazyEntity;
 
   /**
    * The blazy oembed service.
    *
-   * @var \Drupal\blazy\Media\BlazyOEmbedInterface
-   */
+   * @var \Drupal\blazy\Media\BlazyOEmbedInterface   */
   protected $blazyOembed;
 
   /**
    * The blazy media service.
    *
-   * @var \Drupal\blazy\Media\BlazyMediaInterface
-   */
+   * @var \Drupal\blazy\Media\BlazyMediaInterface   */
   protected $blazyMedia;
 
   /**
    * Returns the blazy formatter manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
-   */
+   * @todo remove at 3.x, hardly called outside the formatters, except tests.   */
   public function formatter() {
     return $this->formatter;
   }
@@ -76,8 +68,7 @@ trait BlazyFormatterTrait {
   /**
    * Returns the blazy manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
-   */
+   * @todo remove at 3.x, hardly called outside the formatters, except tests.   */
   public function blazyManager() {
     return $this->blazyManager;
   }
@@ -85,8 +76,7 @@ trait BlazyFormatterTrait {
   /**
    * Returns any blazy-related manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
-   */
+   * @todo remove at 3.x, hardly called outside the formatters, except tests.   */
   public function manager() {
     return $this->manager;
   }
@@ -94,8 +84,7 @@ trait BlazyFormatterTrait {
   /**
    * Returns the blazy entity manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
-   */
+   * @todo remove at 3.x, hardly called outside the formatters, except tests.   */
   public function blazyEntity() {
     return $this->blazyEntity;
   }
@@ -103,29 +92,25 @@ trait BlazyFormatterTrait {
   /**
    * Returns the blazy oembed manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
-   */
+   * @todo remove at 3.x, hardly called outside the formatters, except tests.   */
   public function blazyOembed() {
     return $this->blazyOembed;
   }
 
   /**
-   * Returns the blazy admin service.
-   */
+   * Returns the blazy admin service.   */
   public function admin() {
     return $this->formatter->service('blazy.admin.formatter');
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function settingsSummary() {
     return $this->admin()->getSettingsSummary($this->getScopedFormElements());
   }
 
   /**
-   * Builds the settings.
-   */
+   * Builds the settings.   */
   public function buildSettings() {
     /** @var array<string, mixed> $settings */
     $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
@@ -153,8 +138,7 @@ trait BlazyFormatterTrait {
   /**
    * Defines the scope for the form elements.
    *
-   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
-   */
+   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().   */
   public function getScopedFormElements() {
     // Containing settings, blazies which must be intact, and the rest, which
     // can be removed after migrations, are merged into scopes object.
@@ -172,8 +156,7 @@ trait BlazyFormatterTrait {
   }
 
   /**
-   * Injects DI services.
-   */
+   * Injects DI services.   */
   protected static function injectServices($instance, ContainerInterface $container, $type = '') {
     // Blazy has sequential inheritance, its sub-modules deviate.
     $instance->formatter = $instance->blazyManager = $instance->manager = $container->get('blazy.formatter');
@@ -190,8 +173,7 @@ trait BlazyFormatterTrait {
   }
 
   /**
-   * Defines the common scope for both front and admin.
-   */
+   * Defines the common scope for both front and admin.   */
   protected function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
     $settings = [
@@ -211,16 +193,14 @@ trait BlazyFormatterTrait {
   }
 
   /**
-   * Defines the common scope for the form elements.
-   */
+   * Defines the common scope for the form elements.   */
   protected function getCommonScopedFormElements() {
     return ['settings' => $this->getSettings()]
       + $this->getCommonFieldDefinition();
   }
 
   /**
-   * Returns Views delta_limit option.
-   */
+   * Returns Views delta_limit option.   */
   protected function getViewLimit(array $settings): int {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -231,8 +211,7 @@ trait BlazyFormatterTrait {
    * Returns TRUE if a multi-value field.
    *
    * @return bool
-   *   TRUE if a multivalue field, else FALSE.
-   */
+   *   TRUE if a multivalue field, else FALSE.   */
   protected function isMultiple(): bool {
     return $this->fieldDefinition
       ->getFieldStorageDefinition()
@@ -240,15 +219,13 @@ trait BlazyFormatterTrait {
   }
 
   /**
-   * Alias for BlazyField::getString().
-   */
+   * Alias for BlazyField::getString().   */
   protected function getString($entity, $field_name, $langcode, $clean = TRUE): string {
     return BlazyField::getString($entity, $field_name, $langcode, $clean);
   }
 
   /**
-   * Alias for BlazyField::view().
-   */
+   * Alias for BlazyField::view().   */
   protected function viewField($entity, $field_name, $view_mode, $multiple = TRUE): array {
     return BlazyField::view($entity, $field_name, $view_mode, $multiple);
   }

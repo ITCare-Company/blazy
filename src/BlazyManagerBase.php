@@ -14,8 +14,7 @@ use Drupal\blazy\Utility\Path;
 abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInterface {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function attach(array $attach = []): array {
     $load = $this->libraries->attach($attach);
 
@@ -36,22 +35,19 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function containerAttributes(array &$attributes, array $settings): void {
     Blazy::containerAttributes($attributes, $settings);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getIoSettings(array $attach = []): object {
     return $this->libraries->getIoSettings($attach);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getImageEffects(): array {
     $cid = 'blazy_image_effects';
     $effects[] = 'blur';
@@ -59,8 +55,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function imageStyles(array &$settings, $multiple = FALSE, array $styles = []): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -79,8 +74,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getLightboxes(): array {
     $cid  = 'blazy_lightboxes';
     $data = $this->libraries->getLightboxes();
@@ -89,8 +83,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getStyles(): array {
     $styles = [
       'column' => 'CSS3 Columns',
@@ -104,15 +97,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getThumbnail(array $settings, $item = NULL, array $captions = []): array {
     return Thumbnail::view($settings, $item, $captions);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function isBlazy(array &$settings, array $data = []): void {
     $original = $data;
     Check::blazyOrNot($settings, $data);
@@ -124,8 +115,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function preBlazy(array &$build, $item = NULL): BlazySettings {
     // @todo remove $this->hashtag($build);.
     $settings = &$build['#settings'];
@@ -156,8 +146,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function postBlazy(array &$build, array $blazy): void {
     $item_build = $blazy['#build'] ?? [];
 
@@ -168,15 +157,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function prepareData(array &$build): void {
     // Do nothing, let extenders share data at ease as needed.
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function preSettings(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $this->verifySafely($settings);
@@ -240,8 +227,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function postSettings(array &$settings): void {
     Internals::postSettings($settings);
 
@@ -250,15 +236,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * Overrides data massaged by [blazy|slick|splide, etc.]_settings_alter().
-   */
+   * Overrides data massaged by [blazy|slick|splide, etc.]_settings_alter().   */
   public function postSettingsAlter(array &$settings, $entity = NULL): void {
     Check::settingsAlter($settings, $entity);
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function thirdPartyFormatters(): array {
     $formatters = ['file_audio', 'file_video'];
     $this->moduleHandler->alter('blazy_third_party_formatters', $formatters);
@@ -266,15 +250,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function toBlazy(array &$data, array &$captions, $delta): void {
     // Do nothing for sub-modules to use.
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function setAttachments(
     array &$element,
     array $settings,
@@ -291,8 +273,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function filterCleanup($module = 'blazy'): void {
     $config_storage = $this->service('config.storage');
     if (!$config_storage) {
@@ -333,15 +314,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   /**
    * Provides data to be consumed by Blazy::preSettings().
    *
-   * Such as to provide lazy attribute and class for Slick or Splide, etc.
-   */
+   * Such as to provide lazy attribute and class for Slick or Splide, etc.   */
   protected function preSettingsData(array &$settings): void {
     // Do nothing, let extenders input data at ease as needed.
   }
 
   /**
-   * Overrides data massaged by Blazy::postSettings().
-   */
+   * Overrides data massaged by Blazy::postSettings().   */
   protected function postSettingsData(array &$settings): void {
     // Do nothing, let extenders override data at ease as needed.
   }

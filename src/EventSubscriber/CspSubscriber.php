@@ -16,23 +16,20 @@ class CspSubscriber implements EventSubscriberInterface {
   /**
    * The Library Dependency Resolver service.
    *
-   * @var \Drupal\Core\Asset\LibraryDependencyResolverInterface
-   */
+   * @var \Drupal\Core\Asset\LibraryDependencyResolverInterface   */
   private $libraryDependencyResolver;
 
   /**
    * CspSubscriber constructor.
    *
    * @param \Drupal\Core\Asset\LibraryDependencyResolverInterface $libraryDependencyResolver
-   *   The Library Dependency Resolver Service.
-   */
+   *   The Library Dependency Resolver Service.   .*/
   public function __construct(LibraryDependencyResolverInterface $libraryDependencyResolver) {
     $this->libraryDependencyResolver = $libraryDependencyResolver;
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function getSubscribedEvents(): array {
     $events = [];
 
@@ -48,8 +45,7 @@ class CspSubscriber implements EventSubscriberInterface {
    * @param \Drupal\csp\Event\PolicyAlterEvent $alterEvent
    *   The Policy Alter event.
    *
-   * @phpstan-ignore-next-line
-   */
+   * @phpstan-ignore-next-line   */
   public function onCspPolicyAlter(PolicyAlterEvent $alterEvent) : void {
     /* @phpstan-ignore-next-line */
     $policy = $alterEvent->getPolicy();

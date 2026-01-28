@@ -20,8 +20,7 @@ namespace Drupal\Tests\blazy\FunctionalJavascript;
 class BlazyNativeJavaScriptTest extends BlazyJavaScriptTestBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -33,8 +32,7 @@ class BlazyNativeJavaScriptTest extends BlazyJavaScriptTestBase {
   }
 
   /**
-   * Test the Blazy element from loading to loaded states.
-   */
+   * Test the Blazy element from loading to loaded states.   */
   public function testFormatterDisplay() {
     $settings = $data = [];
     $settings['ratio'] = '';

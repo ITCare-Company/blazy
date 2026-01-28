@@ -15,13 +15,11 @@ class BlazyDefault {
   /**
    * Defines default constants for the supported fixed aspect ratios.
    *
-   * These are related to convention in css/blazy.ratio.css.
-   */
+   * These are related to convention in css/blazy.ratio.css.   */
   const RATIO = ['1:1', '3:2', '4:3', '8:5', '9:16', '16:9', '16:10', '21:9'];
 
   /**
-   * Defines constant for the supported text tags.
-   */
+   * Defines constant for the supported text tags.   */
   const TAGS = [
     'a',
     'em',
@@ -39,8 +37,7 @@ class BlazyDefault {
   /**
    * Defines constant for the supported media tags.
    *
-   * @todo recheck if OEmbed has <iframe>, <embed>, <object>, <track>, etc.
-   */
+   * @todo recheck if OEmbed has <iframe>, <embed>, <object>, <track>, etc.   */
   const MEDIA_TAGS = [
     'audio',
     'div',
@@ -56,18 +53,14 @@ class BlazyDefault {
   /**
    * Provides the object ID to initialize BlazySettings. slicks, masons, etc.
    *
-   * @var string|null
-   */
+   * @var string|null   */
   protected static $id = NULL;
 
   /**
    * Returns alterable plugin settings to pass the tests.
    *
    * @param array<string, mixed> $settings
-   *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
-   */
+   *   The settings being modified.   .*/
   public static function alterableSettings(array &$settings) {
     $context = ['class' => get_called_class()];
     if ($manager = Internals::blazy()) {
@@ -76,8 +69,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns basic plugin settings.
-   */
+   * Returns basic plugin settings.   */
   public static function baseSettings() {
     $settings = ['cache' => 0, 'admin_uri' => '', 'use_lb' => FALSE];
 
@@ -86,8 +78,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns cherry-picked settings for field formatters and Views fields.
-   */
+   * Returns cherry-picked settings for field formatters and Views fields.   */
   public static function cherrySettings() {
     return [
       'background'      => FALSE,
@@ -100,8 +91,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns image-related field formatter and Views settings.
-   */
+   * Returns image-related field formatter and Views settings.   */
   public static function baseImageSettings() {
     return [
       'background'             => FALSE,
@@ -118,8 +108,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns image-related field formatter and Views settings.
-   */
+   * Returns image-related field formatter and Views settings.   */
   public static function imageSettings() {
     return [
       'by_delta'  => -1,
@@ -131,8 +120,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns svg-related field formatter settings.
-   */
+   * Returns svg-related field formatter settings.   */
   public static function svgSettings() {
     return [
       'svg_inline' => FALSE,
@@ -145,8 +133,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns media-related field formatter settings.
-   */
+   * Returns media-related field formatter settings.   */
   public static function mediaSettings() {
     return [
       'link' => '',
@@ -154,8 +141,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns non-prefixed svg-related options.
-   */
+   * Returns non-prefixed svg-related options.   */
   public static function toSvgOptions(array $settings) {
     $options = [];
     foreach (array_keys(self::svgSettings()) as $key) {
@@ -168,8 +154,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns Views specific settings.
-   */
+   * Returns Views specific settings.   */
   public static function viewsSettings() {
     return [
       'class'   => '',
@@ -182,15 +167,13 @@ class BlazyDefault {
   }
 
   /**
-   * Returns fieldable entity formatter and Views settings.
-   */
+   * Returns fieldable entity formatter and Views settings.   */
   public static function extendedSettings() {
     return self::viewsSettings() + self::imageSettings();
   }
 
   /**
-   * Returns optional grid field formatter and Views settings.
-   */
+   * Returns optional grid field formatter and Views settings.   */
   public static function gridSettings() {
     return [
       'grid'        => '',
@@ -201,8 +184,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns sensible default options common for OEmbed within views.
-   */
+   * Returns sensible default options common for OEmbed within views.   */
   public static function mediaDefaults() {
     return [
       'media_switch' => 'media',
@@ -212,8 +194,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns sensible default options common for Views lacking of UI.
-   */
+   * Returns sensible default options common for Views lacking of UI.   */
   public static function lazySettings() {
     return [
       'blazy' => TRUE,
@@ -222,8 +203,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns sensible default options common for entities lacking of UI.
-   */
+   * Returns sensible default options common for entities lacking of UI.   */
   public static function entitySettings() {
     return [
       'rendered'     => FALSE,
@@ -234,8 +214,7 @@ class BlazyDefault {
   /**
    * Returns default options common for rich Media entities: Facebook, etc.
    *
-   * This basically disables few Blazy features for rendered-entity-like.
-   */
+   * This basically disables few Blazy features for rendered-entity-like.   */
   public static function richSettings() {
     return [
       'background'   => FALSE,
@@ -244,22 +223,19 @@ class BlazyDefault {
   }
 
   /**
-   * Returns minimum grid and style settings.
-   */
+   * Returns minimum grid and style settings.   */
   public static function gridEntitySettings() {
     return self::gridSettings() + ['view_mode' => ''];
   }
 
   /**
-   * Returns common image properties.
-   */
+   * Returns common image properties.   */
   public static function imageProperties() {
     return ['uri', 'width', 'height', 'target_id', 'alt', 'title', 'entity'];
   }
 
   /**
-   * Returns common image styles.
-   */
+   * Returns common image styles.   */
   public static function imageStyles() {
     return ['box', 'box_media', 'image', 'thumbnail'];
   }
@@ -267,8 +243,7 @@ class BlazyDefault {
   /**
    * Returns common media bundles with hi-res image posters.
    *
-   * @todo adjust if anything better than unreliable bundles.
-   */
+   * @todo adjust if anything better than unreliable bundles.   */
   public static function imagePosters() {
     return [
       'audio',
@@ -287,8 +262,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns shared global form settings which should be consumed at formatters.
-   */
+   * Returns shared global form settings which should be consumed at formatters.   */
   public static function uiSettings() {
     return [
       'blur_client'         => FALSE,
@@ -314,8 +288,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns sensible default container settings to shutup notices when lacking.
-   */
+   * Returns sensible default container settings to shutup notices when lacking.   */
   public static function htmlSettings() {
     return [
       'blazies' => self::toSettings(self::blazies()),
@@ -339,8 +312,7 @@ class BlazyDefault {
    * The first error was identified with BVEF due to being out of sync when
    * given an extra property `entity` as seen at BlazyEntity::build().
    * No issues so far with all these, yet conversions will eliminate any.
-   * Initial effort was via Blazy::toHashtag() checkpoint till full migration.
-   */
+   * Initial effort was via Blazy::toHashtag() checkpoint till full migration.   */
   public static function themeProperties() {
     return [
       'captions' => [],
@@ -352,8 +324,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns optional extra content variables other than the basic above.
-   */
+   * Returns optional extra content variables other than the basic above.   */
   public static function themeContents() {
     return [
       'content' => [],
@@ -368,8 +339,7 @@ class BlazyDefault {
    * Returns non-renderable blazy theme properties to avoid render errors.
    *
    * No issues when all these were passed into theme_blazy() since 1.x, except
-   * when they enter theme_item_list() or theme_field() as a leak or by mistake.
-   */
+   * when they enter theme_item_list() or theme_field() as a leak or by mistake.   */
   public static function hashedProperties() {
     return [
       'attributes' => [],
@@ -386,8 +356,7 @@ class BlazyDefault {
    *
    * The attributes mentioned here are only instantiated at theme_blazy() and
    * might be an empty array, not instanceof \Drupal\Core\Template\Attribute.
-   * All will be suffixed with "_attributes", e.g.: caption_attributes, etc.
-   */
+   * All will be suffixed with "_attributes", e.g.: caption_attributes, etc.   */
   public static function themeAttributes() {
     return [
       'caption',
@@ -400,8 +369,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns available components.
-   */
+   * Returns available components.   */
   public static function components(): array {
     $components = array_merge(self::grids(), [
       'animate',
@@ -418,8 +386,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns available dynamic components, not registered in libraries.yml.
-   */
+   * Returns available dynamic components, not registered in libraries.yml.   */
   public static function dyComponents(): array {
     $deps   = ['blazy/compat'];
     $common = ['minified' => TRUE, 'weight' => -1.8];
@@ -436,8 +403,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns available grid components.
-   */
+   * Returns available grid components.   */
   public static function grids(): array {
     return [
       'column',
@@ -450,8 +416,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns available plugins.
-   */
+   * Returns available plugins.   */
   public static function plugins(): array {
     return [
       'eventify',
@@ -466,8 +431,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns available nojs components related to core Blazy functionality.
-   */
+   * Returns available nojs components related to core Blazy functionality.   */
   public static function polyfills(): array {
     return [
       'polyfill',
@@ -479,15 +443,13 @@ class BlazyDefault {
   }
 
   /**
-   * Returns available nojs components related to core Blazy functionality.
-   */
+   * Returns available nojs components related to core Blazy functionality.   */
   public static function nojs(): array {
     return array_merge(['lazy'], self::polyfills());
   }
 
   /**
-   * Returns optional polyfills, not loaded till enabled and a feature meets.
-   */
+   * Returns optional polyfills, not loaded till enabled and a feature meets.   */
   public static function ondemandPolyfills(): array {
     return [
       'fullscreen',
@@ -500,8 +462,7 @@ class BlazyDefault {
    * Only needed by 1.x/old users who never re-saved the forms at 2.x. This is
    * easily solved by just re-saving them. And these will be just gone for good.
    *
-   * @todo deprecated/ removed at 3.x.
-   */
+   * @todo deprecated/ removed at 3.x.   */
   public static function deprecatedSettings() {
     return [
       'current_view_mode' => '',
@@ -518,8 +479,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns wrong room settings, since initially copied from Slick.
-   */
+   * Returns wrong room settings, since initially copied from Slick.   */
   public static function nonBlazySettings() {
     return [
       'skin' => '',
@@ -528,15 +488,13 @@ class BlazyDefault {
   }
 
   /**
-   * Returns a BlazySettings instance.
-   */
+   * Returns a BlazySettings instance.   */
   public static function toSettings(array $data = []): BlazySettings {
     return Internals::settings($data);
   }
 
   /**
-   * Returns third party libraries that colorbox, etc. need these higher.
-   */
+   * Returns third party libraries that colorbox, etc. need these higher.   */
   public static function thirdPartyLibraries(): array {
     return [
       'media_entity_instagram' => [
@@ -565,15 +523,13 @@ class BlazyDefault {
   }
 
   /**
-   * Returns options for the object conversions.
-   */
+   * Returns options for the object conversions.   */
   protected static function options(): array {
     return [];
   }
 
   /**
-   * Returns values to be converted to a BlazySettings instance.
-   */
+   * Returns values to be converted to a BlazySettings instance.   */
   protected static function values(): array {
     return [];
   }
@@ -586,8 +542,7 @@ class BlazyDefault {
    * While some configurable settings are intact, blazies are more for grouping
    * dynamic, non-configurable settings. But it can also store blazy-specific.
    * Very few are adjusted into blazies for easy calls/overrides/alters.
-   * Please bear with the silly plural `blazies` object, no better ideas.
-   */
+   * Please bear with the silly plural `blazies` object, no better ideas.   */
   private static function blazies() {
     $ui = self::uiSettings();
     if ($manager = Internals::blazy()) {
@@ -604,8 +559,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns BlazySettings instance keyed by static::$id.
-   */
+   * Returns BlazySettings instance keyed by static::$id.   */
   private static function objectify(): array {
     $items   = [];
     $options = self::options();

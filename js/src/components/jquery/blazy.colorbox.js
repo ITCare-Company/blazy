@@ -32,8 +32,7 @@
    * Blazy Colorbox utility functions.
    *
    * @param {HTMLElement} box
-   *   The colorbox HTML element.
-   */
+   *   The colorbox HTML element.   */
   function process(box) {
     var $root = $(S_ROOT);
     var $box = $(box);
@@ -312,8 +311,7 @@
   /**
    * Attaches blazy colorbox behavior to HTML element.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
 

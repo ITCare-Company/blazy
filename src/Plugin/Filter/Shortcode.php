@@ -11,8 +11,7 @@ namespace Drupal\blazy\Plugin\Filter;
 class Shortcode {
 
   /**
-   * Returns string between delimiters, or empty if not found.
-   */
+   * Returns string between delimiters, or empty if not found.   */
   public static function getStringBetween($string, $start = '[', $end = ']'): ?string {
     $string = ' ' . $string;
     $ini = mb_strpos($string, $start);
@@ -27,8 +26,7 @@ class Shortcode {
   }
 
   /**
-   * Converts [BLAH] into <blah>.
-   */
+   * Converts [BLAH] into <blah>.   */
   public static function parse($string, $container = 'blazy', $item = 'item'): string {
     // Might not be available with self-closing [TAG data="BLAH" /].
     if (stristr($string, "[$item") !== FALSE) {
@@ -50,8 +48,7 @@ class Shortcode {
   }
 
   /**
-   * Returns the WP regex pattern.
-   */
+   * Returns the WP regex pattern.   */
   protected static function pattern($item) {
     // @todo return '/\\[(\\[?)(' . $item . ')(?![\\w-])([^\\]\\/]*(?:\\/(?!\\])[^\\]\\/]*)*?)(?:(\\/)\\]|\\](?:([^\\[]*+(?:\\[(?!\\/\\2\\])[^\\[]*+)*+)\\[\\/\\2\\])?)(\\]?)/s';
     return '/\[(\[?)(' . $item . ')(?![\w-])([^\]\/]*(?:\/(?!\])[^\]\/]*)*?)(?:(\/)\]|\](?:([^\[]*+(?:\[(?!\/\2\])[^\[]*+)*+)\[\/\2\])?)(\]?)/is';
@@ -60,8 +57,7 @@ class Shortcode {
   /**
    * Processes the shortcode tags.
    *
-   * @todo recheck any reliable regex.
-   */
+   * @todo recheck any reliable regex.   */
   private static function process($string, $item): string {
     $pattern = static::pattern($item);
     // @todo preg_match_all($pattern, $string, $matches, PREG_SET_ORDER);
@@ -73,8 +69,7 @@ class Shortcode {
   }
 
   /**
-   * Process callback to work with the matches.
-   */
+   * Process callback to work with the matches.   */
   private static function processCallback($matches, $item): string {
     if ($found = $matches[0] ?? '') {
       return self::replace($found, $item);
@@ -85,8 +80,7 @@ class Shortcode {
   /**
    * Replaces [BLAH] into <blah>.
    *
-   * @todo recheck any reliable regex, currently orders important.
-   */
+   * @todo recheck any reliable regex, currently orders important.   */
   private static function replace($string, $item): string {
     $patterns = [
       // Opening: [TAG data="BLAH" /]</p>.
@@ -111,8 +105,7 @@ class Shortcode {
    *
    * @todo deprecated in 2.17 and is removed from 3.x. Use self::shortcode()
    * instead.
-   * @see https://www.drupal.org/node/3103018
-   */
+   * @see https://www.drupal.org/node/3103018   */
   public static function unwrap($string, $container = 'blazy', $item = 'item'): string {
     // @todo @trigger_error('unwrap is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::parse() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return self::parse($string, $container, $item);

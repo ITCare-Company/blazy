@@ -25,8 +25,7 @@
    *   The offset defined via UI normally related to header fixed position.
    *
    * @return {Object}
-   *   Returns the window viewport info.
-   */
+   *   Returns the window viewport info.   */
   function info(offset) {
     offset = offset || 0;
     var size = $.windowSize();
@@ -52,8 +51,7 @@
    *   The window viewport.
    *
    * @return {bool}
-   *   Returns true if visible.
-   */
+   *   Returns true if visible.   */
   function isVisible(el, vp) {
     var rect = $.isElm(el) ? $.rect(el) : el;
 

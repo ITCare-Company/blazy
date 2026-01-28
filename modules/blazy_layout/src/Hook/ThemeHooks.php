@@ -14,8 +14,7 @@ use Drupal\blazy_layout\BlazyLayoutDefault;
 class ThemeHooks {
 
   /**
-   * Implements hook_theme().
-   */
+   * Implements hook_theme().   */
   public static function theme() {
     return [
       'block__blazy' => [
@@ -33,8 +32,7 @@ class ThemeHooks {
   /**
    * Overrides variables for layout.html.twig templates.
    *
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function preprocessLayout(array &$variables) {
     /** @var array<string, mixed> $attributes */
     $attributes = &$variables['attributes'];
@@ -142,8 +140,7 @@ class ThemeHooks {
   /**
    * Overrides variables for block.html.twig templates.
    *
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function preprocessBlock(array &$variables) {
     if ($settings = $variables['elements']['#blazy'] ?? []) {
       $variables['blazies'] = $settings['blazies']->storage();
@@ -153,8 +150,7 @@ class ThemeHooks {
   /**
    * Overrides variables for field.html.twig templates.
    *
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function preprocessField(array &$variables) {
     $element = &$variables['element'];
     $formatter = $element['#formatter'] ?? 'null';
@@ -194,8 +190,7 @@ class ThemeHooks {
   /**
    * Implements hook_theme_suggestions_alter().
    *
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function themeSuggestionsAlter(array &$suggestions, array $variables, $hook) {
     /** @var array<string, mixed> $elements */
     $elements = $variables['elements'] ?? [];
@@ -246,11 +241,8 @@ class ThemeHooks {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
-   *
-   * @param-out array<string, mixed> $variables
    * @param int $count
-   *   The amount of regions.
-   */
+   *   The amount of regions.   .*/
   private static function cleanupRegions(array &$variables, int $count) {
     /** @var array<string, mixed> $settings */
     $settings = &$variables['settings'];
@@ -275,11 +267,8 @@ class ThemeHooks {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
-   *
-   * @param-out array<string, mixed> $variables
    * @param string $name
-   *   The name of region.
-   */
+   *   The name of region.   .*/
   private static function cleanupBlockAttributes(array &$variables, string $name) {
     /** @var array<string, mixed> $contents */
     $contents = &$variables['content'];
@@ -310,11 +299,8 @@ class ThemeHooks {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
-   *
-   * @param-out array<string, mixed> $variables
    * @param string $name
-   *   The name of region.
-   */
+   *   The name of region.   .*/
   private static function regionAttributes(array &$variables, string $name) {
     foreach (['attributes', 'content_attributes'] as $key) {
       if (!isset($variables["region_$key"][$name])) {

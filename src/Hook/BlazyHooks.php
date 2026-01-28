@@ -21,8 +21,7 @@ class BlazyHooks {
    * style. And the same principle applies to all sub-modules.
    *
    * Warning! Do not alter configurable settings like use_theme_field here, it
-   * caused 2.16 chaotic markups with Views embedded blazy formatters.
-   */
+   * caused 2.16 chaotic markups with Views embedded blazy formatters.   */
   public static function blazySettingsAlter(array &$build, $object): void {
     /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];

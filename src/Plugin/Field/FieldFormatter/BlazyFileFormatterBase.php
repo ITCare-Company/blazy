@@ -43,8 +43,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * The main module namespace.
    *
    * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php
-   */
+   * @see https://www.php.net/manual/en/reserved.keywords.php   */
   protected static $namespace = 'blazy';
 
   /**
@@ -52,62 +51,53 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    *
    * Prioritize sub-modules in case mismatched versions.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $itemId = 'slide';
 
   /**
    * The item prefix for captions, e.g.: blazy__caption, slide__caption, etc.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $itemPrefix = 'slide';
 
   /**
    * The caption property to store captions.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $captionId = 'caption';
 
   /**
    * Tne navigation ID.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $navId = 'thumb';
 
   /**
    * The fake field type identifier for service DI, e.g: entity, image, text.
    *
-   * @var string
-   */
+   * @var string   */
   protected static $fieldType = 'image';
 
   /**
    * Whether displaying a single item by index, or not.
    *
-   * @var bool
-   */
+   * @var bool   */
   protected static $byDelta = FALSE;
 
   /**
    * Whether using the OEmbed service.
    *
-   * @var bool
-   */
+   * @var bool   */
   protected static $useOembed = FALSE;
 
   /**
    * Whether using the SVG.
    *
-   * @var bool
-   */
+   * @var bool   */
   protected static $useSvg = FALSE;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -120,15 +110,13 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function defaultSettings() {
     return BlazyDefault::imageSettings() + BlazyDefault::gridSettings();
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element    = [];
     $definition = $this->getScopedFormElements();
@@ -140,8 +128,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $entities = $this->getEntitiesToView($items, $langcode);
 
@@ -154,8 +141,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function buildElements(array &$build, $files, $langcode) {
     foreach ($this->getElements($build, $files) as $element) {
       if ($element) {
@@ -168,8 +154,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Returns the Blazy elements, also for sub-modules to re-use.
-   */
+   * Returns the Blazy elements, also for sub-modules to re-use.   */
   protected function getElements(array $build, $files): \Generator {
     /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
@@ -202,8 +187,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Returns the individual element.
-   */
+   * Returns the individual element.   */
   protected function getElement(array $settings, $file, $delta): array {
     /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $item */
     /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -256,8 +240,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Returns the captions, if any.
-   */
+   * Returns the captions, if any.   */
   protected function getCaptions(array $data): array {
     [
       '#settings' => $settings,
@@ -354,8 +337,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   /**
    * {@inheritdoc}
    *
-   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.
-   */
+   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.   */
   protected function getEntityScopes(): array {
     return [
       'fieldable_form'   => TRUE,
@@ -367,8 +349,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getPluginScopes(): array {
     $field    = $this->fieldDefinition;
     $multiple = $this->isMultiple();
@@ -399,8 +380,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   /**
    * Returns available bundles.
    *
-   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.
-   */
+   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.   */
   protected function getAvailableBundles(): array {
     $field = $this->fieldDefinition;
     if (method_exists($field, 'get')) {
@@ -413,8 +393,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   /**
    * {@inheritdoc}
    *
-   * @todo move some into BlazyFileSvgFormatterBase after sub-modules.
-   */
+   * @todo move some into BlazyFileSvgFormatterBase after sub-modules.   */
   protected function getCaptionOptions() {
     $field    = $this->fieldDefinition;
     $type     = $field->getType();
@@ -439,8 +418,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * @return array
    *   The available fields as options.
    *
-   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.
-   */
+   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.   */
   protected function getFieldOptions(array $names = [], $target_type = NULL): array {
     $field       = $this->fieldDefinition;
     $target_type = $target_type ?: $this->getFieldSetting('target_type');
@@ -459,8 +437,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    *
    * One step back to have both image and file ER plugins extend this, because
    * EntityReferenceItem::isDisplayed() doesn't exist, except for ImageItem
-   * which is always TRUE anyway for type image and file ER.
-   */
+   * which is always TRUE anyway for type image and file ER.   */
   protected function needsEntityLoad(EntityReferenceItem $item) {
     return !$item->hasNewEntity();
   }
@@ -469,8 +446,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * {@inheritdoc}
    *
    * A clone of Drupal\image\Plugin\Field\FieldFormatter\ImageFormatterBase so
-   * to have one base class to extend for both image and file ER formatters.
-   */
+   * to have one base class to extend for both image and file ER formatters.   */
   protected function getEntitiesToView(EntityReferenceFieldItemListInterface $items, $langcode) {
     // Add the default image if the type is image.
     if ($items->isEmpty() && $this->fieldDefinition->getType() === 'image') {
@@ -509,8 +485,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Build item elements.
-   */
+   * Build item elements.   */
   protected function withElement(array &$build): void {
     if (static::$useOembed) {
       // This basically associates file to media entity like seen at dep VEF.
@@ -519,8 +494,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Provides overrides for BC.
-   */
+   * Provides overrides for BC.   */
   private function withOverride(array &$build, array $element): void {
     if (method_exists($this, 'withElementOverride')) {
       foreach (['delta', 'entity', 'settings'] as $key) {

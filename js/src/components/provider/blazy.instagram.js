@@ -169,8 +169,7 @@
    * Instagram utility functions.
    *
    * @param {HTMLElement} el
-   *   The instagram HTML element.
-   */
+   *   The instagram HTML element.   */
   function process(el) {
     var iframe;
     var token = $.attr(el, DATA_TOKEN);
@@ -198,8 +197,7 @@
   /**
    * Attaches Instagram behavior to HTML element.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyInstagram = {
     attach: function (context) {
       $.once(process, ID_ONCE, S_ELEMENT, context);

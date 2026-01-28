@@ -20,8 +20,7 @@ namespace Drupal\Tests\blazy\FunctionalJavascript;
 class BlazyIoJavaScriptTest extends BlazyJavaScriptTestBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -29,8 +28,7 @@ class BlazyIoJavaScriptTest extends BlazyJavaScriptTestBase {
   }
 
   /**
-   * Test the Blazy element from loading to loaded states.
-   */
+   * Test the Blazy element from loading to loaded states.   */
   public function testFormatterDisplay() {
     $settings = $data = [];
     $settings['blazy'] = TRUE;

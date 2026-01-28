@@ -13,27 +13,23 @@ trait BlazyKernelTestTrait {
   use BlazyCreationTestTrait;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected $defaultTheme = 'stark';
 
   /**
    * The formatter display without data.
    *
-   * @var object
-   */
+   * @var object   */
   protected $displayEmpty;
 
   /**
    * The messenger service.
    *
-   * @var \Drupal\Core\Messenger\Messenger
-   */
+   * @var \Drupal\Core\Messenger\Messenger   */
   protected $messenger;
 
   /**
-   * Setup common Kernel classes.
-   */
+   * Setup common Kernel classes.   */
   protected function setUpKernelInstall() {
     $this->installSchema('user', ['users_data']);
     $this->installSchema('node', ['node_access']);
@@ -62,8 +58,7 @@ trait BlazyKernelTestTrait {
   }
 
   /**
-   * Setup common Kernel manager classes.
-   */
+   * Setup common Kernel manager classes.   */
   protected function setUpKernelManager() {
     $this->root                    = $this->container->getParameter('app.root');
     $this->fileSystem              = $this->container->get('file_system');

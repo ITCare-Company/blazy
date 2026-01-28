@@ -39,8 +39,7 @@
   /**
    * Blazybox public methods.
    *
-   * @namespace
-   */
+   * @namespace   */
   Drupal.blazyBox = {
     btnClose: null,
     el: null,
@@ -266,8 +265,7 @@
    * Theme function for a fullscreen lightbox video container.
    *
    * @return {String}
-   *   Returns a html string.
-   */
+   *   Returns a html string.   */
   Drupal.theme.blazyBox = function () {
     var html;
 
@@ -291,8 +289,7 @@
    *   - options: extra options not contained within dataset.
    *
    * @return {String}
-   *   Returns a html string.
-   */
+   *   Returns a html string.   */
   Drupal.theme.blazyBoxMedia = function (data) {
     var el = data.el;
     var dataset = data.dataset || {};
@@ -345,8 +342,7 @@
    * Launch a blazybox.
    *
    * @param {Event} e
-   *   The click event.
-   */
+   *   The click event.   */
   function launch(e) {
     var me = Drupal.blazyBox;
 
@@ -362,8 +358,7 @@
    * BlazyBox utility functions.
    *
    * @param {HTMLElement} el
-   *   The blazybox HTML element.
-   */
+   *   The blazybox HTML element.   */
   function process(el) {
     var me = Drupal.blazyBox;
     var $el = $(el);
@@ -380,8 +375,7 @@
    * Trigger click on a blazybox link.
    *
    * @param {HTMLElement} el
-   *   The triggering element of blazybox HTML element.
-   */
+   *   The triggering element of blazybox HTML element.   */
   function subprocess(el) {
     $.on(el, 'click.' + ID, launch);
   }
@@ -389,8 +383,7 @@
   /**
    * Attaches Blazybox behavior to HTML element.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyBox = {
     attach: function (context) {
 

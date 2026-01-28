@@ -162,8 +162,7 @@
    *   The position or placement.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
-   */
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML   */
   function insert(target, el, position) {
     // @todo recheck DocumentFragment if needed.
     if ($.isElm(target)) {

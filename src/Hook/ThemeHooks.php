@@ -20,8 +20,7 @@ use Drupal\blazy\Utility\Path;
 class ThemeHooks {
 
   /**
-   * Implements hook_theme().
-   */
+   * Implements hook_theme().   */
   public static function theme() {
     return ['blazy' => ['render element' => 'element']];
   }
@@ -58,10 +57,7 @@ class ThemeHooks {
    *       \Drupal\blazy\BlazyDefault::richSettings() to avoid complication.
    *       However you can override them accordingly as needed, such as lightbox
    *       for local Video with/o a pre-configured poster image. The #settings
-   *       are provided under content variables for more work.
-   *
-   * @param-out array<string, mixed> $variables
-   */
+   *       are provided under content variables for more work.   .*/
   public static function preprocessBlazy(array &$variables): void {
     $element = $variables['element'];
     foreach (BlazyDefault::themeProperties() as $key => $default) {
@@ -119,8 +115,7 @@ class ThemeHooks {
   }
 
   /**
-   * Overrides variables for field.html.twig templates.
-   */
+   * Overrides variables for field.html.twig templates.   */
   public static function preprocessField(array &$variables): void {
     if (!self::isFieldBlazy($variables)) {
       return;
@@ -149,22 +144,19 @@ class ThemeHooks {
   }
 
   /**
-   * Overrides variables for file-audio.html.twig templates.
-   */
+   * Overrides variables for file-audio.html.twig templates.   */
   public static function preprocessFileAudio(array &$variables): void {
     self::fileLocal($variables);
   }
 
   /**
-   * Overrides variables for file-video.html.twig templates.
-   */
+   * Overrides variables for file-video.html.twig templates.   */
   public static function preprocessFileVideo(array &$variables): void {
     self::fileLocal($variables);
   }
 
   /**
-   * Overrides variables for responsive-image.html.twig templates.
-   */
+   * Overrides variables for responsive-image.html.twig templates.   */
   public static function preprocessResponsiveImage(array &$variables): void {
     if (!self::isDataBlazy($variables)) {
       return;
@@ -222,8 +214,7 @@ class ThemeHooks {
   }
 
   /**
-   * Overrides variables for media-oembed-iframe.html.twig templates.
-   */
+   * Overrides variables for media-oembed-iframe.html.twig templates.   */
   public static function preprocessMediaOembedIframe(array &$variables): void {
     $request = Path::request();
     // Without internet, this may be empty, bail out.
@@ -277,8 +268,7 @@ class ThemeHooks {
   }
 
   /**
-   * Overrides variables for file-audio|video.html.twig templates.
-   */
+   * Overrides variables for file-audio|video.html.twig templates.   */
   private static function fileLocal(array &$variables): void {
     if (!self::isDataBlazy($variables)) {
       return;
@@ -345,8 +335,7 @@ class ThemeHooks {
   }
 
   /**
-   * Overrides variables for field.html.twig templates.
-   */
+   * Overrides variables for field.html.twig templates.   */
   private static function thirdPartyField(array &$variables): void {
     $element = $variables['element'];
 
@@ -391,8 +380,7 @@ class ThemeHooks {
   }
 
   /**
-   * Returns formatter settings, needed for lightbox + container classes.
-   */
+   * Returns formatter settings, needed for lightbox + container classes.   */
   private static function formatterSettings(array &$variables, $third_party = FALSE): array {
     $element = $variables['element'];
     $settings = $element['#blazy'] ?? [];
@@ -427,15 +415,13 @@ class ThemeHooks {
   }
 
   /**
-   * Checks if we have valid attributes.
-   */
+   * Checks if we have valid attributes.   */
   private static function isDataBlazy(array &$variables): bool {
     return isset($variables['attributes']['data-b-lazy']);
   }
 
   /**
-   * Checks if we have valid blazy element.
-   */
+   * Checks if we have valid blazy element.   */
   private static function isFieldBlazy(array &$variables): bool {
     $element = $variables['element'];
     $formatter = $element['#formatter'] ?? 'null';

@@ -13,8 +13,7 @@ use Drupal\views\ResultRow;
 class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function render(ResultRow $values) {
     /** @var \Drupal\file\Entity\File $entity */
     // @todo recheck relationship and remove this $entity = $values->_entity;
@@ -43,8 +42,7 @@ class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function getPluginScopes(): array {
     return [
       'multimedia' => TRUE,

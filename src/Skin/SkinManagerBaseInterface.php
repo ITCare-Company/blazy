@@ -19,8 +19,7 @@ interface SkinManagerBaseInterface extends MapperInterface {
    *   The settings object group key.
    *
    * @return mixed
-   *   The config value(s), or empty.
-   */
+   *   The config value(s), or empty.   */
   public function config($key = NULL, $group = NULL);
 
   /**
@@ -30,23 +29,19 @@ interface SkinManagerBaseInterface extends MapperInterface {
    *   The plugin id.
    *
    * @return \Drupal\blazy\Plugin\SkinPluginInterface
-   *   Return instance of BlazySkin.
-   */
+   *   Return instance of BlazySkin.   */
   public function load($id): SkinPluginInterface;
 
   /**
-   * Returns all plugins.
-   */
+   * Returns all plugins.   */
   public function loadMultiple(): array;
 
   /**
-   * Returns skins registered via BlazySkin plugin or defaults.
-   */
+   * Returns skins registered via BlazySkin plugin or defaults.   */
   public function getSkins(): array;
 
   /**
-   * Implements hook_library_info_build().
-   */
+   * Implements hook_library_info_build().   */
   public function libraryInfoBuild(): array;
 
 }

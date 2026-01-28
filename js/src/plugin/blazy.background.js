@@ -23,8 +23,7 @@
    *   Containing ww: windowWidth, and up: to use min-width or max-width.
    *
    * @return {Object}
-   *   This dBlazy object.
-   */
+   *   This dBlazy object.   */
   function bg(els, winData) {
     var chainCallback = function (el) {
       if ($.isElm(el)) {

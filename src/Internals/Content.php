@@ -15,8 +15,7 @@ use Drupal\Core\Entity\EntityInterface;
 class Content extends Multimedia {
 
   /**
-   * Returns a message if access to view the entity is denied.
-   */
+   * Returns a message if access to view the entity is denied.   */
   public static function denied($entity): array {
     if (!$entity instanceof EntityInterface) {
       return [];
@@ -38,8 +37,7 @@ class Content extends Multimedia {
   }
 
   /**
-   * Returns a formatted title.
-   */
+   * Returns a formatted title.   */
   public static function formatTitle($value, $url, array $settings): array {
     $delimiter = $settings['delimiter'] ?? NULL;
     $tag       = $settings['tag'] ?? NULL;
@@ -80,8 +78,7 @@ class Content extends Multimedia {
   }
 
   /**
-   * A helper to gradually migrate sub-modules content into theme_blazy().
-   */
+   * A helper to gradually migrate sub-modules content into theme_blazy().   */
   public static function toContent(
     array &$data,
     bool $unset = FALSE,
@@ -102,8 +99,7 @@ class Content extends Multimedia {
   }
 
   /**
-   * Returns the common content item.
-   */
+   * Returns the common content item.   */
   public static function toHtml($content, $tag = 'div', $class = NULL): array {
     if ($class) {
       $attributes = is_array($class) ? $class : ['class' => [$class]];
@@ -125,8 +121,7 @@ class Content extends Multimedia {
   }
 
   /**
-   * Returns one of the found configurable delimiter in the title.
-   */
+   * Returns one of the found configurable delimiter in the title.   */
   private static function getDelimiter($title, $delimiter = ''): ?string {
     $delimiter = empty($delimiter) ? '|,:,/,- , —' : $delimiter;
     $limits = array_map('trim', explode(',', $delimiter));

@@ -15,8 +15,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
   use BlazyManagerUnitTestTrait;
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -26,8 +25,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests cases for various methods.
-   */
+   * Tests cases for various methods.   */
   public function testBlazyManagerServiceInstances() {
     $this->assertInstanceOf('\Drupal\blazy\Asset\LibrariesInterface', $this->blazyManager->libraries());
     $this->assertInstanceOf('\Drupal\Core\Entity\EntityTypeManagerInterface', $this->blazyManager->entityTypeManager());
@@ -39,8 +37,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests cases for config.
-   */
+   * Tests cases for config.   */
   public function testConfigLoad() {
     /** @phpstan-ignore-next-line */
     $this->blazyManager->expects($this->any())
@@ -58,8 +55,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests cases for config.
-   */
+   * Tests cases for config.   */
   public function testEntityLoadImageStyle() {
     $styles = $this->setUpImageStyle();
     $ids = array_keys($styles);
@@ -84,8 +80,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
   /**
    * Tests for \Drupal\blazy\BlazyManager::getBlazy().
    *
-   * @dataProvider providerTestGetBlazy
-   */
+   * @dataProvider providerTestGetBlazy   */
   public function testGetBlazy($uri, $content, $expected_image, $expected_render) {
     /** @var array<string, mixed> $build */
     $build = [
@@ -111,8 +106,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * Provide test cases for ::testPreRenderImage().
    *
    * @return array
-   *   An array of tested data.
-   */
+   *   An array of tested data.   */
   public static function providerTestGetBlazy(): array {
     /** @var array<int, mixed> $data */
     $data = [];
@@ -141,8 +135,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
   /**
    * Tests cases for attachments.
    *
-   * @depends testConfigLoad
-   */
+   * @depends testConfigLoad   */
   public function testAttach(): void {
     $attach = [
       'blazy'        => TRUE,
@@ -168,8 +161,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests cases for lightboxes.
-   */
+   * Tests cases for lightboxes.   */
   public function testGetLightboxes() {
     /** @phpstan-ignore-next-line */
     $this->blazyManager->expects($this->any())
@@ -188,8 +180,7 @@ namespace Drupal\blazy;
 if (!function_exists('blazy_test_theme')) {
 
   /**
-   * Dummy function.
-   */
+   * Dummy function.   */
   function blazy_test_theme() {
     // Empty block to satisfy coder.
   }

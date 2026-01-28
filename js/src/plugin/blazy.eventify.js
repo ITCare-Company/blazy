@@ -32,8 +32,7 @@
    *   The optional object to merge.
    *
    * @return {Eventify|Object}
-   *   Returns this, or the passed mixed object.
-   */
+   *   Returns this, or the passed mixed object.   */
   function Eventify(obj) {
     if (obj) {
       return mixin(obj);

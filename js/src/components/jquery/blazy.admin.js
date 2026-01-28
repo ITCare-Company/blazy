@@ -33,8 +33,7 @@
    * Blazy admin utility functions.
    *
    * @param {HTMLElement} form
-   *   The Blazy form wrapper HTML element.
-   */
+   *   The Blazy form wrapper HTML element.   */
   function blazyForm(form) {
     var t = $(form);
 
@@ -147,8 +146,7 @@
    * Blazy admin tooltip function.
    *
    * @param {HTMLElement} elm
-   *   The Blazy form item description HTML element.
-   */
+   *   The Blazy form item description HTML element.   */
   function blazyTooltip(elm) {
     var $tip = $(elm);
 
@@ -165,8 +163,7 @@
   /**
    * Attaches Blazy form behavior to HTML element.
    *
-   * @type {Drupal~behavior}
-   */
+   * @type {Drupal~behavior}   */
   Drupal.behaviors.blazyAdmin = {
     attach: function (context) {
       _d.once(blazyTooltip, ID_TOOLTIP, S_TOOLTIP, context);

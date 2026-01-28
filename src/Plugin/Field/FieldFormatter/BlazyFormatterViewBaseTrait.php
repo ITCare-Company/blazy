@@ -14,8 +14,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 trait BlazyFormatterViewBaseTrait {
 
   /**
-   * Returns base view elements.
-   */
+   * Returns base view elements.   */
   protected function baseViewElements(
     FieldItemListInterface $items,
     $langcode,
@@ -63,8 +62,7 @@ trait BlazyFormatterViewBaseTrait {
   }
 
   /**
-   * Prepare the settings, allows sub-modules to re-use and override.
-   */
+   * Prepare the settings, allows sub-modules to re-use and override.   */
   protected function preSettings(array &$settings, $langcode): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -72,8 +70,7 @@ trait BlazyFormatterViewBaseTrait {
   }
 
   /**
-   * Overrides the settings, allows sub-modules to re-use and override.
-   */
+   * Overrides the settings, allows sub-modules to re-use and override.   */
   protected function postSettings(array &$settings, $langcode): void {
     // Do nothing.
   }

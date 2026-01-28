@@ -15,30 +15,25 @@ use Drupal\blazy\Theme\Lightbox;
 class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, TrustedCallbackInterface {
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public static function trustedCallbacks() {
     return ['preRenderBlazy', 'preRenderBuild'];
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function getBlazy(array $build): array {
     $hashtags = array_keys(BlazyDefault::hashedProperties());
 
@@ -72,8 +67,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * {@inheritdoc}
-   */
+   * {@inheritdoc}   */
   public function preRenderBlazy(array $element): array {
     $build = $element['#build'];
     unset($element['#build']);
@@ -120,8 +114,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *   The array containing: settings, children elements, or optional items.
    *
    * @return array
-   *   The alterable and renderable array of contents.
-   */
+   *   The alterable and renderable array of contents.   */
   public function build(array $data): array {
     /** @var array<string, mixed> $settings */
     $settings = $this->getBlazySettings($data);
@@ -143,8 +136,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Builds the Blazy outputs as a structured array ready for ::renderer().
-   */
+   * Builds the Blazy outputs as a structured array ready for ::renderer().   */
   public function preRenderBuild(array $element): array {
     $build = $element['#build'];
     unset($element['#build']);
@@ -191,8 +183,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Build captions for both old image, or media entity.
-   */
+   * Build captions for both old image, or media entity.   */
   protected function buildCaption(array $captions, $blazies, $prefix, $id = 'blazy'): array {
     $inline = $categories = $descriptions = $overlays = [];
     $_desc  = $prefix . 'description';
@@ -264,8 +255,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Build out (rich media) content.
-   */
+   * Build out (rich media) content.   */
   private function buildContent(array &$element, array &$build): void {
     /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
@@ -366,8 +356,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *
    * Since 2.9, many were moved into BlazyTheme to support custom work better.
    *
-   * @todo remove all these after moving item_attributes to image.attributes.
-   */
+   * @todo remove all these after moving item_attributes to image.attributes.   */
   private function buildMedia(array &$element, array &$build): void {
     $item  = $build['#item'];
     $attrs = $this->toHashtag($build, 'item_attributes');
@@ -394,8 +383,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * What we do here is extract the formatter settings from the first found
    * image and pass its settings to this container so that Blazy Grid which
    * lacks of settings may know if it should load/ display a lightbox, etc.
-   * Lightbox should work without `Use field template` checked.
-   */
+   * Lightbox should work without `Use field template` checked.   */
   private function getBlazySettings(array $build) {
     $settings = $this->toHashtag($build);
     $blazies  = $this->verifySafely($settings);
@@ -416,8 +404,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * @param array $build
    *   The array of information containing the required Image or File item
    *   object, settings, optional container attributes. An arbitrary storage
-   *   we can mess up before printing them into the $element.
-   */
+   *   we can mess up before printing them into the $element.   .*/
   private function prepareBlazy(array &$element, array $build) {
     /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
@@ -549,8 +536,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Returns available theme attributes to account for hook_alters.
-   */
+   * Returns available theme attributes to account for hook_alters.   */
   private function themeAttributes($key, $blazies, array $build): array {
     $defaults = $this->toHashtag($build, $key);
     $programs = $blazies->get('item.' . $key, []);
@@ -559,8 +545,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Returns a theme_field() output.
-   */
+   * Returns a theme_field() output.   */
   private function themeField(array $data, array $settings): array {
     // Pass items as regular index children to theme_field().
     // Runs after settings.
@@ -575,8 +560,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Returns a theme_item_list() output.
-   */
+   * Returns a theme_item_list() output.   */
   private function themeItemList(array $data, array $settings, $blazies): array {
     // Take over theme_field() with a theme_item_list(), if so configured.
     // The reason: this is not only fed by field items, but also Views rows.
@@ -591,8 +575,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Provides captions, if any.
-   */
+   * Provides captions, if any.   */
   private function toCaption(array &$element, array &$settings, array $captions): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -633,8 +616,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Blazy comes late to the party after sub-modules decided what they want
    * where items may be stored as direct indices, or put into items property.
    * Actually the same issue happens at core where contents may be indexed or
-   * grouped. Meaning not a problem at all, only a problem for consistency.
-   */
+   * grouped. Meaning not a problem at all, only a problem for consistency.   */
   private function toElementChildren(array $build): array {
     $build = $build['items']
       ?? array_filter($build, fn($k) => is_int($k), ARRAY_FILTER_USE_KEY);
@@ -650,8 +632,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Provides linkable content.
-   */
+   * Provides linkable content.   */
   private function toLink(array &$element, $blazies): void {
     $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
     $switch = $blazies->get('switch');

@@ -14,8 +14,7 @@ if (!function_exists('blazy')) {
    * Provides a dummy function for Unit tests.
    *
    * @return \Drupal\blazy\BlazyManagerInterface
-   *   The blazy.manager service.
-   */
+   *   The blazy.manager service.   */
   function blazy() {
     return Internals::service('blazy.manager');
   }

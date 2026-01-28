@@ -25,13 +25,10 @@ class Settings {
    *
    * @param array<string, mixed> $definitions
    *   The definitions being modified.
-   *
-   * @param-out array<string, mixed> $definitions
    * @param string $formatter
    *   The formatter being passed.
    * @param array<string, mixed> $settings
-   *   The settings being passed.
-   */
+   *   The settings being passed.   .*/
   public static function configSchemaInfoAlter(
     array &$definitions,
     $formatter = 'blazy_base',
@@ -67,10 +64,7 @@ class Settings {
    * Provides common content settings.
    *
    * @param array<string, mixed> $settings
-   *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
-   */
+   *   The settings being modified.   .*/
   public static function contently(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -101,8 +95,7 @@ class Settings {
    *   The default value.
    *
    * @return int
-   *   The total amount of items.
-   */
+   *   The total amount of items.   */
   public static function count($blazies, int $default = 0): int {
     $field = $blazies->get('total', 0) ?: $blazies->get('count', 0);
     $views = $blazies->get('view.count', 0);
@@ -118,10 +111,7 @@ class Settings {
    * Update count by delta option.
    *
    * @param array<string, mixed> $settings
-   *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
-   */
+   *   The settings being modified.   .*/
   public static function updateCountByDelta(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
@@ -143,8 +133,7 @@ class Settings {
    *   The Views instance.
    *
    * @return array
-   *   The view field data.
-   */
+   *   The view field data.   */
   public static function getViewFieldData($view): array {
     $data = $names = [];
 
@@ -189,8 +178,7 @@ class Settings {
    *   The blazies instance.
    *
    * @return int
-   *   The view limit.
-   */
+   *   The view limit.   */
   public static function getViewLimit($blazies): int {
     $data = $blazies->get('view.data', []);
     $name = $blazies->get('field.name', 'x');
@@ -204,8 +192,7 @@ class Settings {
    *   The data being passed.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings instance.
-   */
+   *   The BlazySettings instance.   */
   public static function init(array $data = []): BlazySettings {
     return new BlazySettings($data);
   }
@@ -222,8 +209,7 @@ class Settings {
    *   The blazies instance.
    *
    * @return bool
-   *   Whether unlazied.
-   */
+   *   Whether unlazied.   */
   public static function isUnlazyBg($blazies): bool {
     return $blazies->is('lcp')
       || $blazies->is('static');
@@ -242,8 +228,7 @@ class Settings {
    *   The blazies instance.
    *
    * @return bool
-   *   Whether unlazied.
-   */
+   *   Whether unlazied.   */
   public static function isUndata($blazies): bool {
     return $blazies->is('lcp')
       || $blazies->is('unlazy')
@@ -261,8 +246,7 @@ class Settings {
    *   The blazies instance.
    *
    * @return bool
-   *   Whether unladied.
-   */
+   *   Whether unladied.   */
   public static function isUnlazy($blazies): bool {
     return self::isUndata($blazies)
       || $blazies->is('nojs');
@@ -273,13 +257,10 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
    * @param object|null $item
    *   The image item or null.
    * @param bool $called
-   *   Whether has been called.
-   */
+   *   Whether has been called.   .*/
   public static function prepare(array &$settings, $item, bool $called = FALSE): void {
     CheckItem::essentials($settings, $item, $called);
     CheckItem::insanity($settings);
@@ -290,11 +271,8 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
    * @param object|null $item
-   *   The image item or null.
-   */
+   *   The image item or null.   .*/
   public static function prepared(array &$settings, $item): void {
     BlazyImage::prepare($settings, $item);
   }
@@ -312,15 +290,10 @@ class Settings {
    *
    * @param array<string, mixed> $parentsets
    *   The parentsets being modified.
-   *
-   * @param-out array<string, mixed> $parentsets
    * @param array<string, mixed> $childsets
    *   The childsets being modified.
    *
-   * @param-out array<string, mixed> $childsets
-   *
-   * @see \Drupa\blazy\BlazyManagerBase::isBlazy()
-   */
+   * @see \Drupa\blazy\BlazyManagerBase::isBlazy()   */
   public static function preserve(array &$parentsets, array &$childsets): void {
     self::verify($parentsets);
     self::verify($childsets);
@@ -377,13 +350,10 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
    * @param bool $root
    *   Whether a container or child element.
    *
-   * @todo refine to separate container from item level. At least move grid out.
-   */
+   * @todo refine to separate container from item level. At least move grid out.   */
   public static function preSettings(array &$settings, bool $root = TRUE): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = self::verify($settings);
@@ -417,10 +387,7 @@ class Settings {
    * Modifies the common UI settings inherited down to each item.
    *
    * @param array<string, mixed> $settings
-   *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
-   */
+   *   The settings being modified.   .*/
   public static function postSettings(array &$settings): void {
     // Failsafe, might be called directly at ::attach() outside the workflow.
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -434,14 +401,11 @@ class Settings {
    * Reset the BlazySettings per item to have unique URI, delta, style, etc.
    *
    * @param array<string, mixed> $settings
-   *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
+   *   The settings being modified.s.
    * @param string $key
    *   The settings key.
    * @param array<string, mixed> $defaults
-   *   The defaults if any.
-   */
+   *   The defaults if any.   .*/
   public static function reset(
     array &$settings,
     string $key = 'blazies',
@@ -466,13 +430,10 @@ class Settings {
    *
    * @param array<string, mixed> $data
    *   The data being modified.
-   *
-   * @param-out array<string, mixed> $data
    * @param string $key
    *   The data key.
    * @param bool $unset
-   *   Whether to unset.
-   */
+   *   Whether to unset.   .*/
   public static function hashtag(
     array &$data,
     string $key = 'settings',
@@ -511,8 +472,7 @@ class Settings {
    * @return mixed
    *   The result data.
    *
-   * @todo refactor avoid mixed.
-   */
+   * @todo refactor avoid mixed.   */
   public static function toHashtag(
     array $data,
     string $key = 'settings',
@@ -529,8 +489,7 @@ class Settings {
    * Sets a token based on media or image url.
    *
    * @param \Drupal\blazy\BlazySettings $blazies
-   *   The blazies instance.
-   */
+   *   The blazies instance.   .*/
   public static function tokenize($blazies): void {
     $url = $blazies->get('media.embed_url') ?: $blazies->get('image.url');
     $uri = $blazies->get('image.uri');
@@ -546,16 +505,13 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings
    * @param string $key
    *   The settings key.
    * @param array<string, mixed> $defaults
    *   The defaults if any.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings instance.
-   */
+   *   The BlazySettings instance.   */
   public static function verify(
     array &$settings,
     string $key = 'blazies',
@@ -581,15 +537,13 @@ class Settings {
    * May return NULL in unit-test or early-bootstrap contexts.
    *
    * @return \Drupal\blazy\BlazyManagerInterface|null
-   *   The blazy.manager instance.
-   */
+   *   The blazy.manager instance.   */
   public static function blazy(): ?BlazyManagerInterface {
     return self::service('blazy.manager');
   }
 
   /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   */
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.   */
   public static function service($service) {
     return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
   }
@@ -598,8 +552,7 @@ class Settings {
    * Sets Instagram script if so configured, for oembed:instagram, not VEF.
    *
    * @param \Drupal\blazy\BlazySettings $blazies
-   *   The blazies instance.
-   */
+   *   The blazies instance.   .*/
   private static function scriptable($blazies): void {
     if (!$blazies->is('iframeable')) {
       if ($blazies->is('instagram') && $blazies->is('instagram_api')) {
