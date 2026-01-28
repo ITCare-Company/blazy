@@ -88,9 +88,8 @@ class Thumbnail {
     // @todo move it out of here, required by vanilla Splide navigation.
     CheckItem::unstyled($settings, $uri);
 
-    // @todo figure out for phpstan.
-    $settings = is_array($settings) ? $settings : [];
-
+    // @todo figure out for phpstan w/o checkImplicitMixed.
+    // $settings = is_array($settings) ? $settings : [];.
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 

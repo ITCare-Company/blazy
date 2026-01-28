@@ -66,8 +66,8 @@ class ThemeHooks {
 
     self::regionAttributes($variables, 'bg');
 
-    // Phpstan requires assurance.
-    // @todo recheck $variables = is_array($variables) ? $variables : [];.
+    // @todo figure out for phpstan w/o checkImplicitMixed.
+    // $variables = is_array($variables) ? $variables : [];.
     if ($theme = \Drupal::theme()->getActiveTheme()->getName()) {
       $attributes['class'][] = 'b-theme-' . str_replace('_', '-', $theme);
     }
@@ -111,8 +111,8 @@ class ThemeHooks {
         // Core region attributes depend on content[region], hence enforced.
         self::regionAttributes($variables, $name);
 
-        // Phpstan requires assurance.
-        // @todo recheck $variables = is_array($variables) ? $variables : [];
+        // @todo figure out for phpstan w/o checkImplicitMixed.
+        // $variables = is_array($variables) ? $variables : [];
         // Add browser title tooltip over regions.
         if ($in_preview && $region = $region_settings[$name] ?? []) {
           $label = $region['label'] ?? '';

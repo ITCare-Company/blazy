@@ -144,6 +144,7 @@ class Settings {
 
     foreach ($view->field as $field_name => $field) {
       if ($options = $field->options ?? []) {
+        // @todo figure out for phpstan w/o checkImplicitMixed.
         $options = is_array($options) ? $options : [];
         $names[] = $field_name;
         $subsets = $options['settings'] ?? [];
