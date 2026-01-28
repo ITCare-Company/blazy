@@ -43,5 +43,5 @@
   software developments.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

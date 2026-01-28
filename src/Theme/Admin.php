@@ -18,6 +18,7 @@ class Admin {
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   * @param-out array<string, mixed> $form
    * @param array<string, mixed> $parents
    *   The parent elements.
    */
@@ -50,6 +51,7 @@ class Admin {
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   * @param-out array<string, mixed> $form
    * @param string $form_id
    *   The form ID.
    * @param string $region

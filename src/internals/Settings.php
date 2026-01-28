@@ -24,6 +24,7 @@ class Settings {
    *
    * @param array<string, mixed> $definitions
    *   The definitions being modified.
+   * @param-out array<string, mixed> $definitions
    * @param string $formatter
    *   The formatter being passed.
    * @param array<string, mixed> $settings
@@ -65,6 +66,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   public static function contently(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -114,6 +116,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   public static function updateCountByDelta(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -266,6 +269,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param object|null $item
    *   The image item or null.
    * @param bool $called
@@ -281,6 +285,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param object|null $item
    *   The image item or null.
    */
@@ -301,8 +306,10 @@ class Settings {
    *
    * @param array<string, mixed> $parentsets
    *   The parentsets being modified.
+   * @param-out array<string, mixed> $parentsets
    * @param array<string, mixed> $childsets
    *   The childsets being modified.
+   * @param-out array<string, mixed> $childsets
    *
    * @see \Drupa\blazy\BlazyManagerBase::isBlazy()
    */
@@ -362,6 +369,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param bool $root
    *   Whether a container or child element.
    *
@@ -401,6 +409,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   public static function postSettings(array &$settings): void {
     // Failsafe, might be called directly at ::attach() outside the workflow.
@@ -416,6 +425,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param string $key
    *   The settings key.
    * @param array<string, mixed> $defaults
@@ -445,6 +455,7 @@ class Settings {
    *
    * @param array<string, mixed> $data
    *   The data being modified.
+   * @param-out array<string, mixed> $data
    * @param string $key
    *   The data key.
    * @param bool $unset
@@ -523,6 +534,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param string $key
    *   The settings key.
    * @param array<string, mixed> $defaults

@@ -26,6 +26,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * @param array<string, mixed> $attributes
    *   The container attributes being modified.
+   * @param-out array<string, mixed> $attributes
    * @param array<string, mixed> $settings
    *   The given settings.
    */
@@ -80,6 +81,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * @param array<string, mixed> $settings
    *   The modified settings.
+   * @param-out array<string, mixed> $settings
    * @param bool $multiple
    *   A flag for various Image styles: Blazy Filter, etc., old GridStack.
    *   While most field formatters can only have one image style per field.
@@ -116,6 +118,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param array $data
    *   The first data containing settings or item keys.
    *
@@ -168,6 +171,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   public function preSettings(array &$settings): void;
 
@@ -176,6 +180,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   public function postSettings(array &$settings): void;
 
@@ -184,6 +189,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param object $entity
    *   The optional entity object.
    */

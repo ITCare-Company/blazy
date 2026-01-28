@@ -110,6 +110,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *
    * @param array<string, mixed> $settings
    *   The modified settings.
+   * @param-out array<string, mixed> $settings
    * @param object $row
    *   The Views row.
    * @param int $index
@@ -179,6 +180,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *
    * @param array<string, mixed> $sets
    *   The settings being modified.
+   * @param-out array<string, mixed> $sets
    * @param object $row
    *   The views row.
    * @param int $index
@@ -228,6 +230,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param array<string, mixed> $rendered
    *   The contextual rendered.
    * @param int $index
@@ -279,6 +282,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param array<string, mixed> $rendered
    *   The contextual rendered.
    * @param int $index
@@ -318,6 +322,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *
    * @param array<string, mixed> $sets
    *   The settings being modified.
+   * @param-out array<string, mixed> $sets
    * @param object $row
    *   The views row index.
    * @param string $name

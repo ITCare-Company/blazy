@@ -207,5 +207,5 @@ description of web threading behavior. I hope this minor cross-disciplinary
 perspective improves clarity for the reader.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

@@ -95,8 +95,10 @@ trait PluginScopesTrait {
    *
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The blazies instance.
+   * @param-out \Drupal\blazy\BlazySettings $blazies
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   protected function pluginSettings(&$blazies, array &$settings): void {
     if ($settings['namespace'] == 'blazy') {

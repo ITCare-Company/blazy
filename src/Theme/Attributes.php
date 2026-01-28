@@ -40,6 +40,7 @@ class Attributes {
    *
    * @param array<string, mixed> $attributes
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attributes
    * @param array<string, mixed> $settings
    *   The settings.
    */
@@ -107,6 +108,7 @@ class Attributes {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   * @param-out array<string, mixed> $variables
    */
   public static function finalize(array &$variables): void {
     /** @var array<string, mixed> $attributes */
@@ -176,8 +178,10 @@ class Attributes {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   * @param-out array<string, mixed> $variables
    * @param array<string, mixed> $attributes
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attributes
    * @param array<string, mixed> $settings
    *   The settings being modified.
    */
@@ -212,6 +216,7 @@ class Attributes {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   * @param-out array<string, mixed> $variables
    */
   public static function buildIframe(array &$variables): void {
     /** @var array<string, mixed> $settings */
@@ -243,6 +248,7 @@ class Attributes {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   * @param-out array<string, mixed> $variables
    */
   public static function buildMedia(array &$variables): void {
     /** @var array<string, mixed> $settings */
@@ -336,6 +342,7 @@ class Attributes {
    *
    * @param array<string, mixed> $settings
    *   The given settings.
+   * @param-out array<string, mixed> $settings
    *
    * @return array
    *   The iframe attributes.
@@ -399,6 +406,7 @@ class Attributes {
    *
    * @param array<string, mixed> $attributes
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attributes
    * @param string $css
    *   The css value.
    */
@@ -416,6 +424,7 @@ class Attributes {
    *
    * @param array<string, mixed> $attributes
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attributes
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The given $blazies.
    * @param bool $bg
@@ -602,6 +611,7 @@ class Attributes {
    *
    * @param array<string, mixed> $attributes
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attributes
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The given $blazies.
    *
@@ -645,6 +655,7 @@ class Attributes {
    *
    * @param array<string, mixed> $attributes
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attributes
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The given $blazies.
    * @param \stdClass $bgs
@@ -672,6 +683,7 @@ class Attributes {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   * @param-out array<string, mixed> $variables
    */
   private static function image(array &$variables): void {
     /** @var array<string, mixed> $settings */
@@ -755,6 +767,7 @@ class Attributes {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   * @param-out array<string, mixed> $variables
    */
   private static function buildImage(array &$variables): void {
     /** @var array<string, mixed> $settings */
@@ -799,6 +812,7 @@ class Attributes {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   * @param-out array<string, mixed> $variables
    */
   private static function buildNoscriptImage(array &$variables): void {
     /** @var array<string, mixed> $settings */
@@ -835,6 +849,7 @@ class Attributes {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   * @param-out array<string, mixed> $variables
    */
   private static function buildResponsiveImage(array &$variables): void {
     /** @var array<string, mixed> $settings */
@@ -869,6 +884,7 @@ class Attributes {
    *
    * @param array<string, mixed> $attributes
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attributes
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The given $blazies.
    * @param array<string, mixed> $options

@@ -51,6 +51,7 @@ class BlazyLayout extends BlazyLayoutForm {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param array<string, mixed> $build
    *   The build being passed.
    *

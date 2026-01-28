@@ -12,6 +12,7 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    *
    * @param array<string, mixed> $settings
    *   The array containing: field-related settings.
+   * @param-out array<string, mixed> $settings
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The Drupal\Core\Field\FieldItemListInterface items.
    */
@@ -32,6 +33,7 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    *
    * @param array<string, mixed> $settings
    *   The array containing: grid settings, in the least.
+   * @param-out array<string, mixed> $settings
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The Drupal\Core\Field\FieldItemListInterface items.
    */

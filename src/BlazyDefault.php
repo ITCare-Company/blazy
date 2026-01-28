@@ -65,6 +65,7 @@ class BlazyDefault {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   public static function alterableSettings(array &$settings) {
     $context = ['class' => get_called_class()];

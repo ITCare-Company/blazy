@@ -278,10 +278,13 @@ class Lightbox {
    *
    * @param array<string, mixed> $element
    *   The element being modified.
+   * @param-out array<string, mixed> $element
    * @param array<string, mixed> $json
    *   The json being modified.
+   * @param-out array<string, mixed> $json
    * @param array<string, mixed> $attrs
    *   The elemeattrsnt being modified.
+   * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $options
    *   The contextual options.
    * @param array<string, mixed> $settings

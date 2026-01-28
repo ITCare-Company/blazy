@@ -136,5 +136,5 @@ your versions (Dev-to-Dev, Stable-to-Stable) as outlined in the
 [Version compatibility](#first).
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

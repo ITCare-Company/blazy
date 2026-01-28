@@ -169,5 +169,5 @@ also resolve container boundary issues.
 Refer to the [Update SOP](#updating) for detailed procedures.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

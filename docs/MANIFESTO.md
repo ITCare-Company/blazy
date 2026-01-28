@@ -575,5 +575,5 @@ the goal is to **make sustainable performance easier to achieve**.
 > Unopinionated systems document them afterward.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

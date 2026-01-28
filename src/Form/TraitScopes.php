@@ -78,6 +78,7 @@ trait TraitScopes {
    *   The given $scopes.
    * @param array<string, mixed> $definition
    *   The definition being modified.
+   * @param-out array<string, mixed> $definition
    * @param bool $refresh
    *   Whether refreshed.
    *
@@ -231,6 +232,7 @@ trait TraitScopes {
    *
    * @param array<string, mixed> $definition
    *   The definition being modified.
+   * @param-out array<string, mixed> $definition
    *
    * @return \Drupal\blazy\BlazySettings
    *   The BlazySettings.

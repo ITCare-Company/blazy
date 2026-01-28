@@ -20,5 +20,5 @@ act on and that **Core Web Vitals** later measure, while final user experience
 and visual outcomes remain application responsibilities.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

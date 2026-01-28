@@ -147,6 +147,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    *
    * @param array<string, mixed> $definition
    *   The definition being modified.
+   * @param-out array<string, mixed> $definition
    */
   protected function getExcludedSettingsSummary(array &$definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */

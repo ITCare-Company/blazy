@@ -109,5 +109,5 @@ installation.
 DOMPurify is optional. Without it, Blazy (sub-)modules will sanitize captions server-side using basic sanitization rules.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

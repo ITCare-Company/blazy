@@ -630,6 +630,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings to add data.
+   * @param-out array<string, mixed> $settings
    * @param array $data
    *   The data to be added into $key object.
    * @param string $key
@@ -652,6 +653,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param string $key
    *   The object key within the settings, normally stupid plural keys: blazies,
    *   gridstacks, masons, slicks, splides, etc. just to stay unique.

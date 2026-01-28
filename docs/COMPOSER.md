@@ -78,5 +78,5 @@ if any, or only the required files, and not any other files from the archive.
 Check out the relevant module project requirements for the exact needed files.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

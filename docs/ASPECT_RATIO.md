@@ -158,5 +158,5 @@ https://en.wikipedia.org/wiki/List_of_common_resolutions
 * 7680x4800
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

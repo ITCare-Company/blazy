@@ -284,5 +284,5 @@ See the bLazy docs at:
 * CHANGELOG.txt for helpful souls with their patches, suggestions and reports.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

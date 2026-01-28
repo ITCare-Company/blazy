@@ -87,5 +87,5 @@ before the 3.x release:
     architectural requirements.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

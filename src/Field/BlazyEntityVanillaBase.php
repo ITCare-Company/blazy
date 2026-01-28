@@ -121,6 +121,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *
    * @param array<string, mixed> $build
    *   The build array being passed.
+   * @param-out array<string, mixed> $build
    * @param array<string, mixed> $entities
    *   The entities array.
    * @param string $langcode
@@ -301,8 +302,10 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The blazies instance.
+   * @param-out \Drupal\blazy\BlazySettings $blazies
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   protected function pluginSettings(&$blazies, array &$settings): void {
     $this->traitPluginSettings($blazies, $settings);
@@ -373,6 +376,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *
    * @param array<string, mixed> $build
    *   The build array being modified.
+   * @param-out array<string, mixed> $build
    * @param array<string, mixed> $element
    *   The build array being passed.
    */

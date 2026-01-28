@@ -512,6 +512,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings array being modified.
+   * @param-out array<string, mixed> $settings
    */
   private function toEmbed(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */

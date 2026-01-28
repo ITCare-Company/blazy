@@ -60,5 +60,5 @@ is a standalone output from Views so to use field template in this case.
 Check out the relevant sub-module docs for details.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

@@ -92,6 +92,7 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
    *   The settings being passed.
    */
@@ -135,8 +136,10 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $content_attrs
    *   The content attributes being modified.
+   * @param-out array<string, mixed> $content_attrs
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The blazies instance.
    * @param bool $root
@@ -250,7 +253,9 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attributes being modified.
+   * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $content_attrs
+   * @param-out array<string, mixed> $content_attrs
    *   The content attributes being modified.
    * @param array<string, mixed> $settings
    *   The settings being passed.
@@ -283,6 +288,7 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attrs being modified.
+   * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
    *   The settings being passed.
    */
@@ -419,6 +425,7 @@ class Grid {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   public static function toNativeGrid(array &$settings): void {
     if (empty($settings['grid'])) {
@@ -440,6 +447,7 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attrs being modified.
+   * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
    *   The settings being passed.
    */
@@ -521,6 +529,7 @@ class Grid {
    *   The grid items, can be plain array or generator.
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    *
    * @return array
    *   The modified array of grid items.
@@ -660,6 +669,7 @@ class Grid {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    */
   private static function toPair(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */

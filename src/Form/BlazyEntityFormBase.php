@@ -160,6 +160,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   * @param-out array<string, mixed> $form
    */
   protected function finalize(array &$form): void {
     $admin_css = $this->manager->config('admin_css', 'blazy.settings');
@@ -175,6 +176,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   * @param-out array<string, mixed> $form
    * @param string $context
    *   The string being passed.
    */
@@ -215,6 +217,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   * @param-out array<string, mixed> $form
    *
    * @return array
    *   The form item grids.
@@ -270,6 +273,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   * @param-out array<string, mixed> $form
    *
    * @return array
    *   The form item grids.

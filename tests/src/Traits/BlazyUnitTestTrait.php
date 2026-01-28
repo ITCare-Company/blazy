@@ -345,16 +345,3 @@ trait BlazyUnitTestTrait {
   }
 
 }
-
-namespace Drupal\blazy;
-
-if (!function_exists('blazy')) {
-
-  /**
-   * Dummy function.
-   */
-  function blazy() {
-    // Empty block to satisfy coder.
-  }
-
-}

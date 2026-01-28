@@ -130,5 +130,5 @@ logic for Hero and Slider optimization has been a core pillar of Blazy since
 the inception of **Core Web Vitals**.
 
 ---
-<a href="#top">Back to top &uarr;</a>
+<a href="#top">Back to Top &uarr;</a>
 ---

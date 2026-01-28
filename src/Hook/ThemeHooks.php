@@ -59,6 +59,7 @@ class ThemeHooks {
    *       However you can override them accordingly as needed, such as lightbox
    *       for local Video with/o a pre-configured poster image. The #settings
    *       are provided under content variables for more work.
+   * @param-out array<string, mixed> $variables
    */
   public static function preprocessBlazy(array &$variables): void {
     $element = $variables['element'];

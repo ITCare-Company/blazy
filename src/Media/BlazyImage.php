@@ -52,6 +52,7 @@ class BlazyImage {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param object $style
    *   The image style to check for crp effect.
    */
@@ -174,6 +175,7 @@ class BlazyImage {
    *   The optional Media, File entity, or ER, etc. to get image item from.
    * @param array<string, mixed> $settings
    *   The optional settings.
+   * @param-out array<string, mixed> $settings
    *
    * @return object|null
    *   The object of image item, or NULL.
@@ -337,6 +339,7 @@ class BlazyImage {
    *
    * @param array<string, mixed> $settings
    *   The given settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param object $item
    *   The image item.
    * @param string $uri

@@ -76,6 +76,7 @@ interface BlazyOEmbedInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param string $input
    *   The input to modify.
    *
@@ -92,6 +93,7 @@ interface BlazyOEmbedInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   * @param-out array<string, mixed> $settings
    * @param bool $fallback
    *   If it is as fallback to fetch image, else just global definitions.
    *

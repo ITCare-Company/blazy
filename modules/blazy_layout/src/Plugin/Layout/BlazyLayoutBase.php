@@ -157,6 +157,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    *
    * @param array<string, mixed> $element
    *   The element being modified.
+   * @param-out array<string, mixed> $element
    * @param array<string, mixed> $settings
    *   The settings being passed.
    * @param array<string, mixed> $attachments
@@ -227,6 +228,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
   /**
    * Returns settings.
+   *
+   * @return array
+   *   The settings.
    */
   protected function settings(): array {
     /** @var array<string, mixed> $settings */
