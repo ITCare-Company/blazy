@@ -107,6 +107,7 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *
    * @param array<string, mixed> $settings
    *   The settings array.
+   *
    * @param-out array<string, mixed> $settings
    */
   public function semantic(array &$settings): void;

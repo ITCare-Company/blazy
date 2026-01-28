@@ -144,9 +144,11 @@ class Preloader {
       // @todo recheck $blazies->get('first.uri').
       if (!$unstyled) {
         if ($heroes = $blazies->get('heroes')) {
-          if ($hero_style = $heroes['responsive_image_style'] ?? NULL) {
-            if (!$blazies->get('heroes.responsive_image.id')) {
-              $resimage = Internals::blazy()->load($hero_style, 'responsive_image_style') ?: $resimage;
+          if ($manager = Internals::blazy()) {
+            if ($hero_style = $heroes['responsive_image_style'] ?? NULL) {
+              if (!$blazies->get('heroes.responsive_image.id')) {
+                $resimage = $manager->load($hero_style, 'responsive_image_style') ?: $resimage;
+              }
             }
           }
         }

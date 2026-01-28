@@ -65,11 +65,14 @@ class BlazyDefault {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    */
   public static function alterableSettings(array &$settings) {
     $context = ['class' => get_called_class()];
-    Internals::blazy()->moduleHandler()->alter('blazy_base_settings', $settings, $context);
+    if ($manager = Internals::blazy()) {
+      $manager->moduleHandler()->alter('blazy_base_settings', $settings, $context);
+    }
   }
 
   /**
@@ -586,12 +589,16 @@ class BlazyDefault {
    * Please bear with the silly plural `blazies` object, no better ideas.
    */
   private static function blazies() {
+    $ui = self::uiSettings();
+    if ($manager = Internals::blazy()) {
+      $ui = $manager->config();
+    }
     return [
       'initial' => 0,
       'is' => [],
       'lazy' => ['id' => 'blazy', 'attribute' => 'src', 'class' => 'b-lazy'],
       'libs' => [],
-      'ui' => Internals::blazy()->config(),
+      'ui' => $ui,
       'use' => [],
     ];
   }

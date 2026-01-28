@@ -227,6 +227,11 @@ class BlazyFile implements BlazyFileInterface {
    * @todo re-check if core has this type of conversion.
    */
   public static function buildUri($url): ?string {
+    $manager = Internals::blazy();
+    if (!$manager) {
+      return NULL;
+    }
+
     if (!self::isExternal($url)
       && $normal_path = UrlHelper::parse($url)['path']) {
 
@@ -237,7 +242,7 @@ class BlazyFile implements BlazyFileInterface {
         $normal_path = str_replace($base_path, '', $normal_path);
       }
 
-      $scheme = Internals::blazy()->config('default_scheme', 'system.file');
+      $scheme = $manager->config('default_scheme', 'system.file');
 
       $active_path = $scheme == 'public'
         ? PublicStream::basePath()
@@ -278,10 +283,15 @@ class BlazyFile implements BlazyFileInterface {
    */
   public static function normalizeUri($path): string {
     $uri = $path;
+    $manager = Internals::blazy();
+    if (!$manager) {
+      return $uri;
+    }
+
     if ($stream = Path::streamWrapperManager()) {
       // The double slash was from buildUri.
       if (substr($path, 0, 2) === '//') {
-        $scheme = Internals::blazy()->config('default_scheme', 'system.file');
+        $scheme = $manager->config('default_scheme', 'system.file');
         $uri = $scheme . ':' . $path;
       }
       $uri = $stream->normalizeUri($uri);

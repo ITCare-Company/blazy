@@ -25,6 +25,7 @@ class Settings {
    *
    * @param array<string, mixed> $definitions
    *   The definitions being modified.
+   *
    * @param-out array<string, mixed> $definitions
    * @param string $formatter
    *   The formatter being passed.
@@ -67,6 +68,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    */
   public static function contently(array &$settings): void {
@@ -117,6 +119,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    */
   public static function updateCountByDelta(array &$settings): void {
@@ -270,6 +273,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    * @param object|null $item
    *   The image item or null.
@@ -286,6 +290,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    * @param object|null $item
    *   The image item or null.
@@ -307,9 +312,11 @@ class Settings {
    *
    * @param array<string, mixed> $parentsets
    *   The parentsets being modified.
+   *
    * @param-out array<string, mixed> $parentsets
    * @param array<string, mixed> $childsets
    *   The childsets being modified.
+   *
    * @param-out array<string, mixed> $childsets
    *
    * @see \Drupa\blazy\BlazyManagerBase::isBlazy()
@@ -370,6 +377,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    * @param bool $root
    *   Whether a container or child element.
@@ -410,6 +418,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    */
   public static function postSettings(array &$settings): void {
@@ -426,6 +435,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    * @param string $key
    *   The settings key.
@@ -456,6 +466,7 @@ class Settings {
    *
    * @param array<string, mixed> $data
    *   The data being modified.
+   *
    * @param-out array<string, mixed> $data
    * @param string $key
    *   The data key.
@@ -535,6 +546,7 @@ class Settings {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    * @param string $key
    *   The settings key.

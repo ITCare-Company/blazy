@@ -43,8 +43,10 @@ class Grid {
     // Might be called outside Blazy workflows, allows altering settings once.
     $attachments = $attrs = [];
 
-    Internals::blazy()->moduleHandler()->alter('blazy_settings_grid', $settings);
-    $attachments = $refresh ? Internals::blazy()->attach($settings) : [];
+    if ($manager = Internals::blazy()) {
+      $manager->moduleHandler()->alter('blazy_settings_grid', $settings);
+      $attachments = $refresh ? $manager->attach($settings) : [];
+    }
 
     // @todo separate grid item attributes from contents.
     $contents = self::content($items, $settings);
@@ -92,6 +94,7 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attributes being modified.
+   *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
    *   The settings being passed.
@@ -136,9 +139,11 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attributes being modified.
+   *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $content_attrs
    *   The content attributes being modified.
+   *
    * @param-out array<string, mixed> $content_attrs
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The blazies instance.
@@ -253,8 +258,10 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attributes being modified.
+   *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $content_attrs
+   *
    * @param-out array<string, mixed> $content_attrs
    *   The content attributes being modified.
    * @param array<string, mixed> $settings
@@ -288,6 +295,7 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attrs being modified.
+   *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
    *   The settings being passed.
@@ -425,6 +433,7 @@ class Grid {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    */
   public static function toNativeGrid(array &$settings): void {
@@ -447,6 +456,7 @@ class Grid {
    *
    * @param array<string, mixed> $attrs
    *   The attrs being modified.
+   *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $settings
    *   The settings being passed.
@@ -529,6 +539,7 @@ class Grid {
    *   The grid items, can be plain array or generator.
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    *
    * @return array
@@ -669,6 +680,7 @@ class Grid {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    */
   private static function toPair(array &$settings): void {

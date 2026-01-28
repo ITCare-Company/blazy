@@ -246,6 +246,7 @@ class ThemeHooks {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   *
    * @param-out array<string, mixed> $variables
    * @param int $count
    *   The amount of regions.
@@ -274,6 +275,7 @@ class ThemeHooks {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   *
    * @param-out array<string, mixed> $variables
    * @param string $name
    *   The name of region.
@@ -308,6 +310,7 @@ class ThemeHooks {
    *
    * @param array<string, mixed> $variables
    *   The variables being modified.
+   *
    * @param-out array<string, mixed> $variables
    * @param string $name
    *   The name of region.

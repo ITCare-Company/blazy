@@ -357,6 +357,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   *
    * @param-out array<string, mixed> $form
    * @param array<string, mixed> $definition
    *   The definition being passed.
@@ -727,6 +728,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   *
    * @param-out array<string, mixed> $form
    * @param array<string, mixed> $definition
    *   The definition being passed.
@@ -824,6 +826,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   *
    * @param-out array<string, mixed> $form
    * @param array<string, mixed> $definition
    *   The definition being passed.
@@ -850,6 +853,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   *
    * @param-out array<string, mixed> $form
    * @param array<string, mixed> $definition
    *   The definition being passed.

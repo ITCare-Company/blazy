@@ -159,7 +159,10 @@ class Blazy extends BlazyBase {
    * Returns the translated entity if available.
    */
   public static function translated($entity, $langcode = NULL): object {
-    return Internals::blazy()->getTranslatedEntity($entity, $langcode);
+    if ($manager = Internals::blazy()) {
+      return $manager->getTranslatedEntity($entity, $langcode);
+    }
+    return $entity;
   }
 
   /**

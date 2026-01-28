@@ -182,7 +182,9 @@ class Check {
       $blazies->set('was.initialized', FALSE);
 
       // @todo refactor to instance class at D11.
-      Internals::blazy()->preSettings($settings);
+      if ($manager = Internals::blazy()) {
+        $manager->preSettings($settings);
+      }
     }
 
     // 4. No longer needed once extracted above, remove.

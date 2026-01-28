@@ -14,6 +14,7 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The modified form.
+   *
    * @param-out array<string, mixed> $form
    * @param array<string, mixed> $settings
    *   The settings being passed.
@@ -27,6 +28,7 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The modified form.
+   *
    * @param-out array<string, mixed> $form
    * @param array<string, mixed> $settings
    *   The settings being passed.
@@ -40,6 +42,7 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The modified form.
+   *
    * @param-out array<string, mixed> $form
    * @param array<string, mixed> $settings
    *   The settings being passed.
@@ -53,6 +56,7 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *
    * @param array<string, mixed> $form
    *   The modified form.
+   *
    * @param-out array<string, mixed> $form
    * @param array<string, mixed> $settings
    *   The stored settings.

@@ -64,7 +64,9 @@ class LibraryHooks {
 
     if ($extension === 'blazy') {
       $names = ['DOMPurify', 'dompurify'];
-      if ($path = Internals::blazy()->getLibrariesPath($names)) {
+      $manager = Internals::blazy();
+      $path = $manager ? $manager->getLibrariesPath($names) : NULL;
+      if ($path) {
         $js = [
           '/' . $path . '/dist/purify.min.js' => [
             'minified' => TRUE,

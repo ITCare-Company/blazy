@@ -16,6 +16,7 @@ class BlazySvg {
    *
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    * @param string $uri
    *   The uri.

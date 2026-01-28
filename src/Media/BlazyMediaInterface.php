@@ -125,6 +125,7 @@ interface BlazyMediaInterface {
    *   The renderable array, normally entity.get.view or Views row.rendered.
    * @param array<string, mixed> $settings
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $settings
    *
    * @return bool

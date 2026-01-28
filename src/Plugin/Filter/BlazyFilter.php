@@ -557,6 +557,7 @@ class BlazyFilter extends BlazyFilterBase {
    *
    * @param array<string, mixed> $settings
    *   The settings array.
+   *
    * @param-out array<string, mixed> $settings
    * @param array $grid_nodes
    *   The grid nodes.

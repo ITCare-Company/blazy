@@ -128,7 +128,12 @@ class ViewsHooks {
    * Implements hook_preprocess_views_view().
    */
   private static function withViewsView(array &$variables): bool {
-    $lightboxes = Internals::blazy()->getLightboxes();
+    $manager = Internals::blazy();
+    if (!$manager) {
+      return FALSE;
+    }
+
+    $lightboxes = $manager->getLightboxes();
 
     preg_match('~blazy--(.*?)-gallery~', $variables['css_class'], $matches);
     $lightbox = $matches[1] ? str_replace('-', '_', $matches[1]) : FALSE;
@@ -153,7 +158,7 @@ class ViewsHooks {
         ->set('total', $count)
         ->set('use.ajax', $view->ajaxEnabled());
 
-      Internals::blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+      $manager->moduleHandler()->alter('blazy_is_view', $settings, $variables);
 
       Attributes::container($variables['attributes'], $settings);
       $variables['blazy'] = $settings;
@@ -166,6 +171,11 @@ class ViewsHooks {
    * Implements hook_preprocess_views_view().
    */
   private static function withViewsField(array &$variables): bool {
+    $manager = Internals::blazy();
+    if (!$manager) {
+      return FALSE;
+    }
+
     $view  = $variables['view'];
     $loads = [];
     $ajax  = $view->ajaxEnabled();
@@ -186,8 +196,8 @@ class ViewsHooks {
         $blazies->set('unlazy', FALSE);
       }
 
-      $load  = Internals::blazy()->attach($settings);
-      $loads = Internals::blazy()->merge($load, $loads);
+      $load  = $manager->attach($settings);
+      $loads = $manager->merge($load, $loads);
       $grid  = $plugin_id == 'blazy';
 
       if ($options = $view->getStyle()->options) {
@@ -196,7 +206,7 @@ class ViewsHooks {
 
       // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
       if (!$grid) {
-        Internals::blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+        $manager->moduleHandler()->alter('blazy_is_view', $settings, $variables);
         Attributes::container($variables['attributes'], $settings);
       }
 

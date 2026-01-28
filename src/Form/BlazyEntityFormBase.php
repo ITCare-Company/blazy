@@ -160,6 +160,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   *
    * @param-out array<string, mixed> $form
    */
   protected function finalize(array &$form): void {
@@ -176,6 +177,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   *
    * @param-out array<string, mixed> $form
    * @param string $context
    *   The string being passed.
@@ -217,6 +219,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   *
    * @param-out array<string, mixed> $form
    *
    * @return array
@@ -273,6 +276,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    *
    * @param array<string, mixed> $form
    *   The form being modified.
+   *
    * @param-out array<string, mixed> $form
    *
    * @return array

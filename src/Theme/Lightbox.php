@@ -278,12 +278,15 @@ class Lightbox {
    *
    * @param array<string, mixed> $element
    *   The element being modified.
+   *
    * @param-out array<string, mixed> $element
    * @param array<string, mixed> $json
    *   The json being modified.
+   *
    * @param-out array<string, mixed> $json
    * @param array<string, mixed> $attrs
    *   The elemeattrsnt being modified.
+   *
    * @param-out array<string, mixed> $attrs
    * @param array<string, mixed> $options
    *   The contextual options.
@@ -400,8 +403,11 @@ class Lightbox {
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = $_resimage ? $box_html : $html;
-      $content = Internals::blazy()->renderInIsolation($content);
-      $content = is_object($content) ? $content->__toString() : $content;
+
+      if ($manager = Internals::blazy()) {
+        $content = $manager->renderInIsolation($content);
+        $content = is_object($content) ? $content->__toString() : $content;
+      }
 
       // @todo merge with BlazyDefault::TAGS when mixed contents supported.
       // Lightbox Responsive|Picture image will be broken when filtered out.
@@ -474,6 +480,11 @@ class Lightbox {
    * Provides responsive image for lightboxes.
    */
   private static function responsiveImage(array &$element, array $options): bool {
+    $manager = Internals::blazy();
+    if (!$manager) {
+      return FALSE;
+    }
+
     [
       'blazies' => $blazies,
       'box_style' => $box_style,
@@ -483,7 +494,7 @@ class Lightbox {
     // The _responsive_image_build_source_attributes is WSOD if missing.
     $_resimage = FALSE;
     try {
-      if ($resimage = Internals::blazy()->load($box_style, 'responsive_image_style')) {
+      if ($resimage = $manager->load($box_style, 'responsive_image_style')) {
         $_resimage = TRUE;
         $alt = $blazies->get('image.alt');
 
@@ -520,6 +531,10 @@ class Lightbox {
    *   The renderable array of caption, or empty array.
    */
   private static function getCaptions(array $settings, $item): array {
+    $manager = Internals::blazy();
+    if (!$manager) {
+      return [];
+    }
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $title   = $blazies->get('image.raw.title');
@@ -573,13 +588,13 @@ class Lightbox {
         // $object can be file or media for plain images, or media entities.
         if ($custom && $object instanceof EntityInterface) {
           $options = ['clear' => TRUE];
-          $params  = [$object->getEntityTypeId() => Internals::blazy()->getTranslatedEntity($object)];
+          $params  = [$object->getEntityTypeId() => $manager->getTranslatedEntity($object)];
 
           if (BlazyFile::isFile($file) && $file != $object) {
-            $params += ['file' => Internals::blazy()->getTranslatedEntity($file)];
+            $params += ['file' => $manager->getTranslatedEntity($file)];
           }
           if ($node && $node != $object) {
-            $params += [$node->getEntityTypeId() => Internals::blazy()->getTranslatedEntity($node)];
+            $params += [$node->getEntityTypeId() => $manager->getTranslatedEntity($node)];
           }
 
           $caption = \Drupal::token()->replace($custom, $params, $options);

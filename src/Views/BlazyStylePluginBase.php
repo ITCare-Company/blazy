@@ -255,7 +255,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
           $options['classes'][$field] = $field_names[$field];
         }
 
-        /** @var \Drupal\blazy\BlazySettings $blazies */
+        /** @var bool $blazies */
         $blazies = strpos($handler['field'], 'blazy_') !== FALSE;
         if ($blazies) {
           $options['images'][$field] = $field_names[$field];

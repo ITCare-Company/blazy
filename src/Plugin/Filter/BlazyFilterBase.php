@@ -174,9 +174,11 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *
    * @param array<string, mixed> $build
    *   The content array being modified.
+   *
    * @param-out array<string, mixed> $build
    * @param object $node
    *   The HTML DOM object.
+   *
    * @param-out object $node
    * @param int $delta
    *   The item index.
@@ -226,9 +228,11 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *
    * @param array<string, mixed> $build
    *   The content array being modified.
+   *
    * @param-out array<string, mixed> $build
    * @param object $node
    *   The HTML DOM object.
+   *
    * @param-out object $node
    *
    * @return \DOMElement|null
@@ -336,6 +340,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *
    * @param array<string, mixed> $build
    *   The content array being modified: item, settings.
+   *
    * @param-out array<string, mixed> $build
    * @param object $node
    *   The HTML DOM object.
@@ -418,9 +423,11 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *
    * @param array<string, mixed> $build
    *   The content array being modified: item, settings.
+   *
    * @param-out array<string, mixed> $build
    * @param object $node
    *   The HTML DOM object.
+   *
    * @param-out object $node
    * @param string $src
    *   The corrected SRC value.
@@ -586,6 +593,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *
    * @param array<string, mixed> $build
    *   The settings being modified.
+   *
    * @param-out array<string, mixed> $build
    * @param object $node
    *   The HTML DOM object.

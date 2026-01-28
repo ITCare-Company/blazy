@@ -67,7 +67,10 @@ class FieldHooks {
    * @todo make it private after another sub-module check.
    */
   public static function thirdPartyFormatters(): array {
-    $formatters = Internals::blazy()->thirdPartyFormatters();
+    $formatters = ['file_audio', 'file_video'];
+    if ($manager = Internals::blazy()) {
+      $formatters = $manager->thirdPartyFormatters();
+    }
     return array_unique($formatters);
   }
 

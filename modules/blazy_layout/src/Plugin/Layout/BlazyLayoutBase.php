@@ -157,6 +157,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    *
    * @param array<string, mixed> $element
    *   The element being modified.
+   *
    * @param-out array<string, mixed> $element
    * @param array<string, mixed> $settings
    *   The settings being passed.

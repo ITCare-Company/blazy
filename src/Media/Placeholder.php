@@ -199,6 +199,11 @@ class Placeholder {
    * which was already warned about anyway.
    */
   private static function dataImage(array &$settings, $uri, $tn_uri, $tn_url, $style): void {
+    $manager = Internals::blazy();
+    if (!$manager) {
+      return;
+    }
+
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     if (!$blazies->use('blur')) {
@@ -206,7 +211,7 @@ class Placeholder {
     }
 
     // Provides default path, in case required by global, but not provided.
-    $style = $style ?: Internals::blazy()->load('thumbnail', 'image_style');
+    $style = $style ?: $manager->load('thumbnail', 'image_style');
 
     if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
       $options['unsafe'] = FALSE;
