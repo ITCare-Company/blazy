@@ -6,7 +6,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Theme\BlazyViews;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides feature check methods at container level, or globally.

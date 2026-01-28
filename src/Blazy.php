@@ -7,7 +7,7 @@ use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 use enshrined\svgSanitize\Sanitizer;
 
 /**

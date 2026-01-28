@@ -12,7 +12,7 @@ use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Media\Ratio;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Check;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides non-reusable blazy attribute static methods.

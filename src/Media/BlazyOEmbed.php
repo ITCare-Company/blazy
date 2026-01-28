@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\blazy\Blazy;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;

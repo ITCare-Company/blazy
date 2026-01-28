@@ -4,7 +4,7 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Theme\Attributes;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides responsive image utilities.

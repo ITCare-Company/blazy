@@ -2,7 +2,7 @@
 
 namespace Drupal\blazy;
 
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Defines shared plugin default settings for field formatter and Views style.

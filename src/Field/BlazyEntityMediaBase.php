@@ -5,7 +5,7 @@ namespace Drupal\blazy\Field;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

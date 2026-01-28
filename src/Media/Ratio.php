@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides aspect ratio insanity.

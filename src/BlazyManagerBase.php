@@ -6,7 +6,7 @@ use Drupal\blazy\Media\Thumbnail;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Path;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides common shared methods across Blazy ecosystem to DRY.

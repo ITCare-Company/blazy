@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\blazy\internals;
+namespace Drupal\blazy\Internals;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\blazy\Blazy;

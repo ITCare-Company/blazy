@@ -10,7 +10,7 @@ use Drupal\blazy\BlazyManager;
 use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Traits\PluginScopesTrait;
 use Drupal\blazy\Utility\Arrays;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Symfony\Component\DependencyInjection\ContainerInterface;

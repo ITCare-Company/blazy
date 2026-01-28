@@ -5,7 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Url;
 use Drupal\blazy\Theme\Lightbox;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Implements a public facing blazy manager.

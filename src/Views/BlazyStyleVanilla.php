@@ -7,7 +7,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\Markup;
 use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

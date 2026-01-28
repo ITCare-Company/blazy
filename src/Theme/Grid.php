@@ -6,7 +6,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Check;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides grid utilities.

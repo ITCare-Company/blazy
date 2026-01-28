@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\blazy\internals;
+namespace Drupal\blazy\Internals;
 
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Media\Provider\Youtube;

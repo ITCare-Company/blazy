@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\blazy\Traits;
 
 use Drupal\blazy\Blazy;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\field\Entity\FieldConfig;

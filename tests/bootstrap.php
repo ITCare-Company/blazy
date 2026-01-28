@@ -5,7 +5,7 @@
  * Provides Unit tests boostrap.
  */
 
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 // Make global helper available to unit tests.
 if (!function_exists('blazy')) {

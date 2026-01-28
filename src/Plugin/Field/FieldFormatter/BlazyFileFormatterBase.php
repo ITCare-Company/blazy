@@ -11,7 +11,7 @@ use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;

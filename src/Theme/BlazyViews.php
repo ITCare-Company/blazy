@@ -4,7 +4,7 @@ namespace Drupal\blazy\Theme;
 
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Hook\ViewsHooks;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides optional Views integration.

@@ -5,7 +5,7 @@ namespace Drupal\blazy\Traits;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Utility\Arrays;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * A Trait for plugins, common for Blazy, Splide, Slick, etc.

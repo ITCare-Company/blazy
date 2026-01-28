@@ -6,7 +6,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\Element;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides common field API operation methods.

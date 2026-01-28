@@ -2,7 +2,7 @@
 
 namespace Drupal\blazy\Hook;
 
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Hook implementations for config.

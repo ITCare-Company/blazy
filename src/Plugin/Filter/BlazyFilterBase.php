@@ -10,7 +10,7 @@ use Drupal\blazy\BlazyDefault as Defaults;
 use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\blazy\Media\BlazyFile as File;
 use Drupal\blazy\Media\BlazyImage as Image;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 // @todo use Drupal\blazy\Media\BlazyMedia;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

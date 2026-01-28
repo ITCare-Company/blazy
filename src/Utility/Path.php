@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Utility;
 
 use Drupal\blazy\Blazy;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides url, route, request, stream, or any path-related methods.

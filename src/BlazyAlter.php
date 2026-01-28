@@ -8,7 +8,7 @@ use Drupal\blazy\Hook\EditorHooks;
 use Drupal\blazy\Hook\FieldHooks;
 use Drupal\blazy\Hook\LibraryHooks;
 use Drupal\blazy\Hook\ViewsHooks;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 use Drupal\editor\Entity\Editor;
 
 /**

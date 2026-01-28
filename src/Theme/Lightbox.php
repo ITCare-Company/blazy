@@ -11,7 +11,7 @@ use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides lightbox utilities.
