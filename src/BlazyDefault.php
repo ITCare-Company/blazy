@@ -84,6 +84,31 @@ class BlazyDefault {
   }
 
   /**
+   * Grouping for sanity till all settings converted into BlazySettings.
+   *
+   * It was a pre-release RC7 @todo, partially implemented since 2.7.
+   * The hustle is sub-modules are not aware, yet. Yet better started before 3.
+   * While some configurable settings are intact, blazies are more for grouping
+   * dynamic, non-configurable settings. But it can also store blazy-specific.
+   * Very few are adjusted into blazies for easy calls/overrides/alters.
+   * Please bear with the silly plural `blazies` object, no better ideas.
+   */
+  public static function blazies() {
+    $ui = self::uiSettings();
+    if ($manager = Internals::blazy()) {
+      $ui = $manager->config();
+    }
+    return [
+      'initial' => 0,
+      'is' => [],
+      'lazy' => ['id' => 'blazy', 'attribute' => 'src', 'class' => 'b-lazy'],
+      'libs' => [],
+      'ui' => $ui,
+      'use' => [],
+    ];
+  }
+
+  /**
    * Returns cherry-picked settings for field formatters and Views fields.
    */
   public static function cherrySettings() {
@@ -529,7 +554,7 @@ class BlazyDefault {
    * Returns a BlazySettings instance.
    */
   public static function toSettings(array $data = []): BlazySettings {
-    return Internals::settings($data);
+    return new BlazySettings($data);
   }
 
   /**
@@ -574,31 +599,6 @@ class BlazyDefault {
    */
   protected static function values(): array {
     return [];
-  }
-
-  /**
-   * Grouping for sanity till all settings converted into BlazySettings.
-   *
-   * It was a pre-release RC7 @todo, partially implemented since 2.7.
-   * The hustle is sub-modules are not aware, yet. Yet better started before 3.
-   * While some configurable settings are intact, blazies are more for grouping
-   * dynamic, non-configurable settings. But it can also store blazy-specific.
-   * Very few are adjusted into blazies for easy calls/overrides/alters.
-   * Please bear with the silly plural `blazies` object, no better ideas.
-   */
-  private static function blazies() {
-    $ui = self::uiSettings();
-    if ($manager = Internals::blazy()) {
-      $ui = $manager->config();
-    }
-    return [
-      'initial' => 0,
-      'is' => [],
-      'lazy' => ['id' => 'blazy', 'attribute' => 'src', 'class' => 'b-lazy'],
-      'libs' => [],
-      'ui' => $ui,
-      'use' => [],
-    ];
   }
 
   /**

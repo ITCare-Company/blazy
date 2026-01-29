@@ -79,7 +79,7 @@ class CheckItem {
     if (method_exists($entity, 'getRevisionId')) {
       $rid = $entity->getRevisionId();
     }
-    // @todo remove, looks like a mispelled?
+    // @todo remove, looks like a mispell?
     elseif (method_exists($entity, 'getRevisionID')) {
       $rid = $entity->getRevisionID();
     }

@@ -255,6 +255,58 @@ class Lightbox {
   }
 
   /**
+   * Checks for lightboxes.
+   *
+   * @todo move it out for DI at D11.
+   */
+  public static function check(array &$settings): void {
+    $blazies = Internals::getBlazies($settings);
+    $switch  = $blazies->get('switch', $settings['media_switch'] ?? NULL);
+
+    /** @var \Drupal\blazy\BlazyManagerInterface $manager */
+    $manager = Internals::blazy();
+
+    // Bail out early if not so configured.
+    if (!$switch || !$manager) {
+      return;
+    }
+
+    $lightboxes = $blazies->get('lightbox.plugins', $manager->getLightboxes());
+    $lightbox   = in_array($switch, $lightboxes) ? $switch : FALSE;
+    $optionset  = empty($settings[$switch]) ? $switch : $settings[$switch];
+
+    // Lightbox is unique, safe to reserve top level key:
+    if ($lightbox) {
+      // Required by sub-modules for easy attachments.
+      $settings[$switch] = $optionset;
+
+      // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
+      // With an optionset: `elevetazoomplus:responsive`.
+      // Without an optionset: `colorbox:colorbox`, etc.
+      $blazies->set($switch, $optionset)
+        ->set('lightbox.name', $lightbox)
+        ->set('lightbox.optionset', $optionset);
+    }
+
+    // Richbox is local video inside lightboxes by supported lightboxes.
+    $colorbox   = $blazies->get('colorbox');
+    $flybox     = $blazies->get('flybox');
+    $mfp        = $blazies->get('mfp');
+    $encodedbox = $colorbox || $flybox || $mfp;
+    $encodedbox = $blazies->is('encodedbox') || $encodedbox;
+    $_richbox   = $blazies->is('richbox') ?: ($settings['_richbox'] ?? FALSE);
+    $richbox    = $encodedbox || $_richbox;
+
+    // (Non-)lightboxes: media player, link to content, image rendered, etc.
+    $blazies->set('switch', $switch)
+      ->set('libs.media', $switch == 'media')
+      ->set('is.lightbox', !empty($lightbox))
+      ->set('is.encodedbox', !empty($encodedbox))
+      ->set('is.richbox', !empty($richbox))
+      ->set('was.lightbox', TRUE);
+  }
+
+  /**
    * Attaches Colorbox if so configured.
    *
    * @param array $load

@@ -129,7 +129,7 @@ class Config implements ConfigInterface {
   public function config($key = NULL, $group = 'blazy.settings') {
     $config  = $this->configFactory->get($group);
     $configs = $config->get();
-    unset($configs['_core']);
+    // @todo recheck unset($configs['_core']);
     return empty($key) ? $configs : $config->get($key);
   }
 

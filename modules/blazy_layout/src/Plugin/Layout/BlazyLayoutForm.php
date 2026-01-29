@@ -7,6 +7,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\blazy\Utility\Type;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 
 /**
@@ -32,8 +33,8 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     $settings = $form_state->getValue('settings');
     $count = (int) $settings['count'];
     $hero = (int) $settings['hero'];
-    $semantic_layout = (bool) $settings['semantic_layout'];
-    $remove_bg = (bool) $settings['remove_bg'];
+    $semantic_layout = Type::normalizeBool($settings['semantic_layout']);
+    $remove_bg = Type::normalizeBool($settings['remove_bg']);
 
     // @todo figure out a better way like blazy.schema than overriding it here.
     if ($count < 1) {

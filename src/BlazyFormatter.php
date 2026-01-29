@@ -27,13 +27,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
   /**
    * {@inheritdoc}
-   */
-  public function fieldSettings(array &$settings, $items): void {
-    Check::fields($settings, $items);
-  }
-
-  /**
-   * {@inheritdoc}
    *
    * @todo make it protected after sub-modules, mostly are just tests + BVEF.
    */
@@ -53,6 +46,13 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     if (!empty($settings['caption'])) {
       $settings['caption'] = array_filter($settings['caption']);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fieldSettings(array &$settings, $items): void {
+    Check::fields($settings, $items);
   }
 
   /**

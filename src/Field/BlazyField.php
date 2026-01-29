@@ -6,7 +6,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\Element;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Utility\Field;
 
 /**
  * Provides common field API operation methods.
@@ -73,78 +73,6 @@ class BlazyField {
   }
 
   /**
-   * Returns available bundles.
-   */
-  public static function getAvailableBundles($field): array {
-    $type     = $field->getSetting('target_type');
-    $views_ui = $field->getSetting('handler') == 'default';
-    $handlers = $field->getSetting('handler_settings');
-    $targets  = $handlers ? ($handlers['target_bundles'] ?? []) : [];
-    $bundles  = $views_ui ? [] : $targets;
-
-    // Fix for Views UI not recognizing Media bundles, unlike Formatters.
-    // @todo convert it to DI $this->manager->service() at D11.
-    if (empty($bundles)
-      && $type
-      && $service = Internals::service('entity_type.bundle.info')) {
-      $bundles = $service->getBundleInfo($type);
-    }
-
-    return $bundles;
-  }
-
-  /**
-   * Provides field-related settings, called by back-end and front-end.
-   */
-  public static function settings(array &$settings, $field, array $data = []): array {
-    $settings['blazies'] = Internals::getBlazies($settings);
-    $blazies = $settings['blazies'];
-    $bundles = self::getAvailableBundles($field);
-
-    $submodules = [
-      'cardinality'    => $field->getFieldStorageDefinition()->getCardinality(),
-      'field_type'     => $field->getType(),
-      'target_bundles' => $bundles,
-      'target_type'    => $field->getSetting('target_type'),
-    ];
-
-    $info = [
-      'field_label'   => $field->getLabel(),
-      'field_name'    => $field->getName(),
-      'entity_type'   => $field->getTargetEntityTypeId(),
-      'target_bundle' => $field->getTargetBundle(),
-    ] + $submodules;
-
-    if ($data) {
-      $blazies->set('field', $data, TRUE);
-    }
-
-    $blazies->set('field.settings', $field->getSettings());
-    if (!$blazies->get('namespace')
-      && $namespace = $settings['namespace'] ?? NULL) {
-      $blazies->set('namespace', $namespace);
-    }
-
-    foreach ($info as $key => $value) {
-      $k = str_replace('field_', '', $key);
-      $blazies->set('field.' . $k, $value);
-    }
-
-    // Cannot use blazies.field.settings.handler_settings.target_bundles, since
-    // they are always empty at View UI.
-    if ($bundles) {
-      $blazies->set('field.target_bundles', $bundles);
-    }
-
-    // @todo remove at/ by 3.x after migration and sub-modules: EZ, Splidebox.
-    foreach ($submodules as $key => $value) {
-      $settings[$key] = $value;
-    }
-
-    return $settings;
-  }
-
-  /**
    * Returns the formatted renderable array of the field.
    */
   public static function view($entity, $field_name, $view_mode, $multiple = TRUE): array {
@@ -176,6 +104,24 @@ class BlazyField {
     }
 
     return [];
+  }
+
+  /**
+   * Alias for Field::getAvailableBundles().
+   *
+   * @todo remove at D11.
+   */
+  public static function getAvailableBundles($field): array {
+    return Field::getAvailableBundles($field);
+  }
+
+  /**
+   * Alias for Field::settings().
+   *
+   * @todo remove at D11.
+   */
+  public static function settings(array &$settings, $field, array $data = []): array {
+    return Field::settings($settings, $field, $data);
   }
 
 }

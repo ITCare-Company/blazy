@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Internals;
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\BlazySettings;
@@ -36,7 +35,7 @@ class Initializer {
   }
 
   /**
-   * Returns the BlazySettings indtance.
+   * Returns the BlazySettings instance.
    *
    * @param array $data
    *   The data being passed.
@@ -45,11 +44,12 @@ class Initializer {
    *   The BlazySettings instance.
    */
   public static function init(array $data = []): BlazySettings {
-    return new BlazySettings($data ?: BlazyDefault::htmlSettings());
+    // Includes stored UI settings, excluding HTML settings.
+    return new BlazySettings($data + BlazyDefault::blazies());
   }
 
   /**
-   * Alias for Settings::init().
+   * Alias for self::init().
    *
    * @param array $data
    *   The data being passed.
@@ -124,7 +124,7 @@ class Initializer {
     array $defaults = [],
   ): BlazySettings {
     if (!isset($settings[$key])) {
-      $settings += $defaults ?: Blazy::init();
+      $settings += $defaults ?: self::withBlazies();
 
       // A failsafe for edge cases:
       if (!isset($settings[$key])) {
@@ -133,8 +133,15 @@ class Initializer {
     }
 
     // In case overriden above without extending self::init().
-    $settings += Blazy::init();
+    $settings += self::withBlazies();
     return $settings[$key];
+  }
+
+  /**
+   * Initialize Blazy settings for convenience.
+   */
+  public static function withBlazies(): array {
+    return BlazyDefault::htmlSettings();
   }
 
   /**
@@ -163,7 +170,7 @@ class Initializer {
     $default = $merge ? $settings : [];
     return $blazies instanceof BlazySettings
       ? $blazies
-      : self::verify($settings, $key, $default);
+      : self::init($default);
   }
 
 }

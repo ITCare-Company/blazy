@@ -4,6 +4,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Utility\Field;
 use Drupal\blazy\Traits\PluginScopesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -205,7 +206,7 @@ trait BlazyFormatterTrait {
       'formatter'     => array_filter($this->getSettings()),
     ];
 
-    return BlazyField::settings($settings, $field, $data);
+    return Field::settings($settings, $field, $data);
   }
 
   /**

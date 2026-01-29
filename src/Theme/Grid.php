@@ -4,6 +4,7 @@ namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Check;
@@ -129,6 +130,45 @@ class Grid {
   }
 
   /**
+   * Checks for grids, also supports Slick which requires no `style`.
+   */
+  public static function check(array &$settings): void {
+    $blazies  = Internals::getBlazies($settings);
+    $has_grid = !empty($settings['grid']);
+    $sub_grid = $has_grid && !empty($settings['visible_items']);
+    $style    = $settings['style'] ?? NULL;
+    $style    = $style ?: ($sub_grid ? 'grid' : NULL);
+    $is_grid  = $sub_grid ?: ($style && $has_grid);
+    $is_grid  = $is_grid ?: $settings['_grid'] ?? $blazies->is('grid', $is_grid);
+
+    $blazies->set('is.grid', $is_grid);
+
+    // Bail out early if not so configured.
+    if (!$is_grid) {
+      return;
+    }
+
+    // Babysitter for Slick which requires no Display style.
+    if (!$style) {
+      $settings['style'] = 'grid';
+    }
+
+    if ($style) {
+      foreach (BlazyDefault::grids() as $grid) {
+        if ($style == $grid) {
+          $key = str_replace('.', '__', $style);
+          $blazies->set('libs.' . $key, $grid);
+        }
+      }
+
+      // Formatters, Views style, not Filters.
+      self::toNativeGrid($settings);
+    }
+
+    $blazies->set('was.grid', TRUE);
+  }
+
+  /**
    * Listens to signaled grid item attributes.
    *
    * Can be set via hook_blazy_settings_alter for minor alters, such as adding
@@ -222,7 +262,7 @@ class Grid {
         Internals::hashtag($item, 'settings', TRUE);
 
         $subsets = $sets;
-        // @todo recheck $blazy = $subsets['blazies']->reset($subsets);.
+        // @todo recheck $blazy = $subsets['blazies']->reset($subsets);
         $blazy = Internals::getBlazies($subsets)->reset($subsets);
         $subsets['delta'] = $i;
         $blazy->set('delta', $i);

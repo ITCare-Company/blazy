@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterEntityTrait;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
+use Drupal\blazy\Utility\Field;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -209,7 +210,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    */
   protected function getAvailableBundles(): array {
     $field = $this->fieldDefinition;
-    return BlazyField::getAvailableBundles($field);
+    return Field::getAvailableBundles($field);
   }
 
   /**

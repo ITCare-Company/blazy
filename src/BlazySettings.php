@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\blazy\Utility\Arrays;
+use Drupal\blazy\Utility\Type;
 
 /**
  * Provides settings object.
@@ -391,26 +392,6 @@ class BlazySettings implements \Countable {
   }
 
   /**
-   * Normalize potential mixed values.
-   *
-   * @param mixed $value
-   *   The value.
-   * @param bool $default
-   *   The default value.
-   *
-   * @return bool
-   *   Returns TRUE or FALSE.
-   */
-  private function normalizeBool(mixed $value, bool $default = FALSE): bool {
-    if (is_bool($value)) {
-      return $value;
-    }
-
-    $bool = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-    return $bool ?? $default;
-  }
-
-  /**
    * Returns a convenient shortcut to get a feature with an `is` key.
    *
    * @param string $parent
@@ -425,7 +406,7 @@ class BlazySettings implements \Countable {
    */
   private function safeBool(string $parent, string $key, bool $default_value = FALSE): bool {
     $value = $this->get($parent . '.' . $key, $default_value);
-    return $this->normalizeBool($value, $default_value);
+    return Type::normalizeBool($value, $default_value);
   }
 
   /**
