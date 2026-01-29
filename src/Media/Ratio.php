@@ -26,8 +26,7 @@ class Ratio {
    *   The ratio and hack array.
    */
   public static function hack(array $settings): array {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $disabled = $blazies->is('amp');
     $fluid    = $blazies->is('fluid');
     $_svg     = $blazies->is('svg');

@@ -128,9 +128,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   public function postBuildElements(array &$build, $items, array $entities = []) {
     /** @var array $settings */
     $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::getBlazies($settings);
 
     // The last method before being passed to each manager builders.
     // Supports lightbox gallery if using Blazy formatter.
@@ -147,9 +145,10 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
         $data = $item['#build'] ?? $fallback;
 
         if ($data = array_filter($data)) {
-          if ($blazy = $data['#settings']['blazies'] ?? NULL) {
+          $blazy = Blazy::getBlazies($data['#settings']);
+          if ($uri = $blazy->get('image.uri')) {
             $blazies->set('first.data', $data)
-              ->set('first.uri', $blazy->get('image.uri'));
+              ->set('first.uri', $uri);
           }
         }
       }

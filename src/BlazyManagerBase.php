@@ -19,8 +19,8 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   public function attach(array $attach = []): array {
     $load = $this->libraries->attach($attach);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $attach['blazies'];
+    // Might be loaded anywhere without proper initialization.
+    $blazies = $this->verifySafely($attach);
 
     Internals::count($blazies);
     $this->attachments($load, $attach, $blazies);
@@ -62,9 +62,8 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function imageStyles(array &$settings, $multiple = FALSE, array $styles = []): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
-    $styles  = $styles ?: BlazyDefault::imageStyles();
+    $blazies = Blazy::getBlazies($settings);
+    $styles = $styles ?: BlazyDefault::imageStyles();
 
     foreach ($styles as $key) {
       if (!$blazies->get($key . '.style') || $multiple) {
@@ -135,8 +134,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     // Prevents double checks.
     // BlazySettings is a self containing object, initialized at container level
     // and must be renewed at item level to get correct delta, see #3278525.
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies']->reset($settings);
+    $blazies = Blazy::getBlazies($settings)->reset($settings);
     $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
     $style   = $settings['image_style'] ?? NULL;
 
@@ -163,7 +161,8 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
 
     // Update with blazy processed settings: unstyled extensions, SVG, etc.
     if ($blazysets = $this->toHashtag($item_build)) {
-      $build['#settings']['blazies']->merge($blazysets['blazies']->storage());
+      $blazies = Blazy::getBlazies($blazysets);
+      $build['#settings']['blazies']->merge($blazies->storage());
     }
   }
 

@@ -4,7 +4,7 @@ namespace Drupal\blazy_layout\Hook;
 
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
-use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Blazy;
 use Drupal\blazy_layout\BlazyLayoutDefault;
 
 /**
@@ -53,8 +53,7 @@ class ThemeHooks {
       return;
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::getBlazies($settings);
     $wrappers = $content['#wrapper_attributes'] ?? [];
     $variables['wrapper_attributes'] = new Attribute($wrappers);
     $in_preview = $variables['in_preview'];
@@ -70,8 +69,8 @@ class ThemeHooks {
     // @todo figure out for phpstan w/o checkImplicitMixed.
     // $variables = is_array($variables) ? $variables : [];.
     // @todo convert it to DI $this->manager->service() at D11.
-    /** @var \Drupal\Core\Theme\ThemeManagerInterface $theme */
-    if ($theme = Internals::service('theme.manager')->getActiveTheme()->getName()) {
+    $theme_manager = Blazy::getService('theme.manager');
+    if ($theme_manager && $theme = $theme_manager->getActiveTheme()->getName()) {
       $attributes['class'][] = 'b-theme-' . str_replace('_', '-', $theme);
     }
 
@@ -151,7 +150,8 @@ class ThemeHooks {
    */
   public static function preprocessBlock(array &$variables): void {
     if ($settings = $variables['elements']['#blazy'] ?? []) {
-      $variables['blazies'] = $settings['blazies']->storage();
+      $blazies = Blazy::getBlazies($settings);
+      $variables['blazies'] = $blazies->storage();
     }
   }
 
@@ -168,8 +168,7 @@ class ThemeHooks {
     if ($blazy || isset($element['#blazy'])
     || !empty($element['#third_party_settings']['blazy']['blazy'])) {
       if ($settings = $element['#blazy'] ?? []) {
-        /** @var \Drupal\blazy\BlazySettings $blazies */
-        $blazies = $settings['blazies'];
+        $blazies = Blazy::getBlazies($settings);
 
         // @fixme might be 0 even has one if embedded inside LB blocks.
         if ($blazies->total() == 0) {
@@ -235,13 +234,10 @@ class ThemeHooks {
         $settings = $first_item['#blazy'] ?? [];
       }
 
-      if ($settings) {
-        /** @var \Drupal\blazy\BlazySettings|null $blazies */
-        if (!empty($settings['use_lb'])
-        && $blazies = $settings['blazies'] ?? NULL) {
-          if ($blazies->use('bg') || $blazies->count() == 1) {
-            $suggestions[] = $hook . '__blazy';
-          }
+      if ($settings && !empty($settings['use_lb'])) {
+        $blazies = Blazy::getBlazies($settings);
+        if ($blazies->use('bg') || $blazies->count() == 1) {
+          $suggestions[] = $hook . '__blazy';
         }
       }
     }

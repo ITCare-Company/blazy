@@ -193,9 +193,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    */
   protected function getThumbnail(array &$sets, $row, $index, $field_caption = NULL): array {
     $name = $sets['thumbnail'] ?? NULL;
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $sets['blazies'];
+    $blazies = Internals::getBlazies($sets);
 
     $blazies->set('is.reset', TRUE);
 
@@ -248,8 +246,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
     Internals::preserve($settings, $formatter);
 
     // Each blazy delta is always 0 within a view, this makes it gallery.
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $blazies->merge($formatter['blazies']->storage());
     $blazies->set('delta', $index)
       ->set('is.gallery', !empty($settings['media_switch']));
@@ -285,8 +282,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *   The views row index.
    */
   protected function withImageFormatter(array &$settings, array $rendered, $index): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // Deals with "link to content/image" by formatters.
     $url = $rendered['#url'] ?? '';
@@ -335,8 +331,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
 
     // Can only have one thumbnail even if multiple.
     // Supports core image formatter, the most sensible, and Blazy formatter.
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $sets['blazies'];
+    $blazies  = Internals::getBlazies($sets);
     $doable   = FALSE;
     $result   = $this->getFieldRenderable($row, 0, $name);
     $rendered = $result['rendered'] ?? [];

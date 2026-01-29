@@ -179,10 +179,8 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
 
     // Prepare needed settings to work with.
     $settings = BlazyViews::settings($view, $options, $data);
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
-    $is_grid = !empty($settings['style']) && !empty($settings['grid']);
+    $blazies  = Internals::getBlazies($settings);
+    $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
 
     $settings['caption'] = empty($settings['caption'])
       ? [] : array_filter($settings['caption']);
@@ -231,18 +229,16 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
     // if (empty($settings['vanilla']) && isset($build['items'][0])) {
     // $this->manager()->isBlazy($settings, $build['items'][0]);
     // }
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
       $blazies->set('first.data', $data);
 
       // @todo recheck $this->manager->preSettings($settings);
       if ($subsets = $this->manager->toHashtag($data)) {
-        /** @var \Drupal\blazy\BlazySettings $blazies */
-        if ($blazy = $subsets['blazies']) {
-          $field = $blazy->get('field', []);
+        $blazy = Internals::getBlazies($subsets);
+        if ($field = $blazy->get('field', [])) {
           $field['count'] = $blazy->get('count');
-          $blazies->set('view.formatter', $field);
+          $blazies->set('view.formatter', $field, TRUE);
         }
       }
     }

@@ -46,9 +46,7 @@ class Placeholder {
    */
   public static function blur(array &$variables, array &$settings) {
     $attributes = &$variables['attributes'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $uri = $blazies->get('blur.uri');
     $url = $blazies->get('blur.url');
 
@@ -153,8 +151,7 @@ class Placeholder {
     self::thumbnails($settings);
 
     // Apply attributes related to Blur and Thumbnail image style.
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     if ($url = $blazies->get('thumbnail.url')) {
       $attributes[Attributes::data($blazies, 'thumb')] = $url;
     }
@@ -171,8 +168,7 @@ class Placeholder {
    * Checks for blur settings, required Image style and dimensions setup.
    */
   private static function blurs(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     if (!$blazies->use('blur')) {
       return;
     }
@@ -204,8 +200,7 @@ class Placeholder {
       return;
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     if (!$blazies->use('blur')) {
       return;
     }
@@ -266,8 +261,7 @@ class Placeholder {
    * @see self::prepare()
    */
   private static function thumbnails(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $style   = $blazies->get('thumbnail.style');
     $width   = $height = 1;
     $uri     = $blazies->get('image.uri');

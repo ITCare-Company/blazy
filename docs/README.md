@@ -15,6 +15,7 @@
     + [Multimedia galleries](#galleries)
     + [Lightboxes](#lightboxes)
     + [Aspect ratio](#aspect-ratio)
+    + [Linkable and Mixed-media](#mixed-media)
     + [SVG & WEBP](#svg)
     + [Animate.css integration](#animate-css)
     + [theme_blazy()](#theme-blazy)

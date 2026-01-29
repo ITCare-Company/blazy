@@ -218,9 +218,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
 
     /** @var array $settings */
     $settings = BlazyViews::settings($view, $settings, $info);
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     $blazies->set('item.id', static::$itemId)
       ->set('item.prefix', static::$itemPrefix)
@@ -258,9 +256,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
     /** @var array $scopes */
     $scopes = $this->getPluginScopes();
     $scopes += Blazy::init();
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $scopes['blazies'];
+    $blazies = Internals::getBlazies($scopes);
 
     /** @var array $settings */
     $settings = $this->options;

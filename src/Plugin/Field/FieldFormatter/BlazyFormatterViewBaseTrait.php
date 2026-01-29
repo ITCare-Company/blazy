@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * A Trait common for all blazy, including its sub-modules, text formatters.
@@ -66,8 +67,7 @@ trait BlazyFormatterViewBaseTrait {
    * Prepare the settings, allows sub-modules to re-use and override.
    */
   protected function preSettings(array &$settings, $langcode): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $blazies->set('language.code', $langcode);
   }
 

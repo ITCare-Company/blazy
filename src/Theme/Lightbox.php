@@ -58,10 +58,8 @@ class Lightbox {
    */
   public static function build(array &$element): void {
     /** @var array $settings */
-    $settings = &$element['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $settings   = &$element['#settings'];
+    $blazies    = Internals::getBlazies($settings);
     $switch     = $blazies->get('switch') ?: $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
     $item       = $blazies->get('image.item');
@@ -304,8 +302,7 @@ class Lightbox {
       '_resimage' => $_resimage,
     ] = $options;
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $provider = $json['provider'] ?? NULL;
 
     // Do not output NULL dimensions.
@@ -529,8 +526,7 @@ class Lightbox {
     if (!$manager) {
       return [];
     }
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $title   = $blazies->get('image.raw.title');
     $alt     = $blazies->get('image.raw.alt');
     $delta   = $blazies->get('delta', 0);

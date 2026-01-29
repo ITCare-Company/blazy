@@ -156,9 +156,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     // Do not reference here, else causes duplicates.
     /** @var array $settings */
     $settings = $data['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $limit    = $this->getViewLimit($settings);
     $by_delta = $settings['by_delta'] ?? -1;
     $total    = $blazies->total();
@@ -390,8 +388,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       $this->withElementOverride($build, $element);
     }
     else {
-      /** @var \Drupal\blazy\BlazySettings $blazies */
-      $blazies = $settings['blazies'];
+      $blazies = Internals::getBlazies($settings);
       if ($blazies->is('nav')) {
         if (method_exists($this, 'withElementThumbnail')) {
           $this->withElementThumbnail($build, $element);

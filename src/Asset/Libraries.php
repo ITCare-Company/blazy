@@ -70,10 +70,8 @@ class Libraries extends Config implements LibrariesInterface {
   public function attach(array &$attach): array {
     Internals::postSettings($attach);
 
-    $load = [];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $attach['blazies'];
+    $load    = [];
+    $blazies = Internals::getBlazies($attach);
     $unblazy = $blazies->is('unblazy', FALSE);
     $unload  = $blazies->ui('nojs.lazy', FALSE) || $blazies->is('unlazy');
 

@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Markdown;
@@ -127,13 +126,6 @@ class Internals extends Content {
    */
   public static function markdown($string, $help = TRUE, $sanitize = TRUE): string {
     return Markdown::parse($string, $help, $sanitize);
-  }
-
-  /**
-   * Alias for Settings::init().
-   */
-  public static function settings(array $data = []): BlazySettings {
-    return static::init($data);
   }
 
   /**

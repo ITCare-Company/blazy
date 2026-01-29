@@ -6,6 +6,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Layout\LayoutDefault;
 use Drupal\Core\Render\Element;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\Preloader;
@@ -146,7 +147,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   public function setRegionConfig(string $name, array $values): self {
     /** @var array $regions */
     $regions = $this->configuration['regions'] ?? [];
-    $config = $$regions[$name] ?? [];
+    $config = $regions[$name] ?? [];
 
     $this->configuration['regions'][$name] = $this->manager->merge($values, $config);
     return $this;
@@ -284,9 +285,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $colors   = $settings['styles']['colors'] ?? [];
     $layouts  = $settings['styles']['layouts'] ?? [];
     $semantic = !empty($settings['semantic_layout']);
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies  = Blazy::getBlazies($settings);
 
     if ($mid = $settings['styles']['media']['id'] ?? NULL) {
       $this->media($output, $settings, $mid, 'bg');
@@ -324,8 +323,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $output[$name][$name . '-bg']['#markup'] = ' ';
       }
 
-      /** @var \Drupal\blazy\BlazySettings $blazies */
-      $blazies = $subsets['blazies']->reset($subsets);
+      $blazies = Blazy::getBlazies($subsets)->reset($subsets);
       $blazies->set('delta', $delta);
 
       // Place before a bailout so to be visible at frontend.
@@ -354,13 +352,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fieldsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
-            // $blazies = $subsets['blazies']->reset($subsets);
-            /** @var \Drupal\blazy\BlazySettings $subblazies */
-            $subblazies = $fieldsets['blazies'];
+            $blazies = Blazy::getBlazies($subsets)->reset($subsets);
+            $subblazies = Blazy::getBlazies($fieldsets);
             $output[$name][$uuid]['#blazy'] = $subsets;
 
             $blazies->set('is.preview', $this->inPreview)
-              ->set('lb.region', $name);
+              ->set('lb.region', $name)
+              ->set('delta', $delta);
 
             $keys = ['entity', 'field', 'image', 'lightbox', 'media'];
             foreach ($keys as $key) {
@@ -663,8 +661,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $hero = FALSE,
   ): void {
     $data = [];
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::getBlazies($settings);
     $config = [
       'background' => TRUE,
       '_detached' => FALSE,
@@ -690,9 +687,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
         $use_overlay = !empty($styles['colors']['overlay_color']);
         $config = $this->manager->merge($mediasets, $config);
-
-        /** @var \Drupal\blazy\BlazySettings $blazies */
-        $blazies = $config['blazies']->reset($config);
+        $blazies = Blazy::getBlazies($config)->reset($config);
 
         $blazies->set('use.bg', TRUE);
 

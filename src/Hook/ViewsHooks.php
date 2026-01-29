@@ -156,9 +156,7 @@ class ViewsHooks {
       $settings = Blazy::init($data);
 
       $settings[$lightbox] = $lightbox;
-
-      /** @var \Drupal\blazy\BlazySettings $blazies */
-      $blazies = $settings['blazies'];
+      $blazies = Blazy::getBlazies($settings);
       $count = count($view->result);
       $blazies->set('count', $count)
         ->set('total', $count)
@@ -197,10 +195,9 @@ class ViewsHooks {
     if ($blazy = self::viewsField($view)) {
       $plugin_id = $view->getStyle()->getPluginId();
       $settings  = $blazy->mergedSettings ?: $blazy->mergedViewsSettings();
+      $blazies   = Blazy::getBlazies($settings);
 
-      if ($blazies = $settings['blazies'] ?? NULL) {
-        $blazies->set('unlazy', FALSE);
-      }
+      $blazies->set('unlazy', FALSE);
 
       $load  = $manager->attach($settings);
       $loads = $manager->merge($load, $loads);

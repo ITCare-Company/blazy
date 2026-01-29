@@ -28,9 +28,7 @@ class BlazyHooks {
   public static function blazySettingsAlter(array &$build, $object): void {
     /** @var array $settings */
     $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // Adds bio.ajax to fix product variation AJAX within BigPipe.
     // Views AJAX will automatically work, however to support other non-views

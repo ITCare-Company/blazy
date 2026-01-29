@@ -316,7 +316,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function baseForm(array &$definition): array {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes       = $this->toScopes($definition);
-    $blazies      = $definition['blazies'];
+    $blazies      = Blazy::getBlazies($definition);
     $form         = [];
     $no_image     = $scopes->is('no_image_style');
     $disabled     = $scopes->is('no_view_mode');
@@ -603,7 +603,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       // Trying to be compact with gazillion options.
       if ($admin_css) {
         if ($gridsets) {
-          $blazy = $gridsets['blazies']->reset($gridsets);
+          $blazy = Blazy::getBlazies($gridsets)->reset($gridsets);
           $blazy->set('delta', $delta);
         }
 
@@ -732,7 +732,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *   The scopes being passed.
    */
   protected function lightboxForm(array &$form, array $definition, $scopes): void {
-    $blazies    = $definition['blazies'];
+    $blazies    = Blazy::getBlazies($definition);
     $multimedia = $scopes->is('multimedia');
     $is_token   = $this->blazyManager->moduleExists('token');
 

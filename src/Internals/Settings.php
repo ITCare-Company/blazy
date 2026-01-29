@@ -3,10 +3,7 @@
 namespace Drupal\blazy\Internals;
 
 use Drupal\Component\Utility\Unicode;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyManagerInterface;
-use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
@@ -18,7 +15,7 @@ use Drupal\blazy\Utility\CheckItem;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  */
-class Settings {
+class Settings extends Initializer {
 
   /**
    * Implements hook_config_schema_info_alter().
@@ -68,8 +65,7 @@ class Settings {
    *   The settings being modified.
    */
   public static function contently(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = self::getBlazies($settings);
 
     // Disable all lazy stuffs since we got a brick here.
     // @todo recheck any misses, and refine overlaps.
@@ -117,8 +113,7 @@ class Settings {
    *   The settings being modified.
    */
   public static function updateCountByDelta(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = self::getBlazies($settings);
     $by_delta = $settings['by_delta'] ?? -1;
     $total    = $blazies->total();
 
@@ -190,19 +185,6 @@ class Settings {
     $data = $blazies->get('view.data', []);
     $name = $blazies->get('field.name', 'x');
     return $data[$name]['limit'] ?? 0;
-  }
-
-  /**
-   * Alias for BlazySettings().
-   *
-   * @param array $data
-   *   The data being passed.
-   *
-   * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings instance.
-   */
-  public static function init(array $data = []): BlazySettings {
-    return new BlazySettings($data);
   }
 
   /**
@@ -324,10 +306,10 @@ class Settings {
     }
 
     /** @var \Drupal\blazy\BlazySettings $parent */
-    $parent = $parentsets['blazies'];
+    $parent = self::getBlazies($parentsets);
 
     /** @var \Drupal\blazy\BlazySettings $child */
-    $child = $childsets['blazies'];
+    $child = self::getBlazies($childsets);
 
     if ($bg = $parentsets['background'] ?? FALSE) {
       $parent->set('use.bg', $bg);
@@ -414,35 +396,6 @@ class Settings {
   }
 
   /**
-   * Reset the BlazySettings per item to have unique URI, delta, style, etc.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   * @param string $key
-   *   The settings key.
-   * @param array $defaults
-   *   The defaults if any.
-   */
-  public static function reset(
-    array &$settings,
-    string $key = 'blazies',
-    array $defaults = [],
-  ): BlazySettings {
-    // Other implementors should verify the $key prior to calling this.
-    self::verify($settings, $key, $defaults);
-
-    // The settings instance must be unique per item.
-    /** @var \Drupal\blazy\BlazySettings $config */
-    $config = &$settings[$key];
-    if (!$config->was('reset')) {
-      $config->reset($settings, $key);
-      $config->set('was.reset', TRUE);
-    }
-
-    return $config;
-  }
-
-  /**
    * A helper to gradually convert things to #things to avoid render error.
    *
    * @param array $data
@@ -518,57 +471,6 @@ class Settings {
     self::scriptable($blazies);
 
     $blazies->set('media.token', 'b-' . $token);
-  }
-
-  /**
-   * Verify `blazies` exists, in case accessed outside the workflow.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   * @param string $key
-   *   The settings key.
-   * @param array $defaults
-   *   The defaults if any.
-   *
-   * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings instance.
-   */
-  public static function verify(
-    array &$settings,
-    string $key = 'blazies',
-    array $defaults = [],
-  ): BlazySettings {
-    if (!isset($settings[$key])) {
-      $settings += $defaults ?: Blazy::init();
-
-      // A failsafe for edge cases:
-      if (!isset($settings[$key])) {
-        $settings[$key] = self::init();
-      }
-    }
-
-    // In case overriden above without extending self::init().
-    $settings += Blazy::init();
-    return $settings[$key];
-  }
-
-  /**
-   * Returns the Blazy manager service if available.
-   *
-   * May return NULL in unit-test or early-bootstrap contexts.
-   *
-   * @return \Drupal\blazy\BlazyManagerInterface|null
-   *   The blazy.manager instance.
-   */
-  public static function blazy(): ?BlazyManagerInterface {
-    return self::service('blazy.manager');
-  }
-
-  /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   */
-  public static function service($service) {
-    return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
   }
 
   /**

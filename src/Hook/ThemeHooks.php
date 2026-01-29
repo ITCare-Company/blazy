@@ -139,10 +139,9 @@ class ThemeHooks {
     // We do this because Blazy has no special themes for containers, but
     // reusing core theme_field() + theme_item_list(). The trouble is when
     // things changed, as seen at self::formatterSettings().
-    if ($blazies = $settings['blazies'] ?? NULL) {
-      if (!$blazies->is('grid')) {
-        Attributes::container($variables['attributes'], $settings);
-      }
+    $blazies = Blazy::getBlazies($settings);
+    if (!$blazies->is('grid')) {
+      Attributes::container($variables['attributes'], $settings);
     }
   }
 

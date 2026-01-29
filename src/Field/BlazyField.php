@@ -97,9 +97,7 @@ class BlazyField {
    * Provides field-related settings, called by back-end and front-end.
    */
   public static function settings(array &$settings, $field, array $data = []): array {
-    $settings['blazies'] = $settings['blazies'] ?? Internals::settings();
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $settings['blazies'] = Internals::getBlazies($settings);
     $blazies = $settings['blazies'];
     $bundles = self::getAvailableBundles($field);
 

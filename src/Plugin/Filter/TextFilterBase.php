@@ -5,6 +5,7 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\blazy\Internals\Internals;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\filter\Render\FilteredMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -171,8 +172,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    * Extracts setting from attributes.
    */
   protected function extractSettings(\DOMElement $node, array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // Ensures these settings are re-checked.
     $blazies->set('was.initialized', FALSE);

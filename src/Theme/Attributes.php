@@ -116,9 +116,7 @@ class Attributes {
 
     /** @var array $settings */
     $settings = &$variables['settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
@@ -184,8 +182,7 @@ class Attributes {
    *   The settings being modified.
    */
   public static function finalizeAnyway(array &$variables, array &$attributes, array $settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $provider = $blazies->get('media.provider');
 
     if ($provider == 'local') {
@@ -218,9 +215,7 @@ class Attributes {
   public static function buildIframe(array &$variables): void {
     /** @var array $settings */
     $settings = &$variables['settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
 
     // Only provide iframe if not for lightboxes, identified by URL.
     if (empty($variables['url'])) {
@@ -251,10 +246,8 @@ class Attributes {
     $settings = &$variables['settings'];
 
     /** @var array $attributes */
-    $attributes = &$variables['attributes'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies     = $settings['blazies'];
+    $attributes  = &$variables['attributes'];
+    $blazies     = Internals::getBlazies($settings);
     $local_video = $blazies->is('video_file') && !$blazies->is('lightbox');
     $bgs         = [];
 
@@ -343,8 +336,7 @@ class Attributes {
    *   The iframe attributes.
    */
   public static function iframe(array &$settings): array {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $attributes = ['allowfullscreen' => TRUE];
 
     // Already escaped upstream for core, except for contribs.
@@ -680,9 +672,7 @@ class Attributes {
     $settings   = &$variables['settings'];
     $image      = &$variables['image'];
     $attributes = &$variables['item_attributes'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
 
     // Sticks to blazy.api.php design to avoid issues with image styles, etc.
     if ($attrs = $blazies->get('image.attributes', [])) {
@@ -760,11 +750,9 @@ class Attributes {
    */
   private static function buildImage(array &$variables): void {
     /** @var array $settings */
-    $settings   = &$variables['settings'];
-    $attributes = &$variables['attributes'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies     = $settings['blazies'];
+    $settings    = &$variables['settings'];
+    $attributes  = &$variables['attributes'];
+    $blazies     = Internals::getBlazies($settings);
     $url         = $blazies->get('image.url');
     $placeholder = $blazies->get('placeholder.url') ?: Placeholder::generate();
 
@@ -805,9 +793,7 @@ class Attributes {
   private static function buildNoscriptImage(array &$variables): void {
     /** @var array $settings */
     $settings = $variables['settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $noscript = $variables['image'];
 
     $noscript['#uri'] = $blazies->get('resimage.id')
@@ -841,9 +827,7 @@ class Attributes {
   private static function buildResponsiveImage(array &$variables): void {
     /** @var array $settings */
     $settings = &$variables['settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
 
     if ($blazies->use('bg')) {
       // Attach BG data attributes to a DIV container.

@@ -129,8 +129,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     $entity = $this->manager->load($id, $entity_type);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $id = (int) $id;
 
     if ($entity && $entity->hasField($field_name)) {
@@ -182,9 +181,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildImageItem(array &$build, &$node, $delta = 0): void {
     /** @var array $settings */
     $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $attrs = $blazies->get('item.raw_attributes', []);
 
     $build['#delta'] = $delta;
@@ -235,9 +232,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildImageCaption(array &$build, &$node) {
     /** @var array $settings */
     $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $item = $this->getCaptionElement($node);
 
     // Sanitization was done by Caption filter when arriving here, as
@@ -342,9 +337,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function getImageItemFromImageSrc(array &$build, $node, $src): void {
     /** @var array $settings */
     $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $attrs    = $blazies->get('item.raw_attributes', []);
     $file     = NULL;
     $data_uri = FALSE;
@@ -423,9 +416,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function getImageItemFromIframeSrc(array &$build, &$node, $src, $delta = 0): void {
     /** @var array $settings */
     $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
     $media = NULL;
@@ -447,7 +438,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    */
   protected function buildItemAttributes(array &$build, $node, $delta = 0): void {
     $sets = &$build['#settings'];
-    $blazies = $sets['blazies'];
+    $blazies = Internals::getBlazies($sets);
 
     // In case we forgot what we were talking about, add a reminder.
     if (in_array($node->tagName, ['item', 'slide'])) {
@@ -508,9 +499,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildMediaAttributes(array &$build, $node, $delta = 0): void {
     /** @var array $settings */
     $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $tag = $node->nodeName;
     $attrs = AttributeParser::getAttribute($node);
 
@@ -589,10 +578,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    */
   protected function buildItemSettings(array &$build, $node, $delta = 0): bool {
     /** @var array $settings */
-    $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $settings   = &$build['#settings'];
+    $blazies    = Internals::getBlazies($settings);
     $ui_style   = $settings['image_style'] ?? NULL;
     $ui_restyle = $settings['responsive_image_style'] ?? NULL;
     $attrs      = $blazies->get('item.raw_attributes', []);
@@ -652,9 +639,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     if ($update) {
       /** @var array $settings */
       $settings = &$build['#settings'];
-
-      /** @var \Drupal\blazy\BlazySettings $blazies */
-      $blazies = $settings['blazies'];
+      $blazies = Internals::getBlazies($settings);
 
       $blazies->set('is.multistyle', TRUE);
       $this->manager->imageStyles($settings, TRUE);

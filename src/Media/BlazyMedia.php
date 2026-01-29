@@ -111,8 +111,7 @@ class BlazyMedia implements BlazyMediaInterface {
       $data['content'][] = $this->view($data);
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $blazies->set('is.denied', empty($data['#access']));
 
     // Pass it to Blazy for consistent markups.
@@ -322,8 +321,7 @@ class BlazyMedia implements BlazyMediaInterface {
    * {@inheritdoc}
    */
   public function iframeable(array &$item, array &$settings): bool {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
     $original   = $item;
     $uri        = $blazies->get('image.uri');
     $iframeable = FALSE;
@@ -371,7 +369,7 @@ class BlazyMedia implements BlazyMediaInterface {
   public function prepare(array &$data): MediaInterface {
     $media     = $data['#media'] ?? $data['#entity'];
     $settings  = &$data['#settings'];
-    $blazies   = $settings['blazies'];
+    $blazies   = Internals::getBlazies($settings);
     $view_mode = $settings['view_mode'] ?? 'default';
     $langcode  = $blazies->get('language.current');
     $result    = $this->getMetadata($media, $view_mode, $langcode);
@@ -488,8 +486,7 @@ class BlazyMedia implements BlazyMediaInterface {
    * @todo add an option for thumbnail preview rather than entity view.
    */
   private function disableFeatures(array &$settings, $rendered = TRUE, $link = NULL): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $blazies->set('use.content', $rendered);
 
     // @todo recheck, might be dynamic link to iframe like Pinterest:
@@ -506,8 +503,7 @@ class BlazyMedia implements BlazyMediaInterface {
    * Modifies item attributes for local audio/video item.
    */
   private function toLocal(array &$item, array &$settings, $file): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // @todo multiple sources, not crucial for now.
     // This is not an image URI, but file video URI.
@@ -541,10 +537,8 @@ class BlazyMedia implements BlazyMediaInterface {
    */
   private function unfield(array &$field): array {
     /** @var array $settings */
-    $settings = &$field['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies   = $settings['blazies'];
+    $settings  = &$field['#settings'];
+    $blazies   = Internals::getBlazies($settings);
     $item      = $field[0];
     $is_iframe = ($item['#tag'] ?? NULL) == 'iframe';
 

@@ -28,8 +28,7 @@ class Preloader {
    * @nottodo support multiple hero images like carousels.
    */
   public static function preload(array &$load, array $settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::getBlazies($settings);
     $images  = $blazies->get('images', []);
     $check   = array_filter($images);
     $sources = $blazies->get('resimage.sources', []);
@@ -63,8 +62,7 @@ class Preloader {
    * field formatters like this one, blazy_filter, views field, or manual call.
    */
   public static function prepare(array &$settings, $items, array $entities = []): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::getBlazies($settings);
     if (array_filter($blazies->get('images', []))) {
       return;
     }
@@ -262,7 +260,9 @@ class Preloader {
           'hero' => $priority && $start,
         ];
 
-        foreach ($source['items'] as $source_item) {
+        // @todo recheck items is provided somewhere.
+        $items = $source['items'] ?? [];
+        foreach ($items as $source_item) {
           yield empty($source_item['srcset']) || !$start ? NULL : $link($image, $source_item);
         }
       }

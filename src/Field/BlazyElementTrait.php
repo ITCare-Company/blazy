@@ -54,13 +54,11 @@ trait BlazyElementTrait {
     /** @var array $settings */
     $settings = $this->formatter->toHashtag($element);
     $item     = $this->formatter->toHashtag($element, 'item', NULL);
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
-    $inline  = $settings['svg_inline'] ?? FALSE;
-    $bg      = $settings['background'] ?? FALSE;
-    $exist   = Blazy::svgSanitizerExists();
-    $valid   = $inline && $exist && !$bg;
+    $blazies  = Blazy::getBlazies($settings);
+    $inline   = $settings['svg_inline'] ?? FALSE;
+    $bg       = $settings['background'] ?? FALSE;
+    $exist    = Blazy::svgSanitizerExists();
+    $valid    = $inline && $exist && !$bg;
 
     if ($valid && $uri = $blazies->get('image.uri')) {
       $options = BlazyDefault::toSvgOptions($settings);

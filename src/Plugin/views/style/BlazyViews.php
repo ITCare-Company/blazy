@@ -76,9 +76,7 @@ class BlazyViews extends BlazyStyleVanilla implements BlazyViewsInterface {
   public function render() {
     /** @var array $settings */
     $settings = $this->buildSettings();
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $view = $this->view;
 
     $blazies->set('is.grid', TRUE);

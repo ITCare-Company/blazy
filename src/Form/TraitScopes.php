@@ -44,9 +44,7 @@ trait TraitScopes {
   public function toScopes(array &$definition): BlazySettings {
     // Looks like unit test failed with manager methods given a Trait.
     $definition += Blazy::init();
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $definition['blazies'];
+    $blazies = Blazy::getBlazies($definition);
     $namespace = $blazies->get('namespace') ?: ($definition['namespace'] ?? '');
 
     static::$namespace = $namespace;
@@ -91,9 +89,7 @@ trait TraitScopes {
     $namespace = static::$namespace;
     $definition['plugin_id'] = $definition['plugin_id'] ?? 'x';
     $settings = $definition['settings'] ?? [];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $definition['blazies'];
+    $blazies = Blazy::getBlazies($definition);
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
     $plugin_id = $blazies->get('field.plugin_id') ?: $definition['plugin_id'];

@@ -50,9 +50,8 @@ class BlazyUnitTest extends UnitTestCase {
     $settings  = Blazy::init();
     $uri       = 'public://example.jpg';
     $embed_url = '//www.youtube.com/watch?v=E03HFA923kw';
+    $blazies   = Blazy::getBlazies($settings);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
     $blazies->set('media.embed_url', $embed_url)
       ->set('media.bundle', 'remote_video')
       ->set('media.type', 'video')
@@ -109,11 +108,9 @@ class BlazyUnitTest extends UnitTestCase {
     $build     = $this->data;
 
     /** @var array $settings */
-    $settings  = array_merge($build['#settings'], $settings);
+    $settings = array_merge($build['#settings'], $settings);
     $settings += Blazy::init();
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies   = $settings['blazies'];
+    $blazies = Blazy::getBlazies($settings);
     $embed_url = $settings['embed_url'] ?? '';
 
     $settings['image_style']     = '';
@@ -144,8 +141,7 @@ class BlazyUnitTest extends UnitTestCase {
     $this->assertTrue($image);
     $this->assertTrue($iframe);
 
-    /** @var \Drupal\blazy\BlazySettings $processed */
-    $processed = $settings['blazies'];
+    $processed = Blazy::getBlazies($settings);
     $this->assertEquals($blazies->get('lazy.id'), $processed->get('lazy.id'));
   }
 
@@ -225,9 +221,7 @@ class BlazyUnitTest extends UnitTestCase {
 
     /** @var array $settings */
     $settings += Blazy::init();
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::getBlazies($settings);
     $settings['box_style'] = '';
     $settings['box_media_style'] = '';
 
@@ -246,9 +240,8 @@ class BlazyUnitTest extends UnitTestCase {
 
     /** @var array $element */
     $element = $this->doPreRenderImage($build);
+    $blazies = Blazy::getBlazies($build['#settings']);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $build['#settings']['blazies'];
     if ($settings['media_switch'] == 'content') {
       $this->assertEquals($blazies->get('entity.url'), $element['#url']);
       $this->assertArrayHasKey('#url', $element);

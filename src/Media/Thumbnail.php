@@ -60,8 +60,7 @@ class Thumbnail {
    * @see https://www.drupal.org/node/2489544
    */
   private static function image(array $settings, $item = NULL, $class = NULL): array {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $tn_uri  = $blazies->get('thumbnail.uri');
     $uri     = $tn_uri ?: $blazies->get('image.uri');
 
@@ -90,8 +89,7 @@ class Thumbnail {
 
     // @todo figure out for phpstan w/o checkImplicitMixed.
     // $settings = is_array($settings) ? $settings : [];.
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // Thumbnails can use image styles, except for SVG for now.
     // @todo check for any modules (ImageMagick) which convert SVG to image,

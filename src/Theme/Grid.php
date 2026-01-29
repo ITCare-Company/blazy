@@ -98,8 +98,7 @@ class Grid {
    *   The settings being passed.
    */
   public static function attributes(array &$attrs, array $settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $is_gallery = $blazies->is('gallery');
     $namespace  = $blazies->get('namespace');
@@ -182,9 +181,7 @@ class Grid {
     $gapless = $options['gapless'] ?? TRUE;
     $is_form = $options['is_form'] ?? TRUE;
     $style   = $options['style'] ?? 'nativegrid';
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $options['blazies'] ?? Internals::settings();
+    $blazies = Internals::getBlazies($options);
 
     $blazies->set('count', $count)
       ->set('is.grid', TRUE);
@@ -225,7 +222,8 @@ class Grid {
         Internals::hashtag($item, 'settings', TRUE);
 
         $subsets = $sets;
-        $blazy = $subsets['blazies']->reset($subsets);
+        // @todo recheck $blazy = $subsets['blazies']->reset($subsets);.
+        $blazy = Internals::getBlazies($subsets)->reset($subsets);
         $subsets['delta'] = $i;
         $blazy->set('delta', $i);
         $subattrs = [];
@@ -262,8 +260,7 @@ class Grid {
     array &$content_attrs,
     array $settings,
   ): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $item_class = $blazies->get('grid.item_class', 'grid');
 
     $classes = (array) ($attrs['class'] ?? []);
@@ -289,8 +286,7 @@ class Grid {
    *   The settings being passed.
    */
   public static function toItemAttributes(array &$attrs, array $settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // Count may be set as 2 even if it is 100 by sliders for their magic trick.
     // However total, the new preserved count key, may not be set somewhere.
@@ -427,8 +423,7 @@ class Grid {
       return;
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     if (self::isNativeGridAsMasonry($settings)) {
       $blazies->set('libs.nativegrid__masonry', TRUE);
     }
@@ -446,8 +441,7 @@ class Grid {
    *   The settings being passed.
    */
   private static function containerAttributes(array &$attrs, array $settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $style   = $settings['style'] ?: 'grid';
     $count   = Internals::count($blazies);
     $format1 = 'b-%s';
@@ -528,8 +522,7 @@ class Grid {
    *   The modified array of grid items.
    */
   private static function content($items, array &$settings): array {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
     $is_grid    = $blazies->is('grid');
     $item_class = $is_grid ? 'grid' : 'blazy__item';
     $contents   = [];
@@ -565,9 +558,8 @@ class Grid {
       $wrapper_attrs = Internals::toHashtag($item, 'attributes');
       $content_attrs = Internals::toHashtag($item, 'content_attributes');
       $image = $item['#item'] ?? NULL;
+      $blazy = Internals::getBlazies($sets);
 
-      /** @var \Drupal\blazy\BlazySettings $blazy */
-      $blazy = $sets['blazies'];
       $sets['delta'] = $key;
 
       $blazy->set('delta', $key);
@@ -664,8 +656,7 @@ class Grid {
    *   The settings being modified.
    */
   private static function toPair(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $grid = $settings['grid_large'] = $settings['grid'] ?? NULL;
 
     if (!$grid) {

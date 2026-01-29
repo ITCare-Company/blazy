@@ -99,8 +99,7 @@ class AttributeParser {
    */
   public static function toGrid(\DOMElement $node, array &$settings): void {
     if ($check = $node->getAttribute('grid')) {
-      /** @var \Drupal\blazy\BlazySettings $blazies */
-      $blazies = $settings['blazies'];
+      $blazies = Internals::getBlazies($settings);
       [$settings['style'], $grid, $settings['visible_items']] = array_pad(array_map('trim', explode(":", $check, 3)), 3, NULL);
 
       if ($grid) {

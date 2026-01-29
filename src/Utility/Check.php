@@ -26,8 +26,7 @@ class Check {
    * @todo remove some settings after sub-modules.
    */
   public static function container(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies      = $settings['blazies'];
+    $blazies      = Internals::getBlazies($settings);
     $item_id      = $blazies->get('item.id', 'blazy');
     $item_caption = $blazies->get('item.caption', 'captions');
     $item_prefix  = $blazies->get('item.prefix', 'blazy');
@@ -53,8 +52,7 @@ class Check {
    * Mostly for third party settings, using the global UI settings.
    */
   public static function uiContainer(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies      = $settings['blazies'];
+    $blazies      = Internals::getBlazies($settings);
     $ui           = $blazies->get('ui');
     $bundles      = $blazies->get('field.target_bundles', []);
     $medias       = $blazies->get('media.defaults', BlazyDefault::mediaDefaults());
@@ -202,8 +200,7 @@ class Check {
 
     Blazy::entitySettings($settings, $entity);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     if ($blazies->was('field')) {
       return;
     }
@@ -264,8 +261,7 @@ class Check {
    * Checks for grids, also supports Slick which requires no `style`.
    */
   public static function grids(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $has_grid = !empty($settings['grid']);
     $sub_grid = $has_grid && !empty($settings['visible_items']);
     $style    = $settings['style'] ?? NULL;
@@ -304,8 +300,7 @@ class Check {
    * Checks for lightboxes.
    */
   public static function lightboxes(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $switch  = $blazies->get('switch', $settings['media_switch'] ?? NULL);
 
     /** @var \Drupal\blazy\BlazyManagerInterface $manager */
@@ -355,8 +350,7 @@ class Check {
    * Checks for settings alter.
    */
   public static function settingsAlter(array &$settings, $entity = NULL): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     /** @var \Drupal\blazy\BlazyManagerInterface $manager */
     $manager = Internals::blazy();

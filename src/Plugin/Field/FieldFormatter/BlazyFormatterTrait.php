@@ -129,9 +129,7 @@ trait BlazyFormatterTrait {
   public function buildSettings() {
     /** @var array $settings */
     $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $multiple = $this->isMultiple();
     $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
 
@@ -222,8 +220,7 @@ trait BlazyFormatterTrait {
    * Returns Views delta_limit option.
    */
   protected function getViewLimit(array $settings): int {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     return Internals::getViewLimit($blazies);
   }
 

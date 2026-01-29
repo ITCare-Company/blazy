@@ -42,8 +42,7 @@ class BlazyResponsiveImage {
    * Do not let SVG alike mess up with ResponsiveImage, else fatal.
    */
   public static function transformed(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $unstyled = $blazies->is('unstyled');
 
     // Only if not transformed.
@@ -72,8 +71,7 @@ class BlazyResponsiveImage {
    * and Picture are checked with its multiple dimensions aka art direction.
    */
   public static function background(array &$attributes, array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
     $resimage   = $blazies->get('resimage.style');
     $background = $blazies->use('bg');
 
@@ -136,8 +134,7 @@ class BlazyResponsiveImage {
     $resimage = NULL,
     $initial = FALSE,
   ): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
     $dimensions = $blazies->get('resimage.dimensions', []);
     $resimage   = $resimage ?: $blazies->get('resimage.style');
 
@@ -239,8 +236,7 @@ class BlazyResponsiveImage {
       return;
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $id       = '_empty image_';
     $width    = $height = 1;
     $ratio    = NULL;
@@ -325,8 +321,7 @@ class BlazyResponsiveImage {
       return NULL;
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $exist    = $blazies->is('resimage');
     $_style   = $settings['responsive_image_style'] ?? NULL;
     $multiple = $blazies->is('multistyle');
@@ -363,8 +358,7 @@ class BlazyResponsiveImage {
       return [];
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     if ($sources = $blazies->get('resimage.sources', [])) {
       return $sources;
     }

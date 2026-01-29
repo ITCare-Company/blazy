@@ -56,7 +56,7 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key, if empty, similar to self::storage().
    * @param mixed $default_value
-   *   The storage default_value.
+   *   The default value.
    *
    * @return mixed
    *   A mixed value (array, string, bool, null, int, etc.).
@@ -81,7 +81,7 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key.
    * @param array $default_value
-   *   The storage default_value.
+   *   The default value.
    *
    * @return array
    *   The array of items inside the data key, or empty array.
@@ -96,7 +96,7 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key.
    * @param string $default_value
-   *   The storage default_value.
+   *   The default value.
    * @param string $namespace
    *   The plugin namespace.
    *
@@ -113,13 +113,13 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key.
    * @param bool $default_value
-   *   The storage default_value.
+   *   The default value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
   public function form($key, $default_value = FALSE): bool {
-    return $this->get('form.' . $key, $default_value) ?: FALSE;
+    return $this->safeBool('form', $key, $default_value);
   }
 
   /**
@@ -128,13 +128,13 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key.
    * @param bool $default_value
-   *   The storage default_value.
+   *   The default value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
   public function is($key, $default_value = FALSE): bool {
-    return $this->get('is.' . $key, $default_value) ?: FALSE;
+    return $this->safeBool('is', $key, $default_value);
   }
 
   /**
@@ -143,13 +143,13 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key.
    * @param bool $default_value
-   *   The storage default_value.
+   *   The default value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
   public function no($key, $default_value = FALSE): bool {
-    return $this->get('no.' . $key, $default_value) ?: FALSE;
+    return $this->safeBool('no', $key, $default_value);
   }
 
   /**
@@ -160,13 +160,13 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key.
    * @param bool $default_value
-   *   The storage default_value.
+   *   The default value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
   public function was($key, $default_value = FALSE): bool {
-    return $this->get('was.' . $key, $default_value) ?: FALSE;
+    return $this->safeBool('was', $key, $default_value);
   }
 
   /**
@@ -175,13 +175,13 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key.
    * @param bool $default_value
-   *   The storage default_value.
+   *   The default value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function use($key, $default_value = FALSE): bool {
-    return $this->get('use.' . $key, $default_value) ?: FALSE;
+  public function use(string $key, bool $default_value = FALSE): bool {
+    return $this->safeBool('use', $key, $default_value);
   }
 
   /**
@@ -190,7 +190,7 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The storage key.
    * @param string $default_value
-   *   The storage default_value.
+   *   The default value.
    *
    * @return mixed
    *   A mixed value (array, string, bool, null, etc.).
@@ -385,9 +385,47 @@ class BlazySettings implements \Countable {
       $this->storage[$key] = $value;
     }
     else {
-      NestedArray::setValue($this->storage, $parts, $value);
+      NestedArray::setValue($this->storage, $parts, $value, TRUE);
     }
     return $this;
+  }
+
+  /**
+   * Normalize potential mixed values.
+   *
+   * @param mixed $value
+   *   The value.
+   * @param bool $default
+   *   The default value.
+   *
+   * @return bool
+   *   Returns TRUE or FALSE.
+   */
+  private function normalizeBool(mixed $value, bool $default = FALSE): bool {
+    if (is_bool($value)) {
+      return $value;
+    }
+
+    $bool = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    return $bool ?? $default;
+  }
+
+  /**
+   * Returns a convenient shortcut to get a feature with an `is` key.
+   *
+   * @param string $parent
+   *   The storage key.
+   * @param string $key
+   *   The storage key.
+   * @param bool $default_value
+   *   The default value.
+   *
+   * @return bool
+   *   Returns TRUE or FALSE.
+   */
+  private function safeBool(string $parent, string $key, bool $default_value = FALSE): bool {
+    $value = $this->get($parent . '.' . $key, $default_value);
+    return $this->normalizeBool($value, $default_value);
   }
 
   /**

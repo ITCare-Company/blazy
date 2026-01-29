@@ -6,6 +6,7 @@ namespace Drupal\Tests\blazy\Kernel;
 
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\BlazyTheme;
 
 /**
@@ -57,8 +58,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $url = $settings['content_url'] ?? '';
     $this->blazyManager->postSettings($settings);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $blazies->set('count', $this->maxItems)
       ->set('entity.url', $url)
       ->set('media.embed_url', $settings['embed_url'] ?? '')
@@ -73,8 +73,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $element = $this->doPreRenderImage($build);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $build['#settings']['blazies'];
+    $blazies = Internals::getBlazies($build['#settings']);
     if ($url && $blazies->get('switch') == 'content') {
       $this->assertEquals($blazies->get('entity.url'), $element['#url']);
       $this->assertArrayHasKey('#url', $element);
@@ -86,7 +85,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     /*
     // @todo re-check why failed since 2.9-DEV.
-    // $blazies = $element['#settings']['blazies'];
+    // $blazies = Blazy::getBlazies($element['#settings']);
     // $this->assertEquals($expected_has_responsive_image,
     // !empty($blazies->get('resimage.id')));
      */
@@ -152,11 +151,9 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $input_url = $settings['input_url'] ?? NULL;
 
     /** @var array $settings */
-    $settings  = array_merge($this->getFormatterSettings(), $settings);
+    $settings = array_merge($this->getFormatterSettings(), $settings);
     $settings += Blazy::init();
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $id = 'blazy';
 
     $blazies->set('item.id', $id)
@@ -173,8 +170,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $this->blazyManager->postSettings($settings);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies']->reset($settings);
+    // @todo recheck $blazies = $settings['blazies']->reset($settings);.
+    $blazies = Internals::getBlazies($settings)->reset($settings);
     $item    = $use_item ? $this->testItem : NULL;
 
     if ($input_url) {

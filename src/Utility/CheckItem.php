@@ -116,8 +116,7 @@ class CheckItem {
     // Must be here for tests to pass file cache checks.
     // File cache tags cannot be read by tests from #pre_render.
     // Accounts for VEF conversion from video_embed_field into faked image item.
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::getBlazies($settings);
     $item    = $blazies->get('image.item', $item);
 
     if ($item && $file = ($item->entity ?? NULL)) {
@@ -193,8 +192,7 @@ class CheckItem {
    * individual level, such as non-blazy Image formatter within Blazy ecosystem.
    */
   public static function insanity(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
     $ratio      = $settings['ratio'] ?? '';
     $heroes     = $blazies->is('slider') || $blazies->is('unloading');
     $lcp        = $heroes && $blazies->is('initial');
@@ -249,8 +247,7 @@ class CheckItem {
    * @requires CheckItem::essentials()
    */
   public static function unstyled(array &$settings, $uri): bool {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
     $ext        = pathinfo($uri, PATHINFO_EXTENSION) ?: 'x';
     $ext        = strtolower($ext);
     $external   = UrlHelper::isExternal($uri);
@@ -294,8 +291,7 @@ class CheckItem {
    * @todo remove $settings['type'], only after BVEF synced/ updated, or at 3.x.
    */
   private static function multimedia(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies   = $settings['blazies'];
+    $blazies   = Internals::getBlazies($settings);
     $switch    = $settings['media_switch'] ?? NULL;
     $switch    = $blazies->get('switch', $switch);
     $provider  = $blazies->get('media.provider');

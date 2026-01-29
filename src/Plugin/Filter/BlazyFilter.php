@@ -4,6 +4,7 @@ namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\filter\FilterProcessResult;
 
@@ -71,9 +72,7 @@ class BlazyFilter extends BlazyFilterBase {
     // Prepare settings.
     /** @var array $settings */
     $settings = $this->buildSettings($text);
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // Checks if any shortcodes.
     if (stristr($text, '[' . static::$namespace) !== FALSE) {
@@ -170,9 +169,7 @@ class BlazyFilter extends BlazyFilterBase {
 
     /** @var array $settings */
     $settings = $build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
 
     // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
     if ($blazies->is('grid') || $blazies->no('item_container')) {
@@ -230,8 +227,7 @@ class BlazyFilter extends BlazyFilterBase {
    * {@inheritdoc}
    */
   protected function postSettings(array &$settings): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     if ($style = ($settings['hybrid_style'] ?? NULL)) {
       // @todo move it out of here due to requiring URI to determine style.
       if ($blazies->is('resimage')) {
@@ -258,8 +254,7 @@ class BlazyFilter extends BlazyFilterBase {
    * Build the blazy, the node might be grid, or direct img/ iframe.
    */
   private function build(\DOMElement $node, array &$settings, $delta = 0): array {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     if ($node->tagName == static::$namespace) {
       $dataset = $node->getAttribute('data');
@@ -287,8 +282,7 @@ class BlazyFilter extends BlazyFilterBase {
    * Process grids and entities, not always images or iframes.
    */
   private function processDom(\DOMDocument $dom, array $settings): bool {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies    = $settings['blazies'];
+    $blazies    = Internals::getBlazies($settings);
     $processed  = FALSE;
     $tags       = array_values((array) $this->settings['filter_tags']);
     $grid_items = $grid_nodes = [];
@@ -298,8 +292,9 @@ class BlazyFilter extends BlazyFilterBase {
       if (count($nodes) > 0) {
         $processed = TRUE;
         foreach ($nodes as $delta => $node) {
-          $sets  = $settings;
-          $blazy = $sets['blazies']->reset($sets);
+          $sets = $settings;
+          // @todo recheck $blazy = $sets['blazies']->reset($sets);
+          $blazy = Internals::getBlazies($sets)->reset($sets);
 
           $blazy->set('delta', $delta);
 
@@ -336,8 +331,9 @@ class BlazyFilter extends BlazyFilterBase {
     if (count($nodes) > 0) {
       $processed = TRUE;
       foreach ($nodes as $delta => $node) {
-        $sets  = $settings;
-        $blazy = $sets['blazies']->reset($sets);
+        $sets = $settings;
+        // @todo recheck $blazy = $sets['blazies']->reset($sets);.
+        $blazy = Internals::getBlazies($sets)->reset($sets);
 
         $blazy->set('delta', $delta);
 
@@ -364,8 +360,7 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $count = $nodes->length;
     $settings['count'] = $count;
 
@@ -417,8 +412,7 @@ class BlazyFilter extends BlazyFilterBase {
 
     $this->manager->toSettings($settings, $info);
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // If using grid, node is grid item.
     if ($node->tagName == static::$shortcode) {
@@ -473,8 +467,7 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $count = $blazies->get('count');
 
     if ($count > 0 && $type = $blazies->get('field.type')) {
@@ -536,9 +529,7 @@ class BlazyFilter extends BlazyFilterBase {
   protected function cleanupImageCaption(array &$build, &$node, &$item): void {
     /** @var array $settings */
     $settings = $build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     if (!$blazies->is('shortcode')) {
       // Mark the FIGCAPTION for deletion because the caption moved into Blazy.
@@ -566,8 +557,7 @@ class BlazyFilter extends BlazyFilterBase {
    * too catch-all, not selective like field formatters.
    */
   private function buildDeprecatedGrid(array &$settings, array $grid_nodes, array $grid_items = []): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     if (!$blazies->is('deprecated_grid') || empty($grid_items[0])) {
       return;
@@ -646,8 +636,7 @@ class BlazyFilter extends BlazyFilterBase {
    * @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
    */
   private function deprecatedGridSettings(array &$settings, $text = NULL): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // The data-grid and data-column are deprecated for [blazy] shortcode.
     if ($text) {

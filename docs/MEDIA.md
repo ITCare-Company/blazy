@@ -1,5 +1,38 @@
 
 ***
+## <a name="mixed-media"> </a>LLINKABLE AND MIXED-MEDIA
+
+To have a custom hi-res image/poster for (local|remote) video and audio, etc.:
+
+- **Visit bundle pages:**
+
+  * [Remote video](/admin/structure/media/manage/remote_video/fields)
+  * [Video](/admin/structure/media/manage/video/fields)
+  * [Audio](/admin/structure/media/manage/audio/fields)
+
+- **Re-use** the existing `field_media_image` into each bundle.
+
+- **Avoid creating a new field of Image**, it will fail mixed-media scenarios.
+    The same principle is applicable to non-image|background (Document, etc.)
+    when being used with/without image|background purposes. Normally you would
+    select this field under **Blazy formatter > Main stage** to be sure.
+
+- **Media switcher:**
+
+    Select `Media switcher > Image to iframe` option, or lightboxes, etc.
+
+- **Linkable Media:**
+
+  To have unique linkable media:
+
+  + add a Link or Text field to the Media bundles (not Content type or Node),
+  + select it under **Link** option,
+  + choose **Media switcher > Image linked by Link field**.
+
+Please refer to [Media Architecture & Privacy](#media-architecture) for
+optimization details.
+
+***
 ## <a name="svg"> </a> SVG
 
 Install **SVG Sanitizer** via Composer (see the [COMPOSER](#composer) section):

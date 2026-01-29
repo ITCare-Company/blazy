@@ -91,8 +91,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       '#settings' => $settings,
     ] = $build;
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies   = $settings['blazies'];
+    $blazies   = Internals::getBlazies($settings);
     $view_mode = $settings['view_mode'] ?? 'full';
     $is_blazy  = static::$namespace == 'blazy';
     $switch    = $settings['media_switch'] ?? NULL;
@@ -142,8 +141,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       '#settings' => $settings,
     ] = $element;
 
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies   = $settings['blazies'];
+    $blazies   = Internals::getBlazies($settings);
     $parent    = $element['#parent'] ?? NULL;
     $view_mode = $settings['view_mode'] ?? 'full';
     $captions  = $items = $weights = [];

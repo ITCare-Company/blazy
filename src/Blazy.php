@@ -99,6 +99,20 @@ class Blazy extends BlazyBase {
   }
 
   /**
+   * Alias for Internals::getBlazies().
+   */
+  public static function getBlazies(array $settings, bool $merge = FALSE, string $key = 'blazies'): BlazySettings {
+    return Internals::getBlazies($settings, $merge, $key);
+  }
+
+  /**
+   * Alias for Internals::service().
+   */
+  public static function getService(string $key) {
+    return Internals::service($key);
+  }
+
+  /**
    * Alias for CheckItem::has().
    */
   public static function has($content, $needle): bool {
@@ -113,10 +127,10 @@ class Blazy extends BlazyBase {
   }
 
   /**
-   * Alias for BlazySettings().
+   * Alias for Internals::init().
    */
   public static function initSettings(array $data = []): BlazySettings {
-    return new BlazySettings($data);
+    return Internals::init($data);
   }
 
   /**

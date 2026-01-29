@@ -6,6 +6,7 @@
  * [Configuration](#configuration)
    * [Mastering the Dynamic Layout](#mastering-layout)
    * [Media Background](#media-background)
+   * [Linkable and Mixed Media](#mixed-media)
    * [Semantic Layout](#semantic-layout)
  * [Known Issues/Limitations](#issues)
  * [Maintainers](#maintainers)
@@ -235,33 +236,9 @@ Three ways to add Media (image, local|remote video, audio) as CSS backgrounds:
      * **Add block > Choose a block > Content block**
 
 
-#### The following is applicable to background options above:
-* **Custom Hi-Res Image:**
+### <a name="mixed-media"> </a>Linkable or Mixed Media
 
-  To have a custom hi-res image/poster for (local|remote) video and audio:
-
-  + Visit bundle pages:
-
-    * [Remote video](/admin/structure/media/manage/remote_video/fields)
-    * [Video](/admin/structure/media/manage/video/fields)
-    * [Audio](/admin/structure/media/manage/audio/fields)
-
-  + **Re-use** the existing `field_media_image` into each bundle.
-
-    Avoid creating a new field of Image, it will fail mixed-media scenarios.
-    The same principle is applicable to non-background (Document, etc.)
-    when being used with/without background purposes. Normally you would select
-    this field under **Blazy formatter > Main stage** to be sure.
-
-  + Select `Media switcher > Image to iframe` option.
-
-* **Linkable Media:**
-
-  To have unique linkable media:
-
-  + add a Link or Text field to the Media bundles (not Content type or Node),
-  + select it under **Link** option,
-  + choose **Media switcher > Image linked by Link field**.
+Please refer to [Mixed Media](/admin/help/blazy_ui#mixed-media) section.
 
 ---
 ## <a name="semantic-layout"> </a>SEMANTIC LAYOUT

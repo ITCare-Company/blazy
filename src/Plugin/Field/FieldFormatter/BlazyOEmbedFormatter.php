@@ -9,6 +9,7 @@ use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
+use Drupal\blazy\Internals\Internals;
 use Drupal\media\Entity\MediaType;
 use Drupal\media\Plugin\media\Source\OEmbedInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -205,8 +206,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   protected function postSettings(array &$settings, $langcode): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $blazies->set('language.code', $langcode);
     // The form is not loaded at views UI, provides the minimum.
     // @todo remove when the form is loaded at Views UI.

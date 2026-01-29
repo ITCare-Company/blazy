@@ -2,6 +2,8 @@
 
 namespace Drupal\blazy\Media;
 
+use Drupal\blazy\Internals\Internals;
+
 /**
  * Provides SVG utility.
  *
@@ -20,8 +22,7 @@ class BlazySvg {
    *   The uri.
    */
   public static function dimensions(array &$settings, $uri): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $fluid   = $blazies->is('fluid');
     $valid   = BlazyFile::isValidUri($uri) && $blazies->is('svg');
     $width   = $height = NULL;

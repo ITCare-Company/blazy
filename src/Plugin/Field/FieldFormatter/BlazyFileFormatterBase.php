@@ -173,9 +173,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   protected function getElements(array $build, $files): \Generator {
     /** @var array $settings */
     $settings = &$build['#settings'];
-
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies  = $settings['blazies'];
+    $blazies  = Internals::getBlazies($settings);
     $limit    = $this->getViewLimit($settings);
     $by_delta = $settings['by_delta'] ?? -1;
     $total    = $blazies->total();
@@ -252,7 +250,8 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $captions = $this->getCaptions($data);
 
     // Provides the relevant elements based on the configuration.
-    return $this->toElement($sets['blazies'], $data, $captions);
+    $blazies = Internals::getBlazies($sets);
+    return $this->toElement($blazies, $data, $captions);
   }
 
   /**
@@ -266,7 +265,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
     // At most cases, unless file entity is installed, the parent is the entity.
     $entity    = $data['#parent'] ?? NULL;
-    $blazies   = $settings['blazies'];
+    $blazies   = Internals::getBlazies($settings);
     $options   = $settings['caption'] ?? [];
     $options   = array_filter($options);
     $display   = empty($settings['svg_hide_caption']);

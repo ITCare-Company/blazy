@@ -61,8 +61,7 @@ class BlazyImage {
     if ($style && !isset(static::$isCropSet[$id])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if ($crop = self::getCrop($style)) {
-        /** @var \Drupal\blazy\BlazySettings $blazies */
-        $blazies = $settings['blazies'];
+        $blazies = Internals::getBlazies($settings);
         $data = self::transformDimensions($crop, $blazies);
 
         // Informs individual images that dimensions are already set once.
@@ -85,8 +84,7 @@ class BlazyImage {
    * Sources: formatters, filters or any hard-coded unmanaged files like VEF.
    */
   public static function dimensions(array &$settings, $item, $uri, $initial = FALSE): array {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $_width  = 'width';
     $_height = 'height';
     $fluid   = $blazies->is('fluid');
@@ -253,14 +251,14 @@ class BlazyImage {
    */
   public static function fromContent(array $options, $name = NULL): ?object {
     $settings = Internals::toHashtag($options);
-    $blazies  = $settings['blazies'] ?? NULL;
+    $blazies  = Internals::getBlazies($settings);
     $poster   = $settings['image'] ?? NULL;
-    $poster   = $blazies ? $blazies->get('field.formatter.image', $poster) : $poster;
+    $poster   = $blazies->get('field.formatter.image', $poster);
     $name     = $name ?: $poster;
 
     // If poster is not defined, use the source_field or thumbnail property.
     // Title is NULL from thumbnail, likely core bug, so use source.
-    if ($blazies && !$name && $source = $blazies->get('media.source')) {
+    if (!$name && $source = $blazies->get('media.source')) {
       $name = $source == 'image' ? $blazies->get('media.source_field') : 'thumbnail';
     }
 
@@ -350,8 +348,8 @@ class BlazyImage {
     // media is not directly managed by theme_blazy() aka outside the workflow,
     // it is an embedded field. The correct solution is to call this method
     // before working with local media. They won't re-enter this method again.
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies']->reset($settings);
+    // @todo recheck $blazies = $settings['blazies']->reset($settings);
+    $blazies = Internals::getBlazies($settings)->reset($settings);
     $uri = $uri ?: $blazies->get('image.uri');
 
     // Bailout if no URI.
@@ -491,8 +489,7 @@ class BlazyImage {
    * @todo remove fallbacks after another check, also settings after migration.
    */
   public static function toUrl(array $settings, $style = NULL, $uri = NULL): string {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     $uri     = $uri ?: $blazies->get('image.uri', $settings['uri'] ?? '');
     $valid   = BlazyFile::isValidUri($uri);
     $styled  = $valid && !$blazies->is('unstyled');
@@ -641,8 +638,7 @@ class BlazyImage {
    * @requires self::styles()
    */
   private static function transformed(array &$settings, $uri): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
 
     // GIF, etc. can be converted. We'll refine SVG, external URL down below.
     // For now, only data URI is out of question.
@@ -662,8 +658,7 @@ class BlazyImage {
    * Provides result of self::transformDimensions() for internal urls.
    */
   private static function transformedInternal(array &$settings, $uri): void {
-    /** @var \Drupal\blazy\BlazySettings $blazies */
-    $blazies = $settings['blazies'];
+    $blazies = Internals::getBlazies($settings);
     foreach (BlazyDefault::imageStyles() as $key) {
       if ($style = $blazies->get($key . '.style')) {
 
