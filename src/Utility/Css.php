@@ -9,7 +9,7 @@ namespace Drupal\blazy\Utility;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Please use the public method instead.
  */
-class Css {
+final class Css {
 
   /**
    * Sanitizes user-supplied CSS for safe inline <style> usage.

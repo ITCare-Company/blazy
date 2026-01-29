@@ -17,7 +17,7 @@ use Drupal\blazy\Theme\BlazyViews;
  * @todo refine, and split them conditionally based on fields like libraries.
  * @todo remove most $settings once migrated and after sub-modules and tests.
  */
-class Check {
+final class Check {
 
   /**
    * Checks for Blazy formatter such as from within a Views style plugin.

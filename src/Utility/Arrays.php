@@ -11,7 +11,7 @@ use Drupal\Component\Utility\NestedArray;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  */
-class Arrays {
+final class Arrays {
 
   /**
    * Filters out empty string value to avoid JSON.parse error.

@@ -12,7 +12,7 @@ use Drupal\blazy\Internals\Internals;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Please use the public method instead.
  */
-class Path {
+final class Path {
 
   /**
    * The AMP page.

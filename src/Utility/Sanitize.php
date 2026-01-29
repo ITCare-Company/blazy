@@ -20,7 +20,7 @@ use Drupal\blazy\Internals\Internals;
  * @see https://www.drupal.org/project/drupal/issues/3109650
  * @see https://www.drupal.org/node/2489544
  */
-class Sanitize {
+final class Sanitize {
 
   /**
    * All attributes that may contain URIs, copied from core Html.

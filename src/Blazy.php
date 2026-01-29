@@ -7,6 +7,7 @@ use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\CheckItem;
+use Drupal\blazy\Utility\Entity;
 use Drupal\blazy\Utility\Sanitize;
 use enshrined\svgSanitize\Sanitizer;
 
@@ -78,10 +79,10 @@ class Blazy extends BlazyBase {
   }
 
   /**
-   * Alias for BlazyEntity::settings().
+   * Alias for Entity::settings().
    */
   public static function entitySettings(array &$settings, $entity): void {
-    BlazyEntity::settings($settings, $entity);
+    Entity::settings($settings, $entity);
   }
 
   /**
@@ -173,10 +174,7 @@ class Blazy extends BlazyBase {
    * Returns the translated entity if available.
    */
   public static function translated($entity, $langcode = NULL): object {
-    if ($manager = Internals::blazy()) {
-      return $manager->getTranslatedEntity($entity, $langcode);
-    }
-    return $entity;
+    return Entity::translated($entity, $langcode);
   }
 
   /**

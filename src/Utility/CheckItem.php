@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Utility;
 
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
@@ -19,7 +18,7 @@ use Drupal\blazy\Theme\Attributes;
  *
  * @todo remove most $settings once migrated and after sub-modules and tests.
  */
-class CheckItem {
+final class CheckItem {
 
   /**
    * Provides autoplay URL for lightbox nested iframes to save another click.
@@ -43,59 +42,6 @@ class CheckItem {
 
     // @todo recheck if any side effect/ double escape to cdn/ valid input.
     return $check ? UrlHelper::stripDangerousProtocols($url) : $url;
-  }
-
-  /**
-   * Returns entity data.
-   */
-  public static function entity($entity, $langcode): array {
-    if (!$entity instanceof EntityInterface) {
-      return [];
-    }
-
-    $internal_path = $absolute_path = NULL;
-    // Deals with UndefinedLinkTemplateException such as paragraphs type.
-    // @see #2596385, or fetch the host entity.
-    if (!$entity->isNew()) {
-      try {
-        // Provides translated $entity, if any.
-        /** @var \Drupal\Core\Entity\EntityInterface
-         * |\Drupal\media\MediaInterface $entity */
-        $entity = Blazy::translated($entity, $langcode);
-
-        // Edge case when an entity does a stupid thing.
-        if ($url = $entity->toUrl()) {
-          // $media->toUrl()->toString()
-          $internal_path = $url->getInternalPath();
-          $absolute_path = $url->setAbsolute()->toString();
-        }
-      }
-      catch (\Exception $ignore) {
-        // Do nothing.
-      }
-    }
-
-    $rid = NULL;
-    if (method_exists($entity, 'getRevisionId')) {
-      $rid = $entity->getRevisionId();
-    }
-    // @todo remove, looks like a mispell?
-    elseif (method_exists($entity, 'getRevisionID')) {
-      $rid = $entity->getRevisionID();
-    }
-
-    // Only eat what we can chew.
-    $data = [
-      'bundle'  => $entity->bundle(),
-      'id'      => $entity->id(),
-      'label'   => $entity->label(),
-      'path'    => $internal_path,
-      'rid'     => $rid,
-      'type_id' => $entity->getEntityTypeId(),
-      'url'     => $absolute_path,
-    ];
-
-    return ['data' => $data, 'entity' => $entity];
   }
 
   /**
@@ -375,6 +321,15 @@ class CheckItem {
     if ($is_iframe || $local_video) {
       $blazies->set('use.image', FALSE);
     }
+  }
+
+  /**
+   * Alias for Entity::withTranslatedData().
+   *
+   * @todo remove at D11.
+   */
+  public static function entity($entity, $langcode): array {
+    return Entity::withTranslatedData($entity, $langcode);
   }
 
 }

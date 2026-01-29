@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Utility;
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Internals\Internals;
 
 /**
@@ -12,14 +11,14 @@ use Drupal\blazy\Internals\Internals;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Please use the public method instead.
  */
-class Field {
+final class Field {
 
   /**
    * Checks for field formatter settings.
    *
    * @param array $settings
    *   The array containing: field-related settings.
-   * @param \Drupal\file\Plugin\Field\FieldType\FileFieldItemList|\Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList|\Drupal\Core\Field\EntityReferenceFieldItemListInterface|\Drupal\Core\Field\FieldItemListInterface $items
+   * @param \Drupal\file\Plugin\Field\FieldType\FileFieldItemList|\Drupal\Core\Field\EntityReferenceFieldItemListInterface|\Drupal\Core\Field\FieldItemListInterface $items
    *   The field item list.
    *
    * @todo remove fallback settings after migration and sub-modules.
@@ -27,7 +26,7 @@ class Field {
   public static function check(array &$settings, $items): void {
     $entity = $items->getEntity();
 
-    Blazy::entitySettings($settings, $entity);
+    Entity::settings($settings, $entity);
 
     $blazies = Internals::getBlazies($settings);
     if ($blazies->was('field')) {

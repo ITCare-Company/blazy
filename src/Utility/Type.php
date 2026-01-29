@@ -9,7 +9,7 @@ namespace Drupal\blazy\Utility;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Please use the public method instead.
  */
-class Type {
+final class Type {
 
   /**
    * Normalize potential mixed values.

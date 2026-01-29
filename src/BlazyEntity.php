@@ -3,9 +3,8 @@
 namespace Drupal\blazy;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
-use Drupal\blazy\Utility\CheckItem;
+use Drupal\blazy\Utility\Entity;
 use Drupal\media\MediaInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -108,7 +107,7 @@ class BlazyEntity implements BlazyEntityInterface {
     $this->prepare($data);
 
     // Individual entity settings.
-    self::settings($settings, $entity);
+    Entity::settings($settings, $entity);
 
     // Since 3.0.9, mimicking Blazy formatters so to swap settings once.
     // At most cases, this class is accessed from Views, or Entity Browser.
@@ -221,21 +220,12 @@ class BlazyEntity implements BlazyEntityInterface {
   }
 
   /**
-   * Modifies the common settings extracted from the given entity.
+   * Alias for Entity::settings().
+   *
+   * @todo remove at D11.
    */
   public static function settings(array &$settings, $entity): void {
-    // Might be accessed by tests, or anywhere outside the workflow.
-    $blazies  = Internals::verify($settings);
-    $langcode = $blazies->get('language.current');
-
-    if ($info = CheckItem::entity($entity, $langcode)) {
-      $data = $info['data'];
-      $id   = $data['id'];
-      $rid  = $data['rid'];
-
-      $blazies->set('cache.metadata.keys', [$id, $rid], TRUE)
-        ->set('entity', $data, TRUE);
-    }
+    Entity::settings($settings, $entity);
   }
 
 }

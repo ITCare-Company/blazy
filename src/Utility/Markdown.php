@@ -17,7 +17,7 @@ use Michelf\MarkdownExtra;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Please use the public method instead.
  */
-class Markdown {
+final class Markdown {
 
   /**
    * Processes Markdown text, and convert into HTML suitable for the help text.

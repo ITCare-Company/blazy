@@ -18,7 +18,7 @@ use Drupal\blazy\Utility\Path;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  */
-class Internals extends Content {
+final class Internals extends Content {
 
   /**
    * The data URI text.

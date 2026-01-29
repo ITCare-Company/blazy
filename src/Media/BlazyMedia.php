@@ -8,7 +8,7 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Url;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Utility\CheckItem;
+use Drupal\blazy\Utility\Entity;
 use Drupal\media\IFrameUrlHelper;
 use Drupal\media\MediaInterface;
 use GuzzleHttp\Client;
@@ -281,7 +281,7 @@ class BlazyMedia implements BlazyMediaInterface {
     }
 
     // Extracts common entity properties.
-    $info = CheckItem::entity($media, $langcode);
+    $info = Entity::withTranslatedData($media, $langcode);
 
     // Only eat what we can chew.
     $output = [

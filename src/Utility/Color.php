@@ -11,7 +11,7 @@ use Drupal\Component\Utility\Color as BaseColor;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Please use the public method instead.
  */
-class Color extends BaseColor {
+final class Color extends BaseColor {
 
   /**
    * Parses a hexadecimal color string like '#abc' or '#aabbcc'.
