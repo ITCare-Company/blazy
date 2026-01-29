@@ -17,7 +17,7 @@ if (!function_exists('blazy')) {
    *   The blazy.manager service.
    */
   function blazy() {
-    return Internals::service('blazy.manager');
+    return Internals::blazy();
   }
 
 }

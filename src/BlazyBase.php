@@ -195,9 +195,9 @@ abstract class BlazyBase implements BlazyInterface {
     // @todo call directly ::renderInIsolation() when min D10.3.
     return Blazy::backwardsCompatibleCall(
       deprecatedVersion: '10.3',
-      // @phpstan-ignore-next-line
+      /** @phpstan-ignore-next-line */
       currentCallable: fn() => $this->renderer->renderInIsolation($elements),
-      // @phpstan-ignore-next-line
+      /** @phpstan-ignore-next-line */
       deprecatedCallable: fn() => $this->renderer->renderPlain($elements),
     );
   }

@@ -10,6 +10,8 @@ use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides common field API operation methods.
+ *
+ * @todo move some into FieldTrait for DI at D11.
  */
 class BlazyField {
 
@@ -81,6 +83,7 @@ class BlazyField {
     $bundles  = $views_ui ? [] : $targets;
 
     // Fix for Views UI not recognizing Media bundles, unlike Formatters.
+    // @todo convert it to DI $this->manager->service() at D11.
     if (empty($bundles)
       && $type
       && $service = Internals::service('entity_type.bundle.info')) {

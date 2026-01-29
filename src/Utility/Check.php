@@ -309,7 +309,7 @@ class Check {
     $switch  = $blazies->get('switch', $settings['media_switch'] ?? NULL);
 
     /** @var \Drupal\blazy\BlazyManagerInterface $manager */
-    $manager = Internals::service('blazy.manager');
+    $manager = Internals::blazy();
 
     // Bail out early if not so configured.
     if (!$switch || !$manager) {
@@ -359,7 +359,7 @@ class Check {
     $blazies = $settings['blazies'];
 
     /** @var \Drupal\blazy\BlazyManagerInterface $manager */
-    $manager = Internals::service('blazy.manager');
+    $manager = Internals::blazy();
 
     // Bail out early if not so configured.
     if (!$blazies->is('lightbox') || !$manager) {

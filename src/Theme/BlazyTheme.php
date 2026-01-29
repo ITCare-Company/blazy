@@ -11,7 +11,7 @@ use Drupal\blazy\Hook\ThemeHooks;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  *
- * @todo delete this file when min D11.
+ * @todo delete this sacrificial bridge when min D11.
  */
 class BlazyTheme {
 

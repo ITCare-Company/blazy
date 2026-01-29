@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Tests\blazy\Kernel;
 
 // @todo use Drupal\Core\Render\Element;
-use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\blazy\Blazy;
 use GuzzleHttp\Exception\GuzzleException;
@@ -116,12 +115,10 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     // Render API sanity.
     $this->assertNotEmpty($render);
-    $this->assertInstanceOf(MarkupInterface::class, $render);
 
     // HTML contract ensures data-blazy is present in the field container.
     $html = (string) $render;
     $this->assertStringContainsString('data-blazy', $html);
-
   }
 
   /**

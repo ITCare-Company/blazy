@@ -41,7 +41,7 @@ class Internals extends Content {
       return FileExists::Replace;
     }
     // @todo remove when min D10.3.
-    // @phpstan-ignore-next-line
+    /** @phpstan-ignore-next-line */
     return FileSystemInterface::EXISTS_REPLACE;
   }
 
@@ -149,7 +149,7 @@ class Internals extends Content {
    * @todo remove for BlazyInterface::loadByProperty().
    */
   public static function loadByProperty($property, $value, $type, $manager = NULL): ?object {
-    $manager = $manager ?: self::service('blazy.manager');
+    $manager = $manager ?: self::blazy();
     return $manager ? $manager->loadByProperty($property, $value, $type) : NULL;
   }
 
@@ -159,7 +159,7 @@ class Internals extends Content {
    * @todo remove for BlazyInterface::loadByUuid().
    */
   public static function loadByUuid($uuid, $type, $manager = NULL): ?object {
-    $manager = $manager ?: self::service('blazy.manager');
+    $manager = $manager ?: self::blazy();
     return $manager ? $manager->loadByUuid($uuid, $type) : NULL;
   }
 

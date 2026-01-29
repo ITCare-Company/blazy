@@ -4,6 +4,7 @@ namespace Drupal\blazy_layout\Hook;
 
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy_layout\BlazyLayoutDefault;
 
 /**
@@ -68,7 +69,9 @@ class ThemeHooks {
 
     // @todo figure out for phpstan w/o checkImplicitMixed.
     // $variables = is_array($variables) ? $variables : [];.
-    if ($theme = \Drupal::theme()->getActiveTheme()->getName()) {
+    // @todo convert it to DI $this->manager->service() at D11.
+    /** @var \Drupal\Core\Theme\ThemeManagerInterface $theme */
+    if ($theme = Internals::service('theme.manager')->getActiveTheme()->getName()) {
       $attributes['class'][] = 'b-theme-' . str_replace('_', '-', $theme);
     }
 
@@ -97,7 +100,7 @@ class ThemeHooks {
     // Cleanup unused regions.
     self::cleanupRegions($variables, $count);
 
-    // Phpstan requires assurance.
+    // @todo figure out for phpstan w/o checkImplicitMixed.
     // @todo recheck $variables = is_array($variables) ? $variables : [];.
     // Create an attributes variable for each region.
     $region_settings = $settings['regions'];
@@ -233,6 +236,7 @@ class ThemeHooks {
       }
 
       if ($settings) {
+        /** @var \Drupal\blazy\BlazySettings|null $blazies */
         if (!empty($settings['use_lb'])
         && $blazies = $settings['blazies'] ?? NULL) {
           if ($blazies->use('bg') || $blazies->count() == 1) {
@@ -257,6 +261,7 @@ class ThemeHooks {
     $content = &$variables['content'];
     $bg = $content['bg'] ?? [];
 
+    // Temporarily remove background to not disrupt real region deltas.
     unset($content['bg']);
 
     foreach (Element::children($content) as $delta => $name) {
@@ -265,6 +270,7 @@ class ThemeHooks {
       }
     }
 
+    // Reattach background only if not intentionally removed.
     if (empty($settings['remove_bg'])) {
       $content['bg'] = $bg;
     }
