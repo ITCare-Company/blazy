@@ -31,4 +31,28 @@ final class Type {
     return $bool ?? $default;
   }
 
+  /**
+   * Normalize mixed input into valid float or null.
+   *
+   * @param float|int|string|null $value
+   *   Alpha channel between 0.0 and 1.0 (inclusive), or NULL for none.
+   *
+   * @return float|null
+   *   The converted value if valid, otherwise null.
+   */
+  public static function normalizeFloat(float|int|string|null $value): ?float {
+    if ($value === NULL || $value === '') {
+      return NULL;
+    }
+
+    if (is_string($value)) {
+      if (!is_numeric($value)) {
+        return NULL;
+      }
+      $value = (float) $value;
+    }
+
+    return max(0.0, min(1.0, (float) $value));
+  }
+
 }

@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Internals;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Media\Provider\Youtube;
 use Drupal\blazy\Utility\Sanitize;
@@ -14,6 +15,30 @@ use Drupal\blazy\Utility\Sanitize;
  *   blazy-related code in Blazy module.
  */
 class Multimedia extends Settings {
+
+  /**
+   * Provides autoplay URL for lightbox nested iframes to save another click.
+   */
+  public static function autoplay($url, $check = TRUE): string {
+    $func = function ($str, $key) {
+      $format1 = '%s&%s=1';
+      $first = sprintf($format1, $str, $key);
+      $format2 = '%s?%s=1';
+      $last = sprintf($format2, $str, $key);
+
+      return self::has($str, '?') ? $first : $last;
+    };
+
+    // It doesn't cover all providers, but few, no biggies till needed.
+    if (!self::has($url, 'autoplay')
+      || self::has($url, 'autoplay=0')) {
+      $key = self::has($url, 'soundcloud') ? 'auto_play' : 'autoplay';
+      return $func($url, $key);
+    }
+
+    // @todo recheck if any side effect/ double escape to cdn/ valid input.
+    return $check ? UrlHelper::stripDangerousProtocols($url) : $url;
+  }
 
   /**
    * Returns the expected/ corrected input URL.

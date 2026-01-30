@@ -9,7 +9,6 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Markdown;
-use Drupal\blazy\Utility\Path;
 
 /**
  * Provides internal kitchen-sink non-reusable blazy utilities.
@@ -49,7 +48,7 @@ final class Internals extends Content {
    *
    * @todo replace base_path() if any replacement by D11.
    */
-  public static function basePath(): ?string {
+  public static function basePath(): string {
     return \base_path() ?: '';
   }
 
@@ -110,7 +109,7 @@ final class Internals extends Content {
   /**
    * Alias for Path::getPath().
    */
-  public static function getPath($type, $name, $absolute = FALSE): ?string {
+  public static function getPath($type, $name, $absolute = FALSE): string {
     return Path::getPath($type, $name, $absolute);
   }
 

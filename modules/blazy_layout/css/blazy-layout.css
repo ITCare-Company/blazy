@@ -57,6 +57,10 @@
   inset: 0;
 }
 
+.b-layout-wrapper > .region--bg {
+  overflow: hidden;
+}
+
 .b-layout .litebox--bg > .media,
 .b-layout .b-link--bg > .media {
   height: 100%;

@@ -139,7 +139,7 @@ class Lightbox {
       if ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
-        $oembed_url = Blazy::autoplay($embed, !$_trusted);
+        $oembed_url = Internals::autoplay($embed, !$_trusted);
 
         // Point HREF to the original site ethically.
         if ($input = $blazies->get('media.input_url')) {

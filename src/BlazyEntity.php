@@ -4,7 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
-use Drupal\blazy\Utility\Entity;
+use Drupal\blazy\Internals\Entity;
 use Drupal\media\MediaInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

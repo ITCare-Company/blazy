@@ -1,9 +1,6 @@
 <?php
 
-namespace Drupal\blazy\Utility;
-
-use Drupal\blazy\Blazy;
-use Drupal\blazy\Internals\Internals;
+namespace Drupal\blazy\Internals;
 
 /**
  * Provides url, route, request, stream, or any path-related methods.
@@ -105,7 +102,7 @@ final class Path {
   /**
    * Returns the commonly used path, or just the base path.
    */
-  public static function getPath($type, $name, $absolute = FALSE): ?string {
+  public static function getPath($type, $name, $absolute = FALSE): string {
     if ($resolver = self::pathResolver()) {
       $path = $resolver->getPath($type, $name);
 
@@ -145,7 +142,7 @@ final class Path {
         if ($route = $router->getRouteName()) {
           $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
           foreach ($edits as $key) {
-            if (Blazy::has($route, $key)) {
+            if (Internals::has($route, $key)) {
               $check = TRUE;
               break;
             }

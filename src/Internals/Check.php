@@ -1,8 +1,7 @@
 <?php
 
-namespace Drupal\blazy\Utility;
+namespace Drupal\blazy\Internals;
 
-use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Theme\Lightbox;
 use Drupal\blazy\Theme\BlazyViews;

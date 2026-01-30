@@ -4,9 +4,9 @@ namespace Drupal\blazy;
 
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\Thumbnail;
-use Drupal\blazy\Utility\Check;
-use Drupal\blazy\Utility\CheckItem;
-use Drupal\blazy\Utility\Path;
+use Drupal\blazy\Internals\Check;
+use Drupal\blazy\Internals\CheckItem;
+use Drupal\blazy\Internals\Path;
 
 /**
  * Provides common shared methods across Blazy ecosystem to DRY.

@@ -5,8 +5,6 @@ namespace Drupal\blazy\Internals;
 use Drupal\Component\Utility\Unicode;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Utility\Check;
-use Drupal\blazy\Utility\CheckItem;
 
 /**
  * Provides internal non-reusable blazy utilities.
@@ -161,6 +159,18 @@ class Settings extends Initializer {
     $data = $blazies->get('view.data', []);
     $name = $blazies->get('field.name', 'x');
     return $data[$name]['limit'] ?? 0;
+  }
+
+  /**
+   * A simple wrapper for stripos().
+   */
+  public static function has($content, $needle): bool {
+    if ($content && $needle = trim($needle ?: '')) {
+      // stripos() won't work with diacritical signs.
+      $needle = strtolower($needle);
+      return strpos($content, $needle) !== FALSE;
+    }
+    return FALSE;
   }
 
   /**

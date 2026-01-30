@@ -9,8 +9,8 @@ use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Theme\Attributes;
-use Drupal\blazy\Utility\Check;
-use Drupal\blazy\Utility\Path;
+use Drupal\blazy\Internals\Check;
+use Drupal\blazy\Internals\Path;
 
 /**
  * Hook implementations for theme.
@@ -249,7 +249,7 @@ class ThemeHooks {
 
             // Only replace if autoplay == 1 for Image to iframe, or lightboxes.
             if ($_autoplay == 1) {
-              $autoplay_url = Blazy::autoplay($src);
+              $autoplay_url = Internals::autoplay($src);
               $iframe->setAttribute('src', $autoplay_url);
             }
           }

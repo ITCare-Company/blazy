@@ -3,7 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\blazy\Media\Preloader;
-use Drupal\blazy\Utility\Check;
+use Drupal\blazy\Internals\Check;
 
 /**
  * Provides common image, file, media formatter-related methods.

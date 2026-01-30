@@ -1,10 +1,9 @@
 <?php
 
-namespace Drupal\blazy\Utility;
+namespace Drupal\blazy\Internals;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
@@ -19,30 +18,6 @@ use Drupal\blazy\Theme\Attributes;
  * @todo remove most $settings once migrated and after sub-modules and tests.
  */
 final class CheckItem {
-
-  /**
-   * Provides autoplay URL for lightbox nested iframes to save another click.
-   */
-  public static function autoplay($url, $check = TRUE): string {
-    $func = function ($str, $key) {
-      $format1 = '%s&%s=1';
-      $first = sprintf($format1, $str, $key);
-      $format2 = '%s?%s=1';
-      $last = sprintf($format2, $str, $key);
-
-      return self::has($str, '?') ? $first : $last;
-    };
-
-    // It doesn't cover all providers, but few, no biggies till needed.
-    if (!self::has($url, 'autoplay')
-      || self::has($url, 'autoplay=0')) {
-      $key = self::has($url, 'soundcloud') ? 'auto_play' : 'autoplay';
-      return $func($url, $key);
-    }
-
-    // @todo recheck if any side effect/ double escape to cdn/ valid input.
-    return $check ? UrlHelper::stripDangerousProtocols($url) : $url;
-  }
 
   /**
    * Checks for essential settings: URI, delta and initial delta.
@@ -105,18 +80,6 @@ final class CheckItem {
     // Must be placed after self::multimedia() to get different ALT/ TITLE.
     // And after image extensions setup to check for ugly filename image title.
     Attributes::altTitle($blazies, $item);
-  }
-
-  /**
-   * A simple wrapper for stripos().
-   */
-  public static function has($content, $needle): bool {
-    if ($content && $needle = trim($needle ?: '')) {
-      // stripos() won't work with diacritical signs.
-      $needle = strtolower($needle);
-      return strpos($content, $needle) !== FALSE;
-    }
-    return FALSE;
   }
 
   /**
@@ -321,15 +284,6 @@ final class CheckItem {
     if ($is_iframe || $local_video) {
       $blazies->set('use.image', FALSE);
     }
-  }
-
-  /**
-   * Alias for Entity::withTranslatedData().
-   *
-   * @todo remove at D11.
-   */
-  public static function entity($entity, $langcode): array {
-    return Entity::withTranslatedData($entity, $langcode);
   }
 
 }

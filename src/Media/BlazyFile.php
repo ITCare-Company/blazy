@@ -12,7 +12,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Utility\Path;
+use Drupal\blazy\Internals\Path;
 use Drupal\file\FileInterface;
 use Drupal\file\FileRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;

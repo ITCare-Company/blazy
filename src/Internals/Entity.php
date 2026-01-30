@@ -1,9 +1,8 @@
 <?php
 
-namespace Drupal\blazy\Utility;
+namespace Drupal\blazy\Internals;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides feature check methods at container level, or globally.

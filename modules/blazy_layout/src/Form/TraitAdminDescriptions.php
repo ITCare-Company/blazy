@@ -34,7 +34,7 @@ trait TraitAdminDescriptions {
       ),
 
       'colors' => $this->t(
-        'Custom text and overlay colors. If CSS framework color utility classes (e.g. Bootstrap) are applied via <b>Classes</b>, they may override these values—use one approach or the other. Leave defaults (black, opacity 1) to defer styling to the framework. Overlay options require <b>Use CSS background</b> or <b>Styles → Media</b> to be enabled. Applies to text elements such as <code>p</code>.'
+        'Custom text and overlay colors. If CSS framework color utility classes (e.g. Bootstrap) are applied via <b>Classes</b>, they may override these values—use one approach or the other. Leave defaults (<b>color black/#000000, opacity 1</b>) to defer styling to the framework. Overlay options require <b>Use CSS background</b> or <b>Styles → Media</b> to be enabled. Applies to text elements such as <code>p</code>.'
       ),
 
       'ete' => $this->t(

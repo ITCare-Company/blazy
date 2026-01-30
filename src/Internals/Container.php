@@ -1,10 +1,9 @@
 <?php
 
-namespace Drupal\blazy\Utility;
+namespace Drupal\blazy\Internals;
 
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides feature check methods at container level, or globally.

@@ -7,7 +7,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Utility\Arrays;
-use Drupal\blazy\Utility\Check;
+use Drupal\blazy\Internals\Check;
 
 /**
  * Provides grid utilities.

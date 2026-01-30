@@ -8,7 +8,7 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Url;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Utility\Entity;
+use Drupal\blazy\Internals\Entity;
 use Drupal\media\IFrameUrlHelper;
 use Drupal\media\MediaInterface;
 use GuzzleHttp\Client;

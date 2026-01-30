@@ -5,7 +5,7 @@ namespace Drupal\blazy\Media;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\Attributes;
-use Drupal\blazy\Utility\CheckItem;
+use Drupal\blazy\Internals\CheckItem;
 
 /**
  * Provides thumbnail-related methods.

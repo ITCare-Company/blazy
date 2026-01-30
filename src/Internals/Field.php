@@ -1,8 +1,6 @@
 <?php
 
-namespace Drupal\blazy\Utility;
-
-use Drupal\blazy\Internals\Internals;
+namespace Drupal\blazy\Internals;
 
 /**
  * Provides methods related to field.

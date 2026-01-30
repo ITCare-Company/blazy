@@ -6,8 +6,7 @@ use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
-use Drupal\blazy\Utility\CheckItem;
-use Drupal\blazy\Utility\Entity;
+use Drupal\blazy\Internals\Entity;
 use Drupal\blazy\Utility\Sanitize;
 use enshrined\svgSanitize\Sanitizer;
 
@@ -26,10 +25,10 @@ use enshrined\svgSanitize\Sanitizer;
 class Blazy extends BlazyBase {
 
   /**
-   * Alias for CheckItem::autoplay().
+   * Alias for Internals::autoplay().
    */
   public static function autoplay($url, $check = TRUE): string {
-    return CheckItem::autoplay($url, $check);
+    return Internals::autoplay($url, $check);
   }
 
   /**
@@ -114,10 +113,10 @@ class Blazy extends BlazyBase {
   }
 
   /**
-   * Alias for CheckItem::has().
+   * Alias for Internals::has().
    */
   public static function has($content, $needle): bool {
-    return CheckItem::has($content, $needle);
+    return Internals::has($content, $needle);
   }
 
   /**
