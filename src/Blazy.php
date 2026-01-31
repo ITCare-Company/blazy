@@ -188,7 +188,7 @@ class Blazy extends BlazyBase {
   /**
    * Sanitize media input URL.
    */
-  public static function sanitizeInputUrl($input, array $options = []): ?string {
+  public static function sanitizeInputUrl($input, array $options = []): string {
     @trigger_error('sanitizeInputUrl is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Sanitize::inputUrl($input, $options);
   }

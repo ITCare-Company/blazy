@@ -4,7 +4,7 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
-use Drupal\blazy\BlazyManagerInterface;
+// @todo enable at 4.x: use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Internals\Internals;
 use Drupal\file\FileInterface;
 
@@ -29,10 +29,13 @@ class File {
    *
    * @return \Drupal\file\FileInterface|null
    *   The file entity or null.
+   *
+   * @todo add union types at 4.x:
+   * BlazyManagerInterface|null $manager.
    */
   public static function fromUri(
     string $uri,
-    BlazyManagerInterface|null $manager = NULL,
+    $manager = NULL,
   ): ?FileInterface {
     return Internals::loadByProperty('uri', $uri, 'file', $manager);
   }
@@ -45,8 +48,11 @@ class File {
    *
    * @return bool
    *   TRUE if the URI is valid.
+   *
+   * @todo add union types at 4.x:
+   * object|null $file.
    */
-  public static function isValid(object|null $file): bool {
+  public static function isValid($file): bool {
     return $file instanceof FileInterface;
   }
 
@@ -64,11 +70,16 @@ class File {
    *
    * @return \Drupal\file\FileInterface|null
    *   The file entity or null.
+   *
+   * @todo add union types at 4.x:
+   * object|null $object = NULL,
+   * array $settings = [],
+   * string|null $uri = NULL,
    */
   public static function item(
-    object|null $object = NULL,
+    $object = NULL,
     array $settings = [],
-    string|null $uri = NULL,
+    $uri = NULL,
   ): ?FileInterface {
     $file = $object;
     Internals::verify($settings);
@@ -188,10 +199,13 @@ class File {
    *
    * @return \Drupal\file\FileInterface|null
    *   The file entity or null.
+   *
+   * @todo add union types at 4.x:
+   * string|null $uri.
    */
   private static function fromSettings(
     array $settings,
-    string|null $uri = NULL,
+    $uri = NULL,
   ): ?FileInterface {
     $blazies = Internals::getBlazies($settings);
     $uri     = $uri ?: Uri::fromImage(NULL, $settings);

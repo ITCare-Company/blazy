@@ -28,8 +28,10 @@ class Uri {
    *
    * @return bool
    *   True a data URI.
+   *
+   * @todo add union types at 4.x: string|null $url.
    */
-  public static function isDataUri(string|null $url): bool {
+  public static function isDataUri($url): bool {
     $url = trim($url ?: '');
     if ($url === '') {
       return FALSE;
@@ -48,8 +50,10 @@ class Uri {
    *
    * @return bool
    *   True if an SVG file.
+   *
+   * @todo add union types at 4.x: string|null $uri.
    */
-  public static function isSvg(string|null $uri): bool {
+  public static function isSvg($uri): bool {
     // Some guy uploaded images without extensions, seen at wildlife.
     if ($uri && $ext = pathinfo($uri, PATHINFO_EXTENSION)) {
       // Some other guy put CAPITALIZED image extensions for real.
@@ -72,8 +76,9 @@ class Uri {
    *   The public or private URI, or null.
    *
    * @todo re-check if core has this type of conversion.
+   * @todo add union types at 4.x: string|null $url.
    */
-  public static function build(string|null $url): ?string {
+  public static function build($url): ?string {
     $manager = Internals::blazy();
     if (!$url || !$manager) {
       return NULL;
@@ -107,8 +112,16 @@ class Uri {
 
   /**
    * Alias for Url::isExternal() in case confused.
+   *
+   * @param string|null $url
+   *   The url to test.
+   *
+   * @return bool
+   *   True if external url.
+   *
+   * @todo add union types at 4.x: string|null $url.
    */
-  public static function isExternal(string|null $url): bool {
+  public static function isExternal($url): bool {
     return Url::isExternal($url);
   }
 
@@ -122,8 +135,10 @@ class Uri {
    *
    * @return bool
    *   TRUE if the URI is valid.
+   *
+   * @todo add union types at 4.x: string|null $uri.
    */
-  public static function isValid(string|null $uri): bool {
+  public static function isValid($uri): bool {
     if ($uri && $manager = Path::streamWrapperManager()) {
       return $manager->isValidUri($uri);
     }
@@ -142,8 +157,9 @@ class Uri {
    *   The normalized URI.
    *
    * @todo move it into DI instance class.
+   * @todo add union types at 4.x: string|null $path.
    */
-  public static function normalize(string|null $path): string {
+  public static function normalize($path): string {
     $uri = $path ?: '';
     $manager = Internals::blazy();
 
@@ -174,9 +190,11 @@ class Uri {
    *
    * @return string|null
    *   The URI or null.
+   *
+   * @todo add union types at 4.x: object|null $item.
    */
   public static function fromImage(
-    object|null $item,
+    $item,
     array $settings = [],
   ): ?string {
     $uri = NULL;
@@ -234,12 +252,14 @@ class Uri {
    * @return string
    *   Returns an absolute URL of a local file to a relative one.
    *
+   * @todo add union types at 4.x:
+   * string|null $uri, ImageStyleInterface|null $style.
    * @see BlazyOEmbed::getThumbnail()
    * @see BlazyFilter::getImageItemFromImageSrc()
    */
   public static function transformRelative(
-    string|null $uri,
-    ImageStyleInterface|null $style = NULL,
+    $uri,
+    $style = NULL,
     array $options = [],
   ): string {
     $uri = $uri ?: '';

@@ -6,8 +6,8 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Internals\Path;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\image\ImageStyleInterface;
 
+// @todo at 4.x use Drupal\image\ImageStyleInterface;.
 /**
  * A common Url utility helper.
  *
@@ -49,8 +49,10 @@ class Url {
    *
    * @return bool
    *   True if an external url.
+   *
+   * @todo add union types at 4.x: string|null $url
    */
-  public static function isExternal(string|null $url): bool {
+  public static function isExternal($url): bool {
     return $url && UrlHelper::isExternal($url);
   }
 
@@ -78,12 +80,16 @@ class Url {
    * @see self::background()
    * @see ResponsiveImage::background()
    *
-   * @todo deprecate and remove fallbacks after another check, also settings after migration.
+   * @todo deprecate and remove fallbacks after another check, also settings
+   * after migration.
+   * @todo add union types at 4.x:
+   * ImageStyleInterface|null $style
+   * string|null $uri
    */
   public static function fromAny(
     array $settings,
-    ImageStyleInterface|null $style = NULL,
-    string|null $uri = NULL,
+    $style = NULL,
+    $uri = NULL,
   ): string {
     $blazies = Internals::getBlazies($settings);
     $uri     = $uri ?: $blazies->get('image.uri', $settings['uri'] ?? '');
@@ -114,10 +120,13 @@ class Url {
    *
    * @return string
    *   Returns an absolute URL of a local file to a relative one.
+   *
+   * @todo add union types at 4.x:
+   * string|null $uri, ImageStyleInterface|null $style.
    */
   public static function fromUri(
-    string|null $uri,
-    ImageStyleInterface|null $style = NULL,
+    $uri,
+    $style = NULL,
     array $options = [],
   ): string {
     $unsafe   = $options['unsafe'] ?? TRUE;

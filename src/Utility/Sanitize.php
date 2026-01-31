@@ -253,7 +253,7 @@ final class Sanitize {
    * @return string
    *   The sanitized input url.
    */
-  public static function inputUrl($input, array $options = []): ?string {
+  public static function inputUrl($input, array $options = []): string {
     $filter = $options['filter'] ?? FALSE;
     $use_data_uri = $options['use_data_uri'] ?? FALSE;
 

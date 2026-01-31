@@ -25,10 +25,13 @@ final class Color extends BaseColor {
    *
    * @return string
    *   RGBA if opacity is provided, otherwise RGB or hex.
+   *
+   * @todo add union types at 4.x:
+   * float|int|string|null $opacity.
    */
   public static function hexToRgba(
     string $hex,
-    float|int|string|null $opacity = NULL,
+    $opacity = NULL,
     bool $use_hex = TRUE,
   ): string {
     $rgb = array_values(self::hexToRgb($hex));

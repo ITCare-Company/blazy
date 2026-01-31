@@ -70,9 +70,10 @@ class Initializer {
    * @return bool
    *   True if a BlazySettings.
    *
+   * @todo add mixed param at 4.x.
    * @phpstan-assert-if-true \Drupal\blazy\BlazySettings $value
    */
-  public static function isBlazies(mixed $value): bool {
+  public static function isBlazies($value): bool {
     return $value instanceof BlazySettings;
   }
 

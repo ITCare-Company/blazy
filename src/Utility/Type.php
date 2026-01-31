@@ -21,8 +21,10 @@ final class Type {
    *
    * @return bool
    *   Returns TRUE or FALSE.
+   *
+   * @todo add mixed param at 4.x.
    */
-  public static function normalizeBool(mixed $value, bool $default = FALSE): bool {
+  public static function normalizeBool($value, bool $default = FALSE): bool {
     if (is_bool($value)) {
       return $value;
     }
@@ -39,8 +41,11 @@ final class Type {
    *
    * @return float|null
    *   The converted value if valid, otherwise null.
+   *
+   * @todo add union types at 4.x:
+   * float|int|string|null $value.
    */
-  public static function normalizeFloat(float|int|string|null $value): ?float {
+  public static function normalizeFloat($value): ?float {
     if ($value === NULL || $value === '') {
       return NULL;
     }

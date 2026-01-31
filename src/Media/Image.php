@@ -46,10 +46,12 @@ class Image {
    *   The settings being modified.
    * @param \Drupal\image\ImageStyleInterface|null $style
    *   The image style to check for corp effect.
+   *
+   * @todo add union types at 4.x: ImageStyleInterface|null $style.
    */
   public static function cropDimensions(
     array &$settings,
-    ImageStyleInterface|null $style,
+    $style,
   ): void {
     if (!$style instanceof ImageStyleInterface) {
       return;
@@ -88,10 +90,13 @@ class Image {
    *
    * @return array
    *   The image src and aspect ratio array.
+   *
+   * @todo add union types at 4.x:
+   * ImageStyleInterface|null $style.
    */
   public static function background(
     array $settings,
-    ImageStyleInterface|null $style = NULL,
+    $style = NULL,
   ): array {
     // @tbd replace src with URL before 3.x, or keep it.
     return [
@@ -118,12 +123,13 @@ class Image {
    * @return array
    *   The image src and aspect ratio array.
    *
-   * @todo enable at 4.x stdClass|ImageItem|null $item.
+   * @todo add union types at 4.x:
+   * stdClass|ImageItem|null $item, string|null $uri.
    */
   public static function dimensions(
     array &$settings,
     $item,
-    string|null $uri,
+    $uri,
     bool $initial = FALSE,
   ): array {
     $blazies = Internals::getBlazies($settings);
@@ -281,10 +287,13 @@ class Image {
    *
    * @return object|null
    *   The ImageItem or null.
+   *
+   * @todo add union types at 4.x:
+   * string|null $name.
    */
   public static function fromContent(
     array $options,
-    string|null $name = NULL,
+    $name = NULL,
   ): ?object {
     $settings = Internals::toHashtag($options);
     $blazies  = Internals::getBlazies($settings);
@@ -349,9 +358,10 @@ class Image {
    * @return bool
    *   True if an ImageItem.
    *
-   * @todo enable at 4.x ImageItem|null $item.
+   * @todo add union types at 4.x:
+   * ImageItem|null $item.
    */
-  public static function isImage(object|null $item): bool {
+  public static function isImage($item): bool {
     return $item instanceof ImageItem;
   }
 
@@ -363,8 +373,11 @@ class Image {
    *
    * @return bool
    *   True if an ImageItem or an array having the image item.
+   *
+   * @todo add union types at 4.x:
+   * array|object|null $item.
    */
-  public static function isValid(array|object|null $item): bool {
+  public static function isValid($item): bool {
     if ($item) {
       $item = is_array($item) ? Internals::toHashtag($item, 'item') : $item;
       if ($item instanceof ImageItem) {
@@ -395,13 +408,15 @@ class Image {
    *   True ImageItem or null.
    *
    * @todo refine and recheck other sources in case a regression.
-   * @todo enable at 4.x array|stdClass|EntityInterface|EntityReferenceItemInterface|
-   * ImageItem|null $item = NULL.
+   * @todo add union types at 4.x:
+   * array|stdClass|EntityInterface|EntityReferenceItemInterface|
+   * ImageItem|null $item = NULL,
+   * string|null $name.
    */
   public static function item(
     $item = NULL,
     array $options = [],
-    string|null $name = NULL,
+    $name = NULL,
   ): ?object {
     return self::isValid($item) ? $item : self::fromContent($options, $name);
   }
@@ -429,12 +444,14 @@ class Image {
    * @requires CheckItem::unstyled()
    * @requires self::styles()
    *
-   * @todo enable at 4.x stdClass|ImageItem|null $item = NULL.
+   * @todo add union types at 4.x:
+   * stdClass|ImageItem|null $item
+   * string|null $uri.
    */
   public static function prepare(
     array &$settings,
     $item = NULL,
-    string|null $uri = NULL,
+    $uri = NULL,
   ): void {
     // Problems: the audio/ video poster is not synced. The root cause, local
     // media is not directly managed by theme_blazy() aka outside the workflow,
@@ -496,11 +513,15 @@ class Image {
    *   The optional URI if differs from main image, such as thumbnail URI.
    *
    * @todo recheck if NULL $style id relevant here.
+   * @todo add union types at 4.x:
+   * object|null $style,
+   * array|BlazySettings $config,
+   * string|null $uri = NULL,
    */
   public static function transformDimensions(
-    object|null $style,
-    array|BlazySettings $config,
-    string|null $uri = NULL,
+    $style,
+    $config,
+    $uri = NULL,
   ): array {
     $fluid  = FALSE;
     $ratios = [];
@@ -561,20 +582,23 @@ class Image {
    * $blazies as object as planned at BlazyMedia since 2.6.
    *
    * @param \Drupal\blazy\BlazySettings $blazies
-   *   The file entity.
+   *   The BlazySettings instance.
    * @param \Drupal\file\FileInterface|null $file
-   *   The image factory instance.
+   *   The file instance or null.
    *
    * @return \stdClass|null
    *   The fake image item, or null.
+   *
+   * @todo add union types at 4.x:
+   * FileInterface|null $file.
    */
   private static function fakeFromFactory(
     BlazySettings $blazies,
-    FileInterface|null $file,
+    $file,
   ): ?object {
     $factory = Internals::service('image.factory');
 
-    if (!$factory || !$file instanceof FileInterface) {
+    if (!$factory && !$file instanceof FileInterface) {
       return NULL;
     }
 
@@ -602,7 +626,7 @@ class Image {
    * Returns data to provide fake image item of file entity via ImageFactory.
    *
    * @param \Drupal\file\FileInterface $file
-   *   The file entity.
+   *   The file instance.
    * @param \Drupal\Core\Image\ImageFactory $factory
    *   The image factory instance.
    * @param string|null $alt
@@ -612,12 +636,16 @@ class Image {
    *
    * @return array
    *   The image definition.
+   *
+   * @todo add union types at 4.x:
+   * string|null $alt = NULL,
+   * string|null $title = NULL,
    */
   private static function fromFile(
     FileInterface $file,
     ImageFactory $factory,
-    string|null $alt = NULL,
-    string|null $title = NULL,
+    $alt = NULL,
+    $title = NULL,
   ): array {
     // Might be a video/ audio file URI, not just image.
     // @todo recheck not available beyond formatters, such as View Fields:
@@ -625,7 +653,6 @@ class Image {
     $check = $file->getFileUri();
 
     if ($image = $factory->get($check)) {
-      /** @var \Drupal\file\Entity\File $file */
       [$type] = explode('/', $file->getMimeType(), 2);
 
       // Including image/svg+xml.
@@ -726,9 +753,14 @@ class Image {
    * URI is not available at container level, except for the first,
    * or when preload option is enabled, unless enforced in the far future.
    *
-   * @requires self::styles()
+   * Requires self::styles().
+   *
+   * @param array $settings
+   *   The modified settings.
+   * @param string $uri
+   *   The image uri.
    */
-  private static function transformed(array &$settings, $uri): void {
+  private static function transformed(array &$settings, string $uri): void {
     $blazies = Internals::getBlazies($settings);
 
     // GIF, etc. can be converted. We'll refine SVG, external URL down below.
@@ -747,8 +779,13 @@ class Image {
 
   /**
    * Provides result of self::transformDimensions() for internal urls.
+   *
+   * @param array $settings
+   *   The modified settings.
+   * @param string $uri
+   *   The image uri.
    */
-  private static function transformedInternal(array &$settings, $uri): void {
+  private static function transformedInternal(array &$settings, string $uri): void {
     $blazies = Internals::getBlazies($settings);
     foreach (BlazyDefault::imageStyles() as $key) {
       if ($style = $blazies->get($key . '.style')) {
