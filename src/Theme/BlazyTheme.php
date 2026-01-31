@@ -11,7 +11,12 @@ use Drupal\blazy\Hook\ThemeHooks;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  *
- * @todo delete this sacrificial bridge when min D11.
+ * @todo at 4.x:
+ * - remove all hook and preprocess methods
+ * - convert it into non-service instance class
+ * - implements BlazyThemeInterface containing any theme-related methods
+ *   for D11 DI Hook contructor.
+ * - maybe rename it to just Theme and ThemeInterface for being internal.
  */
 class BlazyTheme {
 

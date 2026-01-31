@@ -7,7 +7,13 @@ use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 /**
  * Provides base blazy utility methods.
  *
- * @todo add return and parameter types at 4.x.
+ * @todo at 4.x:
+ * - add return and parameter types
+ * - move theme-related methods into BlazyContextInterface for
+ *   ThemeInterface constructor
+ * - extract grid, attributes, content into non-service instance class
+ *   (ThemeInterface), relevant for the new Hook DI at D11.
+ * - inject BlazyTheme into BlazyBase constructor.
  */
 interface BlazyInterface extends ContainerInjectionInterface {
 
@@ -40,6 +46,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return \Drupal\blazy\Asset\LibrariesInterface
    *   The libraries service.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function libraries();
 
@@ -56,6 +64,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return \Drupal\Core\Render\RendererInterface
    *   The renderer.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function renderer();
 
@@ -64,6 +74,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return \Drupal\Core\Config\ConfigFactoryInterface
    *   The config factory.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function configFactory();
 
@@ -101,6 +113,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return mixed
    *   The config value(s), or empty.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function config($key = NULL, $group = 'blazy.settings');
 
@@ -112,6 +126,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The config values, or empty array.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function configMultiple($group = 'blazy.settings'): array;
 
@@ -123,6 +139,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return mixed
    *   The config value(s), or empty.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function myConfig($key = NULL);
 
@@ -131,6 +149,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The config values, or empty array.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function myConfigMultiple(): array;
 
@@ -151,6 +171,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The renderable array of the minimal denial info, or empty if accessible.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function denied($entity): array;
 
@@ -241,19 +263,6 @@ interface BlazyInterface extends ContainerInjectionInterface {
   public function getEntityAsOptions($entity_type): array;
 
   /**
-   * Alias for Internals::getHtmlId() to get the trusted HTML ID.
-   *
-   * @param string $name
-   *   The module name.
-   * @param string $id
-   *   The optional hardcoded ID.
-   *
-   * @return string
-   *   The static CSS ID.
-   */
-  public function getHtmlId($name = 'blazy', $id = ''): string;
-
-  /**
    * Alias for LibrariesInterface::getPath() to get libraries path.
    *
    * A few libraries have inconsistent namings, given different packagers:
@@ -268,6 +277,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return string|null
    *   The first found path to the library, or NULL if not found.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function getLibrariesPath($name, $base_path = FALSE): ?string;
 
@@ -283,6 +294,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return string|null
    *   The path to object, or NULL if not found.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function getPath($type, $name, $absolute = FALSE): ?string;
 
@@ -294,6 +307,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return object|null
    *   The entity type storage object.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function getStorage($type = 'media');
 
@@ -308,68 +323,10 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return object
    *   The translated entity, if available.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function getTranslatedEntity($object, $langcode = NULL);
-
-  /**
-   * Alias for Grid::attributes().
-   *
-   * @param array $attrs
-   *   The container attributes to add into .blazy, normally #attributes.
-   * @param array $settings
-   *   The settings defining the grids.
-   */
-  public function gridAttributes(array &$attrs, array $settings): void;
-
-  /**
-   * Alias for Grid::checkAttributes().
-   *
-   * @param array $attrs
-   *   The container attributes to add into .grid, normally #attributes.
-   * @param array $content_attrs
-   *   The content attributes, if any to add into .grid__content.
-   * @param object $blazies
-   *   The settings.blazies object.
-   * @param bool $root
-   *   Whether to apply it for the root container, or item attributes.
-   */
-  public function gridCheckAttributes(
-    array &$attrs,
-    array &$content_attrs,
-    $blazies,
-    $root = FALSE,
-  ): void;
-
-  /**
-   * Alias for Grid::itemAttributes().
-   *
-   * This method + self::initGrid() allows you to build grids with any themes
-   * having just DIV > DIVs or UL > LIs like theme_field(), media_library, etc.,
-   * without re-building it like self::toGrid() such as seen at Blazy
-   * formatters, Views, Optionset forms, IO Browser/Slick Browser by simply
-   * modifying existing attributes. The required:
-   *   - $settings contains delta, count + self::initGrid() settings.
-   *   - Delta is updated in the loop via blazies or directly at child settings.
-   *
-   * @param array $attrs
-   *   The container attributes to add into .grid, normally #wrapper_attributes
-   *   for form items.
-   * @param array $content_attrs
-   *   The content attributes, if any to add into .grid__content. Bootstrap
-   *   CSS .card/ .well is best here.
-   * @param array $settings
-   *   The settings grabbed from self::initGrid() returned settings.
-   *
-   * @see \Drupal\blazy\Theme\Grid
-   * @see \Drupal\io_browser\IoBrowserWidget::mediaLibraryItem()
-   * @see \Drupal\blazy\Form\BlazyAdminBase
-   * @see \Drupal\blazy\Form\BlazyEntityFormBase
-   */
-  public function gridItemAttributes(
-    array &$attrs,
-    array &$content_attrs,
-    array $settings,
-  ): void;
 
   /**
    * Import a config entity, and save it into database.
@@ -383,38 +340,6 @@ interface BlazyInterface extends ContainerInjectionInterface {
   public function import(array $options): void;
 
   /**
-   * Initialize Grid at any containers with DIV > DIVs without passing contents.
-   *
-   * @param array $options
-   *   The options:
-   *   - count, int: total items. Default: 1, must be overriden.
-   *   - grid, string: 4x2 2x2 3x4, etc. Default: 6x1 (two columns).
-   *   - grid_medium, int: 1-12 due to pure CSS. Default: 2.
-   *   - grid_small, int: at max 2 from 1-12. Default: 1.
-   *   - classes, string|array: classes to merge. Default: gapless + is_form.
-   *   - gapless, bool: remove default gap 15px. Default: TRUE.
-   *   - is_form, bool: for forms, requires blazy/admin.grid. Default: TRUE.
-   *   - style, string: column, flex, grid, nativegrid. Default: nativegrid.
-   *   - blazies, BlazySettings: If none, will create an empty object.
-   *
-   * @requires:
-   *  - self::gridItemAttributes() for individual items.
-   *  - Library attachments, any will do:
-   *      - '#attached' => blazy()->attach($settings), at the container level,
-   *        or merge with the existing ones.
-   *      - blazy/nativegrid for frontend, or blazy/admin or blazy/admin.grid
-   *        libraries for form usages.
-   *      - `hook_blazy_settings_alter`: $blazies->set('libs.LIBRARY_NAME');
-   *      See \Drupal\blazy\BlazyDefault::grids(), or blazy.libraries.yml, and
-   *      load it `blazy/LIBRARY_NAME`.
-   *
-   * @return array
-   *   - attributes: to apply/ merge into existing containers,
-   *   - settings: to use for self::gridItemAttributes() last parameter.
-   */
-  public function initGrid(array $options): array;
-
-  /**
    * Returns a shortcut for loading an entity: image_style, slick, etc.
    *
    * @param string $id
@@ -424,6 +349,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return mixed
    *   The entity, or config values: string, bool, etc.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function load($id, $type = 'image_style');
 
@@ -437,6 +364,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The entities, or empty array.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function loadMultiple($type = 'image_style', $ids = NULL): array;
 
@@ -445,6 +374,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * The only difference from EntityStorageBase::loadByProperties() is the
    * explicit access TRUE specific for content entities, FALSE config ones.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    *
    * @see https://www.drupal.org/node/3201242
    */
@@ -468,6 +399,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return object|null
    *   The entity, else NULL.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function loadByProperty($porperty, $value, $type): ?object;
 
@@ -481,6 +414,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return object|null
    *   The entity, else NULL.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function loadByUuid($uuid, $type = 'file'): ?object;
 
@@ -513,6 +448,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The merged array.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function merge(array $data, array $element, $key = NULL): array;
 
@@ -531,6 +468,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The merged configuration inside $configs.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function mergeSettings($keys, array $defaults, array $configs): array;
 
@@ -553,6 +492,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return bool
    *   Whether the module exists, or not.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function moduleExists($name): bool;
 
@@ -564,19 +505,72 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return object|null
    *   The service if already initialized, or NULL.
+   *
+   * @todo move it into BlazyContextInterface for ThemeInterface at 4.x.
    */
   public function service($name): ?object;
 
   /**
-   * An alias for Internals::settings().
+   * A wrapper for the entity view aka vanilla view with access check.
    *
    * @param array $data
-   *   The optional initial data array.
+   *   The data containing: #entity, #settings, and fallback (string|array).
    *
-   * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings object.
+   * @return array
+   *   The renderable array of the view builder, fallback, or empty array.
+   *
+   * @see https://www.drupal.org/node/3033656
    */
-  public function settings(array $data = []): BlazySettings;
+  public function view(array $data): array;
+
+  /**
+   * Alias for Internals::getHtmlId() to get the trusted HTML ID.
+   *
+   * @param string $name
+   *   The module name.
+   * @param string $id
+   *   The optional hardcoded ID.
+   *
+   * @return string
+   *   The static CSS ID.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
+   */
+  public function getHtmlId($name = 'blazy', $id = ''): string;
+
+  /**
+   * Initialize Grid at any containers with DIV > DIVs without passing contents.
+   *
+   * @param array $options
+   *   The options:
+   *   - count, int: total items. Default: 1, must be overriden.
+   *   - grid, string: 4x2 2x2 3x4, etc. Default: 6x1 (two columns).
+   *   - grid_medium, int: 1-12 due to pure CSS. Default: 2.
+   *   - grid_small, int: at max 2 from 1-12. Default: 1.
+   *   - classes, string|array: classes to merge. Default: gapless + is_form.
+   *   - gapless, bool: remove default gap 15px. Default: TRUE.
+   *   - is_form, bool: for forms, requires blazy/admin.grid. Default: TRUE.
+   *   - style, string: column, flex, grid, nativegrid. Default: nativegrid.
+   *   - blazies, BlazySettings: If none, will create an empty object.
+   *
+   * @requires:
+   *  - self::gridItemAttributes() for individual items.
+   *  - Library attachments, any will do:
+   *      - '#attached' => blazy()->attach($settings), at the container level,
+   *        or merge with the existing ones.
+   *      - blazy/nativegrid for frontend, or blazy/admin or blazy/admin.grid
+   *        libraries for form usages.
+   *      - `hook_blazy_settings_alter`: $blazies->set('libs.LIBRARY_NAME');
+   *      See \Drupal\blazy\BlazyDefault::grids(), or blazy.libraries.yml, and
+   *      load it `blazy/LIBRARY_NAME`.
+   *
+   * @return array
+   *   - attributes: to apply/ merge into existing containers,
+   *   - settings: to use for self::gridItemAttributes() last parameter.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
+   */
+  public function initGrid(array $options): array;
 
   /**
    * Returns items wrapped by theme_item_list(), can be a grid, or plain list.
@@ -591,6 +585,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The modified array of grid items.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    *
    * @see \Drupal\blazy\BlazyManager::preRenderBuild()
    * @see \Drupal\slick\SlickManager::buildGridItem()
@@ -613,8 +609,89 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The content to be wrapped with #html_tag, or as is if no class provided.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    */
   public function toHtml($content, $tag = 'div', $class = NULL): array;
+
+  /**
+   * Alias for Grid::attributes().
+   *
+   * @param array $attrs
+   *   The container attributes to add into .blazy, normally #attributes.
+   * @param array $settings
+   *   The settings defining the grids.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
+   */
+  public function gridAttributes(array &$attrs, array $settings): void;
+
+  /**
+   * Alias for Grid::checkAttributes().
+   *
+   * @param array $attrs
+   *   The container attributes to add into .grid, normally #attributes.
+   * @param array $content_attrs
+   *   The content attributes, if any to add into .grid__content.
+   * @param object $blazies
+   *   The settings.blazies object.
+   * @param bool $root
+   *   Whether to apply it for the root container, or item attributes.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
+   */
+  public function gridCheckAttributes(
+    array &$attrs,
+    array &$content_attrs,
+    $blazies,
+    $root = FALSE,
+  ): void;
+
+  /**
+   * Alias for Grid::itemAttributes().
+   *
+   * This method + self::initGrid() allows you to build grids with any themes
+   * having just DIV > DIVs or UL > LIs like theme_field(), media_library, etc.,
+   * without re-building it like self::toGrid() such as seen at Blazy
+   * formatters, Views, Optionset forms, IO Browser/Slick Browser by simply
+   * modifying existing attributes. The required:
+   *   - $settings contains delta, count + self::initGrid() settings.
+   *   - Delta is updated in the loop via blazies or directly at child settings.
+   *
+   * @param array $attrs
+   *   The container attributes to add into .grid, normally #wrapper_attributes
+   *   for form items.
+   * @param array $content_attrs
+   *   The content attributes, if any to add into .grid__content. Bootstrap
+   *   CSS .card/ .well is best here.
+   * @param array $settings
+   *   The settings grabbed from self::initGrid() returned settings.
+   *
+   * @see \Drupal\blazy\Theme\Grid
+   * @see \Drupal\io_browser\IoBrowserWidget::mediaLibraryItem()
+   * @see \Drupal\blazy\Form\BlazyAdminBase
+   * @see \Drupal\blazy\Form\BlazyEntityFormBase
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
+   */
+  public function gridItemAttributes(
+    array &$attrs,
+    array &$content_attrs,
+    array $settings,
+  ): void;
+
+  /**
+   * An alias for Internals::settings().
+   *
+   * @param array $data
+   *   The optional initial data array.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings object.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
+   */
+  public function settings(array $data = []): BlazySettings;
 
   /**
    * Returns escaped options.
@@ -624,6 +701,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The modified array of options suitable for select options.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    */
   public function toOptions(array $options): array;
 
@@ -641,6 +720,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The modified settings.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    */
   public function toSettings(
     array &$settings,
@@ -666,6 +747,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * @return object
    *   The \Drupal\blazy\BlazySettings object identified by $key.
    *   We do not add return type BlazySettings for easy relocation at 3.x.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    */
   public function verifySafely(array &$settings, $key = 'blazies', array $defaults = []);
 
@@ -676,21 +759,10 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The element being modified containing: #settings, #item, #entity, etc.
    * @param int $delta
    *   The current item delta.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    */
   public function verifyItem(array &$element, $delta): void;
-
-  /**
-   * A wrapper for the entity view aka vanilla view with access check.
-   *
-   * @param array $data
-   *   The data containing: #entity, #settings, and fallback (string|array).
-   *
-   * @return array
-   *   The renderable array of the view builder, fallback, or empty array.
-   *
-   * @see https://www.drupal.org/node/3033656
-   */
-  public function view(array $data): array;
 
   /**
    * Filter out renderable array from an array.
@@ -700,6 +772,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   The array without renderable.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    */
   public function withHashtag(array $data): array;
 
@@ -716,6 +790,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The given key.
    * @param bool $unset
    *   Whether to unset original data, default to FALSE till fully migrated.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    */
   public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void;
 
@@ -735,6 +811,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return mixed
    *   The checked value.
+   *
+   * @todo move it into ThemeInterface for Hook at 4.x.
    */
   public function toHashtag(array $data, $key = 'settings', $default = []);
 

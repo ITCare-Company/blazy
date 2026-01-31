@@ -361,7 +361,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *
    * Since 2.9, many were moved into BlazyTheme to support custom work better.
    *
-   * @todo deprecate and remove all these after moving item_attributes to image.attributes.
+   * @todo deprecate and remove all these after moving item_attributes to
+   * image.attributes.
    */
   private function buildMedia(array &$element, array &$build): void {
     $item  = $build['#item'];
@@ -623,19 +624,21 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * where items may be stored as direct indices, or put into items property.
    * Actually the same issue happens at core where contents may be indexed or
    * grouped. Meaning not a problem at all, only a problem for consistency.
+   *
+   * @param array $build
+   *   The render array containing either `items` or indices.
+   *
+   * @return array
+   *   The element children taken out of `items` key or as is.
    */
   private function toElementChildren(array $build): array {
-    $build = $build['items']
-      ?? array_filter($build, fn($k) => is_int($k), ARRAY_FILTER_USE_KEY);
+    $children = $build['items'] ?? $build;
 
-    unset(
-      $build['#entity'],
-      $build['#settings'],
-      $build['items'],
-      $build['settings']
+    return array_filter(
+      $children,
+      static fn($k) => is_int($k),
+      ARRAY_FILTER_USE_KEY
     );
-
-    return $build;
   }
 
   /**

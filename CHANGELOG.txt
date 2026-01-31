@@ -1,6 +1,8 @@
 
 Blazy 3.0.x-dev, 2026-01-31
 ---------------------------
+- Added minimum todo list for blazy 4.x.
+- Added deprecated methods for blazy 4.x.
 - Refactored some Internals and static methods for D12.
 
 Blazy 3.0.x-dev, 2026-01-30
