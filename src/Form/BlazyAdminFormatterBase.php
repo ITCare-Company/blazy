@@ -101,7 +101,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $title   = Unicode::ucfirst(str_replace('_', ' ', $key));
       $vanilla = !empty($settings['vanilla']);
 
-      // @todo remove deprecated breakpoints anytime before 3.x.
+      // @todo deprecate and remove deprecated breakpoints anytime before 3.x.
       if ($key == 'breakpoints') {
         continue;
       }

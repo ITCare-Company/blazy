@@ -57,7 +57,7 @@ trait TraitScopes {
 
       // Might be called directly without calling self::buildSettingsForm(),
       // such as \Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase.
-      // @todo remove this failsafe after sub-module migrations done.
+      // @todo deprecate and remove this failsafe after sub-module migrations done.
       $this->checkScopes($scopes, $definition);
     }
 
@@ -79,7 +79,7 @@ trait TraitScopes {
    * @param bool $refresh
    *   Whether refreshed.
    *
-   * @todo remove most after sub-module migrations.
+   * @todo deprecate and remove most after sub-module migrations.
    */
   protected function checkScopes(&$scopes, array &$definition, $refresh = FALSE): void {
     if ($scopes->was('scoped') && !$refresh) {
@@ -137,7 +137,7 @@ trait TraitScopes {
     }
 
     // Redefine for easy calls later due to sub-modules not migrated yet.
-    // @todo remove after sub-modules migrations, and simplify all these at 3.x.
+    // @todo deprecate and remove after sub-modules migrations, and simplify all these at 3.x.
     $responsive = $is_responsive && $scopes->is('responsive_image');
     $sliders = in_array($namespace, ['slick', 'splide']);
     $by_delta = $lb && $scopes->is('multiple') &&  $namespace == 'blazy';
@@ -151,7 +151,7 @@ trait TraitScopes {
       ->set('is.slider', $scopes->is('slider') ?: $sliders)
       ->set('is.switch', $switch)
       ->set('namespace', $namespace)
-      // @todo remove dups for $blazies object.
+      // @todo deprecate and remove dups for $blazies object.
       ->set('entity.type', $entity_type)
       ->set('plugin_id', $plugin_id)
       ->set('target_type', $target_type)

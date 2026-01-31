@@ -5,6 +5,7 @@ namespace Drupal\blazy_layout\Hook;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy_layout\BlazyLayoutDefault;
 
 /**
@@ -69,7 +70,7 @@ class ThemeHooks {
     // @todo figure out for phpstan w/o checkImplicitMixed.
     // $variables = is_array($variables) ? $variables : [];.
     // @todo convert it to DI $this->manager->service() at D11.
-    $theme_manager = Blazy::getService('theme.manager');
+    $theme_manager = Internals::service('theme.manager');
     if ($theme_manager && $theme = $theme_manager->getActiveTheme()->getName()) {
       $attributes['class'][] = 'b-theme-' . str_replace('_', '-', $theme);
     }

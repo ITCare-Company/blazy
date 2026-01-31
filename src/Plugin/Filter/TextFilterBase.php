@@ -75,7 +75,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    *
    * @var \Drupal\blazy\BlazyFormatterInterface
    *
-   * @todo remove for $formatter to get consistent with sub-modules.
+   * @todo deprecate and remove for $formatter to get consistent with sub-modules.
    */
   protected $blazyManager;
 
@@ -148,7 +148,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
     // inheritance, sub-modules deviate:
     $instance->manager = $instance->formatter = $container->get('blazy.formatter');
 
-    // @todo remove for consistent call against ecosystem shared methods:
+    // @todo deprecate and remove for consistent call against ecosystem shared methods:
     $instance->blazyManager = $instance->manager;
 
     return $instance;
@@ -263,7 +263,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   protected function getValidNode($children) {
     $child = $children->item(0);
 
-    // @todo remove all these for b-filter after another check.
+    // @todo deprecate and remove all these for b-filter after another check.
     $class   = $child->getAttribute('class');
     $is_blur = $class && strpos($class, 'b-blur') !== FALSE;
     $is_bg   = $class && strpos($class, 'b-bg') !== FALSE;

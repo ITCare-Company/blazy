@@ -73,7 +73,7 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
    *
    * @var \Drupal\blazy\BlazyManagerInterface
    *
-   * @todo remove at/by 3.x, no longer in use.
+   * @todo deprecate and remove at/by 3.x, no longer in use.
    */
   protected $blazyManager;
 
@@ -106,7 +106,7 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
     // inheritance, sub-modules deviate:
     $instance->manager = $instance->formatter = $container->get('blazy.formatter');
 
-    // @todo remove for consistent call against sub-modules shared methods:
+    // @todo deprecate and remove for consistent call against sub-modules shared methods:
     $instance->blazyManager = $instance->manager;
 
     return $instance;

@@ -203,7 +203,7 @@ class BlazySettings implements \Countable {
   /**
    * Sets values for a key.
    */
-  public function set($key, $value = NULL, $merge = TRUE): self {
+  public function set($key, $value = NULL, bool $merge = TRUE): self {
     if (is_array($key)) {
       // Ensures to merge to not nullify previous values.
       $merge = TRUE;
@@ -276,7 +276,7 @@ class BlazySettings implements \Countable {
    * @return $this
    *   The configuration object.
    */
-  public function unset($key): self {
+  public function unset(string $key): self {
     $parts = array_map('trim', explode('.', $key));
     if (count($parts) == 1) {
       unset($this->storage[$key]);
@@ -333,7 +333,7 @@ class BlazySettings implements \Countable {
    * @return \Drupal\blazy\BlazySettings
    *   The new BlazySettings instance.
    */
-  public function reset(array &$settings, $key = 'blazies'): self {
+  public function reset(array &$settings, string $key = 'blazies'): self {
     $data = $this->storage;
 
     // @todo re-check, or remove.
@@ -362,7 +362,7 @@ class BlazySettings implements \Countable {
    * @return object
    *   The object.
    *
-   * @todo remove at 3.x when ImageItem is removed.
+   * @todo deprecate and remove at 3.x when ImageItem is removed.
    */
   public function toImage(array $data): object {
     return $this->objectify($data, BlazyDefault::imageProperties());
@@ -371,7 +371,7 @@ class BlazySettings implements \Countable {
   /**
    * Sets values for a key.
    */
-  private function setInternal($key, $value = NULL, $merge = TRUE): self {
+  private function setInternal($key, $value = NULL, bool $merge = TRUE): self {
     $parts = array_map('trim', explode('.', $key));
 
     if (is_array($value) && $merge) {
@@ -398,15 +398,16 @@ class BlazySettings implements \Countable {
    *   The storage key.
    * @param string $key
    *   The storage key.
-   * @param bool $default_value
+   * @param bool $default
    *   The default value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  private function safeBool(string $parent, string $key, bool $default_value = FALSE): bool {
-    $value = $this->get($parent . '.' . $key, $default_value);
-    return Type::normalizeBool($value, $default_value);
+  private function safeBool(string $parent, string $key, bool $default = FALSE): bool {
+    $value = $this->get($parent . '.' . $key, $default);
+
+    return Type::normalizeBool($value, $default);
   }
 
   /**

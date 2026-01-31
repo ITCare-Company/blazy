@@ -186,7 +186,7 @@ class ViewsHooks {
     $valid = FALSE;
 
     // At least, less aggressive than sitewide hook_library_info_alter().
-    // @todo remove when VIS alike added `Drupal.detachBehaviors()` to their JS.
+    // @todo deprecate and remove when VIS alike added `Drupal.detachBehaviors()` to their JS.
     if ($ajax) {
       $loads['library'][] = 'blazy/bio.ajax';
     }

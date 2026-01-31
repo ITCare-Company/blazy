@@ -50,7 +50,7 @@ trait BlazyFormatterViewBaseTrait {
     // Build the elements, and satisfy phpstan.
     /* @phpstan-ignore-next-line */
     if (method_exists($this, 'buildElements')) {
-      // @todo remove $langcode at 3.x:
+      // @todo deprecate and remove $langcode at 3.x:
       /* @phpstan-ignore-next-line */
       $this->buildElements($build, $items, $langcode);
     }

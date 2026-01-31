@@ -4,8 +4,8 @@ namespace Drupal\blazy\Field;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\Element;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Internals\Entity;
 use Drupal\blazy\Internals\Field;
 
 /**
@@ -65,7 +65,7 @@ class BlazyField {
    */
   public static function getValue($entity, $field_name, $langcode) {
     if ($entity->hasField($field_name)) {
-      $entity = Blazy::translated($entity, $langcode);
+      $entity = Entity::translated($entity, $langcode);
 
       return $entity->get($field_name)->getValue();
     }
@@ -109,7 +109,7 @@ class BlazyField {
   /**
    * Alias for Field::getAvailableBundles().
    *
-   * @todo remove at D11.
+   * @todo deprecate and remove at D11.
    */
   public static function getAvailableBundles($field): array {
     return Field::getAvailableBundles($field);
@@ -118,7 +118,7 @@ class BlazyField {
   /**
    * Alias for Field::settings().
    *
-   * @todo remove at D11.
+   * @todo deprecate and remove at D11.
    */
   public static function settings(array &$settings, $field, array $data = []): array {
     return Field::settings($settings, $field, $data);

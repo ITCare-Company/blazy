@@ -24,8 +24,17 @@ class BlazyEntity implements BlazyEntityInterface {
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
+   *
+   * @todo deprecate and remove for $manager before or at 4.x.
    */
   protected $blazyManager;
+
+  /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $manager;
 
   /**
    * The blazy media service.
@@ -39,7 +48,7 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function __construct(BlazyOEmbedInterface $oembed) {
     $this->oembed = $oembed;
-    $this->blazyManager = $oembed->blazyManager();
+    $this->blazyManager = $this->manager = $oembed->blazyManager();
     $this->blazyMedia = $oembed->blazyMedia();
   }
 
@@ -69,6 +78,13 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * {@inheritdoc}
    */
+  public function manager(): BlazyManagerInterface {
+    return $this->manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function blazyMedia() {
     return $this->blazyMedia;
   }
@@ -77,7 +93,7 @@ class BlazyEntity implements BlazyEntityInterface {
    * {@inheritdoc}
    */
   public function build(array $data): array {
-    $manager = $this->blazyManager;
+    $manager = $this->manager;
     $manager->hashtag($data);
 
     $access   = $data['#access'] ?? FALSE;
@@ -92,7 +108,7 @@ class BlazyEntity implements BlazyEntityInterface {
       return $denied;
     }
 
-    // @todo remove $settings after sub-modules: gridstack, slick_browser.
+    // @todo deprecate and remove $settings after sub-modules: gridstack, slick_browser.
     $data['#access'] = TRUE;
     $data['#delta']  = $data['#delta'] ?? ($settings['delta'] ?? -1);
 
@@ -139,12 +155,12 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Allows a standalone blazy layout media to have container for lightboxes.
     if ($config = $build['#build']['#settings'] ?? []) {
-      $blazies = Blazy::getBlazies($config);
+      $blazies = $this->manager->getBlazies($config);
 
       if ($blazies->use('container')) {
         $content = $build;
         $attrs = [];
-        Blazy::containerAttributes($attrs, $config);
+        $manager->containerAttributes($attrs, $config);
 
         $build = [
           '#type' => 'container',
@@ -161,7 +177,7 @@ class BlazyEntity implements BlazyEntityInterface {
    * {@inheritdoc}
    */
   public function prepare(array &$data): void {
-    $manager = $this->blazyManager;
+    $manager = $this->manager;
     $manager->hashtag($data);
 
     /** @var array $settings */
@@ -189,7 +205,7 @@ class BlazyEntity implements BlazyEntityInterface {
    * {@inheritdoc}
    */
   public function view(array $data): array {
-    $manager  = $this->blazyManager;
+    $manager  = $this->manager;
     $settings = $manager->toHashtag($data);
     $entity   = $data['#entity'] ?? NULL;
     $build    = [];
@@ -222,7 +238,7 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * Alias for Entity::settings().
    *
-   * @todo remove at D11.
+   * @todo deprecate and remove at D11.
    */
   public static function settings(array &$settings, $entity): void {
     Entity::settings($settings, $entity);

@@ -3,11 +3,10 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Internals\Check;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Utility\Arrays;
-use Drupal\blazy\Internals\Check;
 
 /**
  * Provides grid utilities.
@@ -15,6 +14,8 @@ use Drupal\blazy\Internals\Check;
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module ecosystem.
+ *
+ * @todo make it an instance class without being a service at D11-12 for Hook.
  */
 class Grid {
 
@@ -437,10 +438,10 @@ class Grid {
           $height = 0;
 
           // If multidimensional layout.
-          if (Blazy::has($value, '-')) {
+          if (Internals::has($value, '-')) {
             [$width, $height] = array_pad(array_map('trim', explode("-", $value, 2)), 2, NULL);
           }
-          elseif (Blazy::has($value, 'x')) {
+          elseif (Internals::has($value, 'x')) {
             [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
           }
 
@@ -608,7 +609,7 @@ class Grid {
       self::itemAttributes($wrapper_attrs, $content_attrs, $sets);
 
       // Remove known unused array.
-      // @todo remove at/by 3.x refactors to use hashes instead.
+      // @todo deprecate and remove at/by 3.x refactors to use hashes instead.
       unset(
         $item['settings'],
         $item['attributes'],

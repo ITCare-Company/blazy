@@ -193,7 +193,7 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function renderInIsolation(array &$elements) {
     // @todo call directly ::renderInIsolation() when min D10.3.
-    return Blazy::backwardsCompatibleCall(
+    return Internals::backwardsCompatibleCall(
       deprecatedVersion: '10.3',
       /** @phpstan-ignore-next-line */
       currentCallable: fn() => $this->renderer->renderInIsolation($elements),
@@ -603,7 +603,7 @@ abstract class BlazyBase implements BlazyInterface {
       else {
         // If module implements own {entity_type}_view.
         // The "paragraphs_type" entity type did not specify a view_builder.
-        // @todo remove due to being deprecated at D8.7, and after paragraphs.
+        // @todo deprecate and remove due to being deprecated at D8.7, and after paragraphs.
         // See https://www.drupal.org/node/3033656.
         $view_hook = $type . '_view';
         if (is_callable($view_hook)) {

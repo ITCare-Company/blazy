@@ -74,7 +74,7 @@ final class Entity {
     if (method_exists($entity, 'getRevisionId')) {
       $rid = $entity->getRevisionId();
     }
-    // @todo remove, looks like a mispell?
+    // @todo deprecate and remove, looks like a mispell?
     elseif (method_exists($entity, 'getRevisionID')) {
       $rid = $entity->getRevisionID();
     }

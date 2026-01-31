@@ -38,7 +38,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
 
       // Populate media metadata earlier for their relevant libraries.
       // Need field.target_bundles, since this views field has none.
-      // @todo remove once formatters and views fields are synced downstream.
+      // @todo deprecate and remove once formatters and views fields are synced downstream.
       $this->blazyMedia->prepare($data);
 
       // Be sure after item setup.

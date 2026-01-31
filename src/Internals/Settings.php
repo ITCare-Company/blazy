@@ -4,7 +4,7 @@ namespace Drupal\blazy\Internals;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Media\Image;
 
 /**
  * Provides internal non-reusable blazy utilities.
@@ -255,7 +255,7 @@ class Settings extends Initializer {
    *   The image item or null.
    */
   public static function prepared(array &$settings, $item): void {
-    BlazyImage::prepare($settings, $item);
+    Image::prepare($settings, $item);
   }
 
   /**
@@ -360,7 +360,7 @@ class Settings extends Initializer {
     }
 
     // Checks for Image styles, excluding Responsive image.
-    BlazyImage::styles($settings);
+    Image::styles($settings);
 
     // Marks it processed.
     $blazies->set('was.initialized', TRUE);

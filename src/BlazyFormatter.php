@@ -31,7 +31,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * @todo make it protected after sub-modules, mostly are just tests + BVEF.
    */
   public function buildSettings(array &$build, $items) {
-    // @todo remove $this->hashtag($build);.
+    // @todo deprecate and remove $this->hashtag($build);.
     /** @var array $settings */
     $settings = &$build['#settings'];
 
@@ -66,7 +66,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * {@inheritdoc}
    */
   public function preBuildElements(array &$build, $items, array $entities = []) {
-    // @todo remove $this->hashtag($build);.
+    // @todo deprecate and remove $this->hashtag($build);.
     /** @var array $settings */
     $settings = &$build['#settings'];
 

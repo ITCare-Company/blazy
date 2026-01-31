@@ -5,7 +5,8 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\Uri;
+use Drupal\blazy\Media\Url;
 use Drupal\filter\FilterProcessResult;
 
 /**
@@ -171,7 +172,7 @@ class BlazyFilter extends BlazyFilterBase {
     $settings = $build['#settings'];
     $blazies  = Internals::getBlazies($settings);
 
-    // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
+    // @todo deprecate and remove deprecated too-catch-all grid for shortcode at 3.x+.
     if ($blazies->is('grid') || $blazies->no('item_container')) {
       return;
     }
@@ -217,7 +218,7 @@ class BlazyFilter extends BlazyFilterBase {
    * {@inheritdoc}
    */
   protected function init(array &$settings, $text): void {
-    // @todo remove at 3.x or so.
+    // @todo deprecate and remove at 3.x or so.
     $this->deprecatedGridSettings($settings, $text);
 
     parent::init($settings, $text);
@@ -300,7 +301,7 @@ class BlazyFilter extends BlazyFilterBase {
 
           if ($output = $this->build($node, $sets, $delta)) {
 
-            // @todo remove deprecated too-catch-all post Blazy 3.x.
+            // @todo deprecate and remove deprecated too-catch-all post Blazy 3.x.
             if ($blazy->is('deprecated_grid')) {
               $grid_items[] = $output;
               $grid_nodes[] = $node;
@@ -401,7 +402,7 @@ class BlazyFilter extends BlazyFilterBase {
     $settings = &$build['#settings'];
     $tn_uri   = $node->getAttribute('data-b-thumb');
 
-    // @todo remove for data-b-thumb at 3.x.
+    // @todo deprecate and remove for data-b-thumb at 3.x.
     if (!$tn_uri) {
       $tn_uri = $node->getAttribute('data-thumb');
     }
@@ -444,8 +445,8 @@ class BlazyFilter extends BlazyFilterBase {
     $uri = $blazies->get('image.uri');
 
     $missing = FALSE;
-    if ($uri && !BlazyFile::isExternal($uri)) {
-      $missing = BlazyFile::isValidUri($uri) && !is_file($uri);
+    if ($uri && !Url::isExternal($uri)) {
+      $missing = Uri::isValid($uri) && !is_file($uri);
     }
 
     if (empty($uri) || $missing) {
@@ -536,7 +537,7 @@ class BlazyFilter extends BlazyFilterBase {
       $item->setAttribute('class', 'blazy-removed');
 
       // Marks figures for removal as its contents are moved into grids.
-      // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
+      // @todo deprecate and remove deprecated too-catch-all grid for shortcode at 3.x+.
       if ($blazies->is('grid') && $node->parentNode) {
         $node->parentNode->setAttribute('class', 'blazy-removed');
       }
@@ -633,7 +634,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Provides deprecated settings to be removed at 3.x or so.
    *
-   * @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
+   * @todo deprecate and remove deprecated too-catch-all grid for shortcode at 3.x+.
    */
   private function deprecatedGridSettings(array &$settings, $text = NULL): void {
     $blazies = Internals::getBlazies($settings);

@@ -6,10 +6,11 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\File;
+use Drupal\blazy\Media\Uri;
+use Drupal\blazy\Media\Url;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Sanitize;
 
@@ -20,7 +21,7 @@ use Drupal\blazy\Utility\Sanitize;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  *
- * @todo refactor to use Hook at D11.
+ * @todo make it an instance class without being a service at D11-12 for Hook.
  */
 class Lightbox {
 
@@ -64,11 +65,11 @@ class Lightbox {
     $switch_css = str_replace('_', '-', $switch);
     $item       = $blazies->get('image.item');
     $uri        = $blazies->get('image.uri');
-    $valid      = $blazies->get('image.valid') ?: Blazy::isValidUri($uri);
+    $valid      = $blazies->get('image.valid') ?: Uri::isValid($uri);
     $_box_style = $settings['box_style'] ?? NULL;
     $box_style  = $blazies->get('box.style');
     $box_url    = $blazies->get('box.url');
-    $box_url    = $url = $box_url ?: Blazy::url($uri, $box_style);
+    $box_url    = $url = $box_url ?: Url::fromUri($uri, $box_style);
     $colorbox   = $blazies->get('colorbox');
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;
@@ -464,9 +465,9 @@ class Lightbox {
       ];
 
       $content = Sanitize::unstrip($content, $unstrips);
-      // @todo remove $content = preg_replace('/\s\s+/', ' ', $content);
+      // @todo deprecate and remove $content = preg_replace('/\s\s+/', ' ', $content);
       $content = preg_replace('/\s+/', ' ', $content);
-      $is_picture = Blazy::has($content, '<picture');
+      $is_picture = Internals::has($content, '<picture');
 
       $json['encoded'] = FALSE;
       if ($blazies->use('encodedbox') && $blazies->is('encodedbox')) {
@@ -590,7 +591,7 @@ class Lightbox {
     $caption = '';
 
     // @todo re-check this if any issues, might be a fake stdClass image item.
-    // @todo remove all ImageItem references for blazies as object at 3.x.
+    // @todo deprecate and remove all ImageItem references for blazies as object at 3.x.
     if ($item) {
       $file = $item->entity ?? $file;
       if (!$object) {
@@ -632,7 +633,7 @@ class Lightbox {
           $options = ['clear' => TRUE];
           $params  = [$object->getEntityTypeId() => $manager->getTranslatedEntity($object)];
 
-          if (BlazyFile::isFile($file) && $file != $object) {
+          if (File::isValid($file) && $file != $object) {
             $params += ['file' => $manager->getTranslatedEntity($file)];
           }
           if ($node && $node != $object) {
@@ -642,7 +643,7 @@ class Lightbox {
           $caption = \Drupal::token()->replace($custom, $params, $options);
 
           // Checks for multi-value text fields, and maps its delta to image.
-          if (Blazy::has($caption, ", <p>")) {
+          if (Internals::has($caption, ", <p>")) {
             $caption = str_replace(", <p>", '| <p>', $caption);
             $captions = explode("|", $caption);
             $caption = $captions[$delta] ?? '';

@@ -20,7 +20,7 @@ final class Container {
    * @param array $settings
    *   The settings being modified.
    *
-   * @todo remove some settings after sub-modules.
+   * @todo deprecate and remove some settings after sub-modules.
    */
   public static function check(array &$settings): void {
     $blazies      = Internals::getBlazies($settings);
@@ -102,7 +102,7 @@ final class Container {
 
     // Some should be refined per item against potential mixed media items.
     // @todo move some into Blazy::prepare() as might be called per item.
-    // @todo remove some overlaps is for use.
+    // @todo deprecate and remove some overlaps is for use.
     $blazies->set('css.ratio', $ratios, TRUE)
       ->set('image.loading', $loading)
       ->set('is.amp', $is_amp)

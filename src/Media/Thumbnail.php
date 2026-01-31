@@ -4,8 +4,8 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Internals\CheckItem;
+use Drupal\blazy\Theme\Attributes;
 
 /**
  * Provides thumbnail-related methods.
@@ -78,7 +78,7 @@ class Thumbnail {
     $style = $blazies->get('thumbnail.id')
       ?: $settings['thumbnail_style'] ?? $blazies->get('thumbnail.fallback');
 
-    // @todo remove if against previous convention with core thumbnail fallback.
+    // @todo deprecate and remove if against previous convention with core thumbnail fallback.
     // Thumbnail URI may be provided via Views style, but not thumbnail_style.
     if (!$style && !$tn_uri) {
       return [];
@@ -95,7 +95,7 @@ class Thumbnail {
     // @todo check for any modules (ImageMagick) which convert SVG to image,
     // and remove this check if present, leaving it for external URL + data URI.
     $unstyled = $blazies->is('unstyled');
-    $valid = $blazies->get('image.valid') ?: BlazyFile::isValidUri($uri);
+    $valid = $blazies->get('image.valid') ?: Uri::isValid($uri);
 
     if ($valid && !$blazies->is('svg')) {
       $unstyled = FALSE;

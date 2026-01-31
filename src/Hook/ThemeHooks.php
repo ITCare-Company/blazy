@@ -8,6 +8,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\Placeholder;
+use Drupal\blazy\Media\Url;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Internals\Check;
 use Drupal\blazy\Internals\Path;
@@ -295,10 +296,16 @@ class ThemeHooks {
         $blazies = $blazy->get('blazies');
         $url = $blazies->get('image.url');
 
+        // If a hero, add preload="metadata" to control how much of the media
+        // content the browser downloads automatically.
+        if ($blazies->is('lcp')) {
+          $attributes->setAttribute('preload', 'metadata');
+        }
+
         // Views style containing Media stage might be empty, unprocessed.
         if (!$url && $uri = $blazies->get('image.uri')) {
           $style = $blazies->get('image.style');
-          $url = Blazy::toUrl($settings, $style, $uri);
+          $url = Url::fromAny($settings, $style, $uri);
         }
 
         $blazies->set('image.url', $url);

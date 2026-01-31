@@ -61,10 +61,14 @@ eliminating this issue in the first place.
 1. **Blazy 3.x (Drupal ≥ 9.4)**
 
    Ecosytem stability with lingering baggages.
+   Recommended for old websites with heavy Blazy ecosystem customization.
 
 2. **Blazy 4.x (Drupal ≥ 11.0)**
 
    Ecosytem consolidation with minimum BC and maximum FC as a bridge for D12.
+   This version intentionally exposes architectural seams to ease the transition
+   to Blazy 5.x.
+   Recommended for new/old websites with minimum Blazy ecosystem customization.
 
    * Requires PHP ≥ 8.2
    * Internals are strictly typed
@@ -75,6 +79,8 @@ eliminating this issue in the first place.
 3. **Blazy 5.x (Drupal ≥ 12.0)**
 
    A breaking change phase for D11 below without BC.
+   Recommended for new websites with zero Blazy ecosystem customization or has
+   passed Blazy 4.x.
 
    * Public APIs are tightened
    * Full strict typing enforced

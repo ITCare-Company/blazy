@@ -187,7 +187,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
     $name = str_replace('_', '-', static::$machineName);
 
     $classes = ['form'];
-    // @todo remove slick after sub-modules.
+    // @todo deprecate and remove slick after sub-modules.
     foreach (['blazy', 'slick', $context, $name] as $key) {
       $classes[] = 'form--' . $key;
     }

@@ -6,7 +6,6 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Layout\LayoutDefault;
 use Drupal\Core\Render\Element;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\Preloader;
@@ -285,7 +284,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $colors   = $settings['styles']['colors'] ?? [];
     $layouts  = $settings['styles']['layouts'] ?? [];
     $semantic = !empty($settings['semantic_layout']);
-    $blazies  = Blazy::getBlazies($settings);
+    $blazies  = $this->manager->getBlazies($settings);
 
     if ($mid = $settings['styles']['media']['id'] ?? NULL) {
       $this->media($output, $settings, $mid, 'bg');
@@ -323,7 +322,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $output[$name][$name . '-bg']['#markup'] = ' ';
       }
 
-      $blazies = Blazy::getBlazies($subsets)->reset($subsets);
+      $blazies = $this->manager->getBlazies($subsets)->reset($subsets);
       $blazies->set('delta', $delta);
 
       // Place before a bailout so to be visible at frontend.
@@ -352,8 +351,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fieldsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
-            $blazies = Blazy::getBlazies($subsets)->reset($subsets);
-            $subblazies = Blazy::getBlazies($fieldsets);
+            $blazies = $this->manager->getBlazies($subsets)->reset($subsets);
+            $subblazies = $this->manager->getBlazies($fieldsets);
             $output[$name][$uuid]['#blazy'] = $subsets;
 
             $blazies->set('is.preview', $this->inPreview)
@@ -661,7 +660,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $hero = FALSE,
   ): void {
     $data = [];
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->manager->getBlazies($settings);
     $config = [
       'background' => TRUE,
       '_detached' => FALSE,
@@ -687,7 +686,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
         $use_overlay = !empty($styles['colors']['overlay_color']);
         $config = $this->manager->merge($mediasets, $config);
-        $blazies = Blazy::getBlazies($config)->reset($config);
+        $blazies = $this->manager->getBlazies($config)->reset($config);
 
         $blazies->set('use.bg', TRUE);
 

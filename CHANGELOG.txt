@@ -1,4 +1,7 @@
 
+Blazy 3.0.x-dev, 2026-01-31
+---------------------------
+- Refactored some Internals and static methods for D12.
 
 Blazy 3.0.x-dev, 2026-01-30
 ---------------------------

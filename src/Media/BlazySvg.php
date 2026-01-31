@@ -24,7 +24,7 @@ class BlazySvg {
   public static function dimensions(array &$settings, $uri): void {
     $blazies = Internals::getBlazies($settings);
     $fluid   = $blazies->is('fluid');
-    $valid   = BlazyFile::isValidUri($uri) && $blazies->is('svg');
+    $valid   = Uri::isValid($uri) && $blazies->is('svg');
     $width   = $height = NULL;
     $attrs   = $settings['svg_attributes'] ?? NULL;
 
@@ -35,7 +35,7 @@ class BlazySvg {
     // Sets default fluid to NULL.
     $blazies->set('image.fluid', NULL)
       // @todo move it out of here:
-      ->set('image.url', BlazyImage::url($uri));
+      ->set('image.url', Url::fromUri($uri));
     $applicable = $attrs != 'none' && $blazies->use('svg_dimensions');
 
     if ($fluid && !$attrs && $blazies->get('image.style')) {

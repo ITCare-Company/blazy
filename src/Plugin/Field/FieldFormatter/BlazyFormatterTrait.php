@@ -68,7 +68,7 @@ trait BlazyFormatterTrait {
   /**
    * Returns the blazy formatter manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
+   * @todo deprecate and remove at 3.x, hardly called outside the formatters, except tests.
    */
   public function formatter() {
     return $this->formatter;
@@ -77,7 +77,7 @@ trait BlazyFormatterTrait {
   /**
    * Returns the blazy manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
+   * @todo deprecate and remove at 3.x, hardly called outside the formatters, except tests.
    */
   public function blazyManager() {
     return $this->blazyManager;
@@ -86,7 +86,7 @@ trait BlazyFormatterTrait {
   /**
    * Returns any blazy-related manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
+   * @todo deprecate and remove at 3.x, hardly called outside the formatters, except tests.
    */
   public function manager() {
     return $this->manager;
@@ -95,7 +95,7 @@ trait BlazyFormatterTrait {
   /**
    * Returns the blazy entity manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
+   * @todo deprecate and remove at 3.x, hardly called outside the formatters, except tests.
    */
   public function blazyEntity() {
     return $this->blazyEntity;
@@ -104,7 +104,7 @@ trait BlazyFormatterTrait {
   /**
    * Returns the blazy oembed manager.
    *
-   * @todo remove at 3.x, hardly called outside the formatters, except tests.
+   * @todo deprecate and remove at 3.x, hardly called outside the formatters, except tests.
    */
   public function blazyOembed() {
     return $this->blazyOembed;
@@ -164,7 +164,7 @@ trait BlazyFormatterTrait {
     $scopes = method_exists($this, 'getPluginScopes')
       ? $this->getPluginScopes() : [];
 
-    // @todo remove `$scopes +` at Blazy 3.x, leaving only settings + blazies.
+    // @todo deprecate and remove `$scopes +` at Blazy 3.x, leaving only settings + blazies.
     $definitions = $scopes + $commons;
     $definitions['scopes'] = $this->toPluginScopes($scopes + $commons);
     return $definitions;

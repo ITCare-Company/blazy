@@ -151,7 +151,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    *   The \Generator items.
    */
   private function getElements(array $data, array $entities, $langcode): \Generator {
-    // @todo remove the helper at/ by 3.x post migrations:
+    // @todo deprecate and remove the helper at/ by 3.x post migrations:
     $this->formatter->hashtag($data);
 
     // Do not reference here, else causes duplicates.
@@ -394,7 +394,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
         if (method_exists($this, 'withElementThumbnail')) {
           $this->withElementThumbnail($build, $element);
         }
-        // @todo remove at/ by 3.x only after sub-modules:
+        // @todo deprecate and remove at/ by 3.x only after sub-modules:
         elseif (method_exists($this, 'buildElementThumbnail')) {
           $this->buildElementThumbnail($build, $element, $entity, $delta);
         }
@@ -415,7 +415,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $definition = $this->getScopedFormElements();
     $definition['_views'] = isset($form['field_api_classes']);
 
-    // @todo remove after sub-modules.
+    // @todo deprecate and remove after sub-modules.
     $definition['view_mode'] = $this->viewMode;
     $definition['plugin_id'] = $this->getPluginId();
     $definition['target_type'] = $this->getFieldSetting('target_type');

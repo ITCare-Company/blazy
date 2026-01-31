@@ -5,9 +5,9 @@ namespace Drupal\blazy\Utility;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Media\Uri;
 
 /**
  * Provides very few common sanitization wrapper methods.
@@ -283,17 +283,17 @@ final class Sanitize {
     $prestyle = $options['prestyle'] ?? '';
     $style = $options['style'] ?? '';
 
-    // @todo remove when local videos are generated dynamically like remote.
-    if (Blazy::has($content, 'src="blank"')) {
+    // @todo deprecate and remove when local videos are generated dynamically like remote.
+    if (Internals::has($content, 'src="blank"')) {
       $content = str_replace('src="blank"', 'src="about:blank"', $content);
     }
 
     // Fixed for 404 images when data URI is enabled via UI, or trusted.
     // @todo recheck if data:image is tweakable, a trojan carrier, based on some
     // limited info, browsers prevent embedded scripts from being executable.
-    if (Blazy::has($content, 'src="image/')) {
-      $data_uri = Blazy::has($content, 'base64')
-        || Blazy::has($content, 'svg+xml');
+    if (Internals::has($content, 'src="image/')) {
+      $data_uri = Internals::has($content, 'base64')
+        || Internals::has($content, 'svg+xml');
 
       if ($data_uri) {
         $content = str_replace('src="image/', 'src="data:image/', $content);
@@ -301,7 +301,7 @@ final class Sanitize {
     }
 
     // The $prestyle is the only known barrier to limit scopes.
-    if ($style && Blazy::has($content, $prestyle)) {
+    if ($style && Internals::has($content, $prestyle)) {
       $content = str_replace($prestyle, $prestyle . ' style="' . $style . '"', $content);
     }
 
@@ -326,9 +326,9 @@ final class Sanitize {
    */
   public static function url($url, $use_data_uri = FALSE): string {
     // This should be enough, unless data:image is tweakable.
-    $allow = Blazy::isDataUri($url) && $use_data_uri;
+    $allow = Uri::isDataUri($url) && $use_data_uri;
 
-    // @todo remove if data:image is known untweakable.
+    // @todo deprecate and remove if data:image is known untweakable.
     if (self::kid($url)) {
       $allow = FALSE;
     }
@@ -350,16 +350,16 @@ final class Sanitize {
   public static function kid($value): bool {
     // Should use the proper filter before/after Blazy, not this naive.
     // At least useless when already passed to self::attribute() upstream.
-    return Blazy::has($value, 'data:text/html')
-      || Blazy::has($value, 'script:');
+    return Internals::has($value, 'data:text/html')
+      || Internals::has($value, 'script:');
     // @todo recheck, the last suspects might be innocent, just being cryptic
     // for common attribute values, normally readable. OK to strip since it
     // tests against attribute values, not HTML content after Xss::filter().
     // However useless checks after self::attribute() for now.
     // The Dec is represented with &#.
-    // || Blazy::has($value, ';&#')
+    // || Internals::has($value, ';&#')
     // The Hex is represented with &#x0.
-    // || Blazy::has($value, '&#x');
+    // || Internals::has($value, '&#x');
   }
 
 }

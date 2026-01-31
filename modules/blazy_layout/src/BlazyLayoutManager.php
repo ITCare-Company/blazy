@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy_layout;
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManager;
 use Drupal\blazy\Utility\Arrays;
@@ -98,7 +97,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
 
     /** @var array $settings */
     $settings = $this->toSettings($settings);
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->getBlazies($settings);
 
     $blazies->set('namespace', static::$namespace)
       ->set('is.grid', TRUE)

@@ -127,7 +127,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
-    // @todo remove after sub-modules calls ::baseImageForm().
+    // @todo deprecate and remove after sub-modules calls ::baseImageForm().
     if ($scopes->is('background')) {
       $form['background'] = [
         '#type'   => 'checkbox',
@@ -765,7 +765,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         ];
       }
 
-      // @todo remove check after another check.
+      // @todo deprecate and remove check after another check.
       // Was meant for Blazy Views fields lacking of field info needed here.
       if (!$scopes->is('no_box_captions')) {
         $custom = !$scopes->is('no_box_caption_custom');

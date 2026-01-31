@@ -286,7 +286,7 @@ Image styles and video dimensions must match the ratio, or distortion will occur
   public function openingDescriptions(): array {
     $lb = $this->isAdminLb();
     return [
-      // @todo remove after sub-modules.
+      // @todo deprecate and remove after sub-modules.
       'background' => $this->background(),
 
       'by_delta' => $this->t(

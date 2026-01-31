@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Internals\Internals;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\Resource;
@@ -33,8 +34,17 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
+   *
+   * @todo deprecate and remove for $manager before or at 4.x.
    */
   protected $blazyManager;
+
+  /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $manager;
 
   /**
    * The blazy manager service.
@@ -113,6 +123,13 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
+  public function manager(): BlazyManagerInterface {
+    return $this->manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function blazyMedia() {
     return $this->blazyMedia;
   }
@@ -177,7 +194,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       }
     }
 
-    // Required early by BlazyImage::fromAny() below to get media metadata.
+    // Required early by Image::fromAny() below to get media metadata.
     if ($valid) {
       $build['#media'] = $media;
       // Prepare Media needed settings, extract Media thumbnail, except type.
@@ -188,36 +205,35 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     // Provides image url earlier for file_video at ::fromMedia to have posters.
-    if (!BlazyImage::isValidItem($build)) {
+    if (!Image::isValid($build)) {
       $entity = $valid ? $media : $entity;
       /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
-      if ($item = BlazyImage::fromAny($entity, $settings)) {
+      if ($item = Image::fromAny($entity, $settings)) {
         $build['#item'] = $item;
       }
     }
 
     // BlazyFilter/ VEF without file upload [data-entity-uuid], nor File API.
     // Soundcloud, etc.
-    if (!BlazyImage::isValidItem($build)) {
+    if (!Image::isValid($build)) {
       $build['#item'] = $this->getThumbnail($settings);
     }
 
     // If we have a valid image item, fake or real, no biggies.
-    if (BlazyImage::isValidItem($build)) {
+    if (Image::isValid($build)) {
       // Marks a hires if valid and so configured, normally field_media_image.
       $blazies->set('is.hires', !empty($stage));
 
       // Extract ImageItem info so to be consumed by SVG attributes.
       if ($item = $this->blazyManager->toHashtag($build, 'item', NULL)) {
-        if ($data = BlazyImage::toArray($item)) {
+        if ($data = Image::toArray($item)) {
           $blazies->set('image', $data, TRUE)
-            // @todo remove this pingpong at 3.x:
+            // @todo deprecate and remove this pingpong at 3.x:
             ->set('image.item', $item);
         }
       }
     }
 
-    /** @var \Drupal\media\Entity\Media $entity */
     if ($valid) {
       $this->fromMedia($build);
     }

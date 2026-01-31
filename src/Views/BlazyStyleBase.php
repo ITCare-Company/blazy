@@ -4,8 +4,9 @@ namespace Drupal\blazy\Views;
 
 // @todo enable use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\Core\Url;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Media\Uri;
+use Drupal\blazy\Media\Url as MediaUrl;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -189,7 +190,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    * @return array
    *   The doable flag and item object.
    *
-   * @todo remove the new param default NULL at/ by 3.x after sub-modules.
+   * @todo deprecate and remove the new param default NULL at/ by 3.x after sub-modules.
    */
   protected function getThumbnail(array &$sets, $row, $index, $field_caption = NULL): array {
     $name = $sets['thumbnail'] ?? NULL;
@@ -263,7 +264,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
         $blazies->set('thumbnail.id', $tn_style);
       }
 
-      $url = Blazy::url($uri, $style);
+      $url = MediaUrl::fromUri($uri, $style);
 
       $blazies->set('thumbnail.uri', $uri)
         ->set('thumbnail.url', $url)
@@ -347,7 +348,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
 
     // If no URI, but we have an ImageItem.
     if (!$uri && is_object($item)) {
-      $uri = Blazy::uri($item);
+      $uri = Uri::fromImage($item);
     }
 
     // Only if we have an URI.
@@ -370,7 +371,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
         }
       }
 
-      $tn_url = Blazy::url($tn_uri, $style);
+      $tn_url = MediaUrl::fromUri($tn_uri, $style);
 
       $blazies->set('thumbnail.id', $tn_style)
         ->set('thumbnail.uri', $tn_uri)

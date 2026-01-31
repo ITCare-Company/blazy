@@ -6,7 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\Uri;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Markdown;
 
@@ -38,7 +38,7 @@ final class Internals extends Content {
     if (class_exists(FileExists::class)) {
       return FileExists::Replace;
     }
-    // @todo remove when min D10.3.
+    // @todo deprecate and remove when min D10.3.
     /** @phpstan-ignore-next-line */
     return FileSystemInterface::EXISTS_REPLACE;
   }
@@ -49,6 +49,7 @@ final class Internals extends Content {
    * @todo replace base_path() if any replacement by D11.
    */
   public static function basePath(): string {
+    // @todo recheck \Drupal::request()->getBasePath().
     return \base_path() ?: '';
   }
 
@@ -117,7 +118,7 @@ final class Internals extends Content {
    * Checks if it is an SVG.
    */
   public static function isSvg($uri): bool {
-    return BlazyFile::isSvg($uri);
+    return Uri::isSvg($uri);
   }
 
   /**
@@ -137,7 +138,7 @@ final class Internals extends Content {
   /**
    * Returns a entity object by a property.
    *
-   * @todo remove for BlazyInterface::loadByProperty().
+   * @todo deprecate and remove for BlazyInterface::loadByProperty().
    */
   public static function loadByProperty($property, $value, $type, $manager = NULL): ?object {
     $manager = $manager ?: self::blazy();
@@ -147,7 +148,7 @@ final class Internals extends Content {
   /**
    * Returns a entity object by a UUID.
    *
-   * @todo remove for BlazyInterface::loadByUuid().
+   * @todo deprecate and remove for BlazyInterface::loadByUuid().
    */
   public static function loadByUuid($uuid, $type, $manager = NULL): ?object {
     $manager = $manager ?: self::blazy();
@@ -157,7 +158,7 @@ final class Internals extends Content {
   /**
    * Returns the app root.
    *
-   * @todo remove after usage checks.
+   * @todo deprecate and remove after usage checks.
    */
   public static function root($container) {
     return $container->getParameter('app.root');

@@ -114,7 +114,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Returns the blazy manager.
    *
-   * @todo remove, hardly called outside the formatters.
+   * @todo deprecate and remove, hardly called outside the formatters.
    */
   public function blazyManager() {
     return $this->blazyManager;
@@ -273,7 +273,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       }
     }
 
-    // @todo remove `$scopes +` at Blazy 3.x.
+    // @todo deprecate and remove `$scopes +` at Blazy 3.x.
     $definitions = $scopes;
     $definitions['scopes'] = $this->toPluginScopes($scopes);
     $definitions['settings'] = $settings;

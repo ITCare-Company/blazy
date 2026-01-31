@@ -14,7 +14,8 @@ use Drupal\blazy\Theme\BlazyViews;
  *   blazy-related code in Blazy module. Please use the public method instead.
  *
  * @todo refine, and split them conditionally based on fields like libraries.
- * @todo remove most $settings once migrated and after sub-modules and tests.
+ * @todo deprecate and remove most $settings once migrated and after sub-modules
+ * and tests.
  */
 final class Check {
 

@@ -5,13 +5,14 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Xss;
 // @todo use Drupal\media\MediaInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault as Defaults;
 use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile as File;
-use Drupal\blazy\Media\BlazyImage as Image;
+use Drupal\blazy\Media\Image;
+use Drupal\blazy\Media\Uri;
 // @todo use Drupal\blazy\Media\BlazyMedia;
+use Drupal\blazy\Utility\Sanitize;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -149,7 +150,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
         $settings['image'] = $field_image;
 
-        // @todo remove most of these, except few.
+        // @todo deprecate and remove most of these, except few.
         $blazies->set('bundles.' . $bundle, $bundle, TRUE)
           ->set('count', $count)
           ->set('total', $count)
@@ -201,17 +202,17 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
     }
 
-    // @todo remove all ImageItem references at 3.x for blazies as object.
+    // @todo deprecate and remove all ImageItem references at 3.x for blazies as object.
     $item = $this->manager->toHashtag($build, 'item', NULL);
 
-    // @todo remove all ImageItem references at 3.x for blazies as object.
+    // @todo deprecate and remove all ImageItem references at 3.x for blazies as object.
     $build['#item'] = $item;
 
     // Might be extracted at BlazyOembed, but not always iframes here.
     // Extract ImageItem info and merge them all here for sure.
     if ($item && $data = Image::toArray($item)) {
       $blazies->set('image', $data, TRUE)
-        // @todo remove this pingpong at 3.x:
+        // @todo deprecate and remove this pingpong at 3.x:
         ->set('image.item', $item);
     }
   }
@@ -344,7 +345,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $uuid     = $attrs['data-entity-uuid'] ?? NULL;
 
     // 1. Data URI can only be seen if `Trust data URI` enabled, else empty.
-    if (Blazy::isDataUri($src)) {
+    if (Uri::isDataUri($src)) {
       $uri = $src;
       $data_uri = TRUE;
 
@@ -457,7 +458,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       // These are shortcode attributes for grid ITEM, or SLIDE.
       if ($attrs = AttributeParser::getAttribute($node)) {
         // Might be consumed directly by sub-modules.
-        $attrs = Blazy::sanitize($attrs);
+        $attrs = Sanitize::attribute($attrs);
         $this->shortcodeItemAttributes($build, $node, $blazies, $attrs);
       }
     }
@@ -548,7 +549,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     // Ensures relevant attributes are passed through.
     $type = 'image';
-    $safe_attrs = Blazy::sanitize($attrs);
+    $safe_attrs = Sanitize::attribute($attrs);
     if ($tag == 'img') {
       $blazies->set('image.attributes', $safe_attrs);
     }

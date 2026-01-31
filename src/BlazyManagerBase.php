@@ -7,6 +7,7 @@ use Drupal\blazy\Media\Thumbnail;
 use Drupal\blazy\Internals\Check;
 use Drupal\blazy\Internals\CheckItem;
 use Drupal\blazy\Internals\Path;
+use Drupal\blazy\Theme\Attributes;
 
 /**
  * Provides common shared methods across Blazy ecosystem to DRY.
@@ -39,7 +40,18 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function containerAttributes(array &$attributes, array $settings): void {
-    Blazy::containerAttributes($attributes, $settings);
+    Attributes::container($attributes, $settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBlazies(
+    array &$settings,
+    bool $merge = FALSE,
+    string $key = 'blazies',
+  ): BlazySettings {
+    return Internals::getBlazies($settings, $merge, $key);
   }
 
   /**
@@ -62,7 +74,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function imageStyles(array &$settings, $multiple = FALSE, array $styles = []): void {
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->getBlazies($settings);
     $styles = $styles ?: BlazyDefault::imageStyles();
 
     foreach ($styles as $key) {
@@ -126,7 +138,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function preBlazy(array &$build, $item = NULL): BlazySettings {
-    // @todo remove $this->hashtag($build);.
+    // @todo deprecate and remove $this->hashtag($build);.
     $settings = &$build['#settings'];
 
     $this->verifySafely($settings);
@@ -134,7 +146,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     // Prevents double checks.
     // BlazySettings is a self containing object, initialized at container level
     // and must be renewed at item level to get correct delta, see #3278525.
-    $blazies = Blazy::getBlazies($settings)->reset($settings);
+    $blazies = $this->getBlazies($settings)->reset($settings);
     $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
     $style   = $settings['image_style'] ?? NULL;
 
@@ -161,7 +173,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
 
     // Update with blazy processed settings: unstyled extensions, SVG, etc.
     if ($blazysets = $this->toHashtag($item_build)) {
-      $blazies = Blazy::getBlazies($blazysets);
+      $blazies = $this->getBlazies($blazysets);
       $build['#settings']['blazies']->merge($blazies->storage());
     }
   }
@@ -209,11 +221,11 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('use.data_b', TRUE)
       ->set('use.theme_blazy', $use_blazy)
       ->set('use.theme_thumbnail', $use_blazy)
-      ->set('version.blazy', Blazy::version('blazy'));
+      ->set('version.blazy', Internals::version('blazy'));
 
     if ($namespace && $namespace != 'blazy') {
       if ($this->moduleExists($namespace)) {
-        $blazies->set('version.' . $namespace, Blazy::version($namespace));
+        $blazies->set('version.' . $namespace, Internals::version($namespace));
       }
     }
 

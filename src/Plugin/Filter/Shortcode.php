@@ -34,7 +34,7 @@ class Shortcode {
     if (stristr($string, "[$item") !== FALSE) {
       $string = self::process($string, $item);
 
-      // @todo remove into self::replace().
+      // @todo deprecate and remove into self::replace().
       $string = str_replace("<p><$item>", "<$item>", $string);
       $string = str_replace("<p><$item ", "<$item ", $string);
       $string = str_replace("</$item></p>", "</$item>", $string);
@@ -42,7 +42,7 @@ class Shortcode {
 
     $text = self::process($string, $container);
 
-    // @todo remove into self::replace().
+    // @todo deprecate and remove into self::replace().
     $text = str_replace("<p><$container>", "<$container>", $text);
     $text = str_replace("<p><$container ", "<$container ", $text);
     $text = str_replace("</$container></p>", "</$container>", $text);

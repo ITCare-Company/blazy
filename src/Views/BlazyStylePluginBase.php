@@ -144,7 +144,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Returns the relevant elements based on the configuration.
    *
-   * @todo remove for BlazyElementTrait if similar to field formatters.
+   * @todo deprecate and remove for BlazyElementTrait if similar to field formatters.
    */
   protected function toElement($blazies, array &$data, array $captions): void {
     $delta    = $data['#delta'] ?? 0;
@@ -313,7 +313,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Builds the item using theme_blazy(), if so-configured.
    *
-   * @todo remove for BlazyElementTrait if similar to field formatters.
+   * @todo deprecate and remove for BlazyElementTrait if similar to field formatters.
    */
   private function themeBlazy(array &$element, array $captions, $delta): void {
     $internal = $element;
@@ -334,7 +334,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Provides relevant attributes to feed into theme_blazy().
    *
-   * @todo remove for BlazyElementTrait if similar to field formatters.
+   * @todo deprecate and remove for BlazyElementTrait if similar to field formatters.
    */
   private function toBlazy(array &$data, array &$captions, $delta): array {
     // Call manager not formatter due to sub-module deviations.

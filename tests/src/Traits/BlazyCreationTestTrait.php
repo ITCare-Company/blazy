@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\blazy\Traits;
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Media\Uri;
+use Drupal\blazy\Media\Url;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\field\Entity\FieldConfig;
@@ -394,7 +395,7 @@ trait BlazyCreationTestTrait {
       if ($item instanceof ImageItem) {
         /** @phpstan-ignore-next-line */
         $this->uri = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-        $this->url = Blazy::transformRelative($this->uri);
+        $this->url = Uri::transformRelative($this->uri);
       }
     }
 
@@ -403,7 +404,7 @@ trait BlazyCreationTestTrait {
       $uri = 'public://test.png';
       $replace = Internals::fileExistsReplace();
       $this->fileSystem->copy($source, $uri, $replace);
-      $this->url = Blazy::createUrl($uri);
+      $this->url = Url::create($uri);
     }
 
     $this->testItem = $this->image = $item;
@@ -420,7 +421,7 @@ trait BlazyCreationTestTrait {
   protected function getImagePath($is_dir = FALSE) {
     $path            = $this->root . '/sites/default/files/simpletest/' . $this->testPluginId;
     $item            = $this->createDummyImage();
-    $this->dummyUrl  = Blazy::transformRelative($this->dummyUri);
+    $this->dummyUrl  = Uri::transformRelative($this->dummyUri);
     $this->dummyItem = $item;
     $this->dummyData = [
       '#settings' => $this->getFormatterSettings(),

@@ -3,9 +3,9 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\blazy\Blazy;
-use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Internals\CheckItem;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides preload utility.
@@ -28,7 +28,7 @@ class Preloader {
    * @nottodo support multiple hero images like carousels.
    */
   public static function preload(array &$load, array $settings): void {
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = Internals::getBlazies($settings);
     $images  = $blazies->get('images', []);
     $check   = array_filter($images);
     $sources = $blazies->get('resimage.sources', []);
@@ -54,7 +54,7 @@ class Preloader {
   /**
    * Extracts uris from file/ media entity, relevant for the new option Preload.
    *
-   * @requires image styles defined via BlazyImage::styles().
+   * @requires image styles defined via Image::styles().
    *
    * Also extract the found image for gallery/ zoom like, ElevateZoomPlus, etc.
    *
@@ -62,7 +62,7 @@ class Preloader {
    * field formatters like this one, blazy_filter, views field, or manual call.
    */
   public static function prepare(array &$settings, $items, array $entities = []): void {
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = Internals::getBlazies($settings);
     if (array_filter($blazies->get('images', []))) {
       return;
     }
@@ -71,11 +71,11 @@ class Preloader {
 
     $func = function ($item, $entity, $delta = 0) use (&$settings, $blazies, $style) {
       $options  = ['entity' => $entity, 'settings' => $settings];
-      $image    = BlazyImage::item($item, $options);
-      $uri      = BlazyFile::uri($image);
-      $valid    = BlazyFile::isValidUri($uri);
+      $image    = Image::item($item, $options);
+      $uri      = Uri::fromImage($image);
+      $valid    = Uri::isValid($uri);
       $unstyled = $uri ? CheckItem::unstyled($settings, $uri) : FALSE;
-      $url      = BlazyImage::toUrl($settings, $style, $uri);
+      $url      = Url::fromAny($settings, $style, $uri);
 
       // Only needed the first found image, no problem which with mixed media.
       if ($uri && !$blazies->get('first.uri')) {
@@ -85,13 +85,13 @@ class Preloader {
           ->set('first.uri', $uri);
 
         // The first image dimensions to differ from individual item dimensions.
-        BlazyImage::dimensions($settings, $image, $uri, TRUE);
+        Image::dimensions($settings, $image, $uri, TRUE);
       }
 
       // Ensures the Hero is the image being displayed, not original URI.
       $style_uri = NULL;
       if ($style && $url) {
-        $style_uri = BlazyFile::buildUri($url);
+        $style_uri = Uri::build($url);
       }
 
       // @todo also pass $style + $image when all sources covered.
@@ -125,10 +125,10 @@ class Preloader {
       }
     }
 
-    $empty = count($empties) == count($images);
-    $images = $empty ? array_filter($images) : $images;
-
-    // This is also required by BlazyResponsiveImage::sources().
+    // $empty = count($empties) == count($images);
+    // @todo recheck and remove if this causes broken indices.
+    // @todo renable $images = $empty ? array_filter($images) : $images;
+    // This is also required by ResponsiveImage::sources().
     $blazies->set('images', $images, TRUE);
 
     // Checks for [Responsive] image dimensions and sources for formatters
@@ -136,7 +136,7 @@ class Preloader {
     // of images. This is less expensive than re-defining dimensions per image.
     // These also provide data for the Preload option.
     if (!$blazies->was('resimage_dimensions')) {
-      $unstyled = $blazies->get('first.unstyled');
+      $unstyled = $blazies->get('first.unstyled', FALSE);
       $resimage = $blazies->get('resimage.style');
 
       // @todo recheck $blazies->get('first.uri').
@@ -151,17 +151,17 @@ class Preloader {
           }
         }
         else {
-          $resimage = BlazyResponsiveImage::toStyle($settings, $unstyled);
+          $resimage = ResponsiveImage::toStyle($settings, $unstyled);
         }
 
         if ($resimage) {
-          BlazyResponsiveImage::dimensions($settings, $resimage, TRUE);
+          ResponsiveImage::dimensions($settings, $resimage, TRUE);
 
           $blazies->set('heroes.reponsive_image.style', $resimage)
             ->set('heroes.reponsive_image.id', $resimage->id());
         }
         elseif ($style) {
-          BlazyImage::cropDimensions($settings, $style);
+          Image::cropDimensions($settings, $style);
         }
       }
       $blazies->set('was.resimage_dimensions', TRUE);
@@ -171,7 +171,11 @@ class Preloader {
   /**
    * Generates preload urls.
    */
-  private static function generate(array $images, array $sources, $blazies): \Generator {
+  private static function generate(
+    array $images,
+    array $sources,
+    BlazySettings $blazies,
+  ): \Generator {
     $loading = $blazies->get('image.loading', 'lazy');
     $heroes = in_array($loading, ['slider', 'unlazy']);
     $priority = $blazies->use('bg', FALSE) && $heroes;
@@ -248,7 +252,7 @@ class Preloader {
         $start = $delta == $blazies->get('initial', -1);
 
         // Preloading 1px data URI makes no sense, see if image_url exists.
-        $data_uri = Blazy::isDataUri($url);
+        $data_uri = Uri::isDataUri($url);
         if ($data_uri && $url2 = $source['url'] ?? NULL) {
           $url = $url2;
         }

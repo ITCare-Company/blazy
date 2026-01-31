@@ -4,7 +4,6 @@ namespace Drupal\blazy\Hook;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FormatterInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Internals\Internals;
 
 /**
@@ -55,7 +54,7 @@ class FieldHooks {
           $extensions = $settings['file_extensions'] ?? '';
           $plugin     = $formatter->getPluginDefinition();
 
-          if (!Blazy::has($extensions, 'svg') && $definition->getType() == 'image') {
+          if (!Internals::has($extensions, 'svg') && $definition->getType() == 'image') {
             $summary[] = t('<h5>No SVG file extensions, use @provider Image instead.</h5>', [
               '@provider' => Unicode::ucfirst($plugin['provider']),
             ]);

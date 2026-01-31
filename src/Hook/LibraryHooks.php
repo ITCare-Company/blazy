@@ -31,7 +31,7 @@ class LibraryHooks {
 
     static $bajax;
 
-    // @todo remove if core changed, right below core/drupal for being generic,
+    // @todo deprecate and remove if core changed, right below core/drupal for being generic,
     // and dependency-free and a dependency for many other generic ones.
     // @todo watch out for core @todo to remove drupal namespace for debounce.
     $debounce = 'drupal.debounce';

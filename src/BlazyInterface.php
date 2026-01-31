@@ -6,6 +6,8 @@ use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 
 /**
  * Provides base blazy utility methods.
+ *
+ * @todo add return and parameter types at 4.x.
  */
 interface BlazyInterface extends ContainerInjectionInterface {
 

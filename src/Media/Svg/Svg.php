@@ -6,7 +6,7 @@ use Drupal\Component\Utility\Color;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
-use Drupal\file\Entity\File;
+use Drupal\file\FileInterface;
 use enshrined\svgSanitize\Sanitizer;
 
 /**
@@ -20,7 +20,7 @@ class Svg extends BlazyFile implements SvgInterface {
    * {@inheritdoc}
    */
   public function sanitize($file, array $options = []): ?string {
-    $uri   = $file instanceof File ? $file->getFileUri() : $file;
+    $uri   = $file instanceof FileInterface ? $file->getFileUri() : $file;
     $ext   = pathinfo($uri, PATHINFO_EXTENSION);
     $ext   = strtolower($ext);
     $svg   = NULL;

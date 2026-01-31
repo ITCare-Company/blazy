@@ -209,7 +209,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
     $blazies = Internals::getBlazies($settings);
     $blazies->set('language.code', $langcode);
     // The form is not loaded at views UI, provides the minimum.
-    // @todo remove when the form is loaded at Views UI.
+    // @todo deprecate and remove when the form is loaded at Views UI.
     if ($blazies->get('view.embedded')
       && $defaults = $blazies->get('media.defaults', [])) {
       $settings = array_merge($settings, $defaults);

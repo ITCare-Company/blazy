@@ -7,8 +7,8 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Media\BlazyResponsiveImage;
+use Drupal\blazy\Media\Image;
+use Drupal\blazy\Media\ResponsiveImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Media\Ratio;
 use Drupal\blazy\Utility\Arrays;
@@ -25,6 +25,11 @@ class Attributes {
 
   /**
    * Provides attachments when not using the provided API.
+   *
+   * @param array $variables
+   *   The variables being modified.
+   * @param array $settings
+   *   The settings.
    */
   public static function attach(array &$variables, array $settings = []): void {
     if ($manager = Internals::blazy()) {
@@ -84,7 +89,7 @@ class Attributes {
       }
     }
 
-    // @todo remove when nativegrid masonry no longer needs this.
+    // @todo deprecate and remove when nativegrid masonry no longer needs this.
     if ($blazies->is('grid')) {
       $count = $blazies->get('view.count', 0);
       if (!empty($settings['caption']) ||
@@ -93,7 +98,7 @@ class Attributes {
       }
     }
 
-    // @todo remove, hardly used as identifier.
+    // @todo deprecate and remove, hardly used as identifier.
     // if ($blazies->use('ajax')) {
     // $classes[] = 'is-b-ajax';
     // }
@@ -164,7 +169,7 @@ class Attributes {
       $attributes['data-b-token'] = $token;
     }
 
-    // @todo remove BC at 3.x:
+    // @todo deprecate and remove BC at 3.x:
     $player = $blazies->use('player') || $blazies->is('player');
     $blazies->set('use.player', $player);
 
@@ -550,7 +555,7 @@ class Attributes {
       : $blazies->get('media.label');
     $alt = $blazies->get('image.alt');
 
-    // @todo remove this item check at 3.x, once they are all in blazies.image.
+    // @todo deprecate and remove this item check at 3.x, once they are all in blazies.image.
     if ($item) {
       // Title from fake item might be just file name, except from BlazyFilter.
       // Needed by thumbnails if any image item, fake or real, no biggies.
@@ -773,7 +778,7 @@ class Attributes {
       $data = $settings;
       $data['width'] = $width;
       $data['height'] = $blazies->get('image.height');
-      $blazies->set('bgs.' . $width, BlazyImage::background($data, $style));
+      $blazies->set('bgs.' . $width, Image::background($data, $style));
       self::lazy($attributes, $blazies, TRUE);
     }
     else {
@@ -832,7 +837,7 @@ class Attributes {
     if ($blazies->use('bg')) {
       // Attach BG data attributes to a DIV container.
       $attributes = &$variables['attributes'];
-      BlazyResponsiveImage::background($attributes, $settings);
+      ResponsiveImage::background($attributes, $settings);
     }
     else {
       $image = &$variables['image'];
@@ -904,7 +909,7 @@ class Attributes {
       }
     }
 
-    // @todo remove the last -- for - at 3.x.
+    // @todo deprecate and remove the last -- for - at 3.x.
     if ($add_class) {
       foreach (['field', 'view'] as $key) {
         if ($name = $blazies->get($key . '.name')) {

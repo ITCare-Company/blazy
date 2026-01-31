@@ -174,7 +174,7 @@ trait TraitAdminOptions {
   protected function getState($state, BlazySettings $scopes): array {
     $lightboxes = [];
 
-    // @todo remove the second after complete migrations.
+    // @todo deprecate and remove the second after complete migrations.
     // @todo $options = $scopes->data('lightboxes')
     // ?: $this->blazyManager->getLightboxes();
     $options = ['content', 'link', 'media', 'rendered', ''];

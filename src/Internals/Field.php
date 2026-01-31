@@ -19,7 +19,7 @@ final class Field {
    * @param \Drupal\file\Plugin\Field\FieldType\FileFieldItemList|\Drupal\Core\Field\EntityReferenceFieldItemListInterface|\Drupal\Core\Field\FieldItemListInterface $items
    *   The field item list.
    *
-   * @todo remove fallback settings after migration and sub-modules.
+   * @todo deprecate and remove fallback settings after migration and sub-modules.
    */
   public static function check(array &$settings, $items): void {
     $entity = $items->getEntity();
@@ -31,7 +31,7 @@ final class Field {
       return;
     }
 
-    // @todo remove after sub-modules.
+    // @todo deprecate and remove after sub-modules.
     $field = $items->getFieldDefinition();
     if (!$blazies->get('field')) {
       self::settings($settings, $field);
@@ -63,7 +63,7 @@ final class Field {
       $settings['by_delta'] = (int) $settings['by_delta'];
     }
 
-    // @todo remove, used by sliders at twigs.
+    // @todo deprecate and remove, used by sliders at twigs.
     $settings['count'] = $count;
     $settings['id'] = $id;
     $settings['use_theme_field'] = $use_field;
@@ -147,7 +147,7 @@ final class Field {
       $blazies->set('field.target_bundles', $bundles);
     }
 
-    // @todo remove at/ by 3.x after migration and sub-modules: EZ, Splidebox.
+    // @todo deprecate and remove at/ by 3.x after migration and sub-modules: EZ, Splidebox.
     foreach ($submodules as $key => $value) {
       $settings[$key] = $value;
     }

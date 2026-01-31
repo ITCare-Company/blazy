@@ -6,6 +6,7 @@ use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Url;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\Lightbox;
+use Drupal\blazy\Utility\Sanitize;
 
 /**
  * Implements a public facing blazy manager.
@@ -84,7 +85,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Fetch the newly modified settings with hashed key.
     /** @var array $settings */
     $settings = &$element['#settings'];
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->getBlazies($settings);
     $switch = $blazies->get('switch');
 
     // Bail out if no URI is provided.
@@ -123,7 +124,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   public function build(array $data): array {
     /** @var array $settings */
     $settings = $this->getBlazySettings($data);
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->getBlazies($settings);
 
     // This #pre_render doesn't work if called from Views results, hence the
     // output is split either as theme_field() or theme_item_list().
@@ -170,13 +171,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       // Cannot merge it into Grid (wrapper_)attributes, done as grid.
       // Use case: Product variations, best served by ElevateZoom Plus.
       if (isset($element['#ajax_replace_class'])) {
-        $element['#container_attributes'] = Blazy::sanitize($attributes);
+        $element['#container_attributes'] = Sanitize::attribute($attributes);
       }
       else {
         // Use case: VIS, can be blended with UL element safely down here.
         // The $attributes is merged with self::toGrid() ones here.
         $attrs = $this->merge($attributes, $element, '#attributes');
-        $element['#attributes'] = Blazy::sanitize($attrs);
+        $element['#attributes'] = Sanitize::attribute($attrs);
       }
     }
 
@@ -222,7 +223,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
           $key = $key == 'description' ? 'item' : $key;
           $css = $id == 'blazy' ? $_desc . '-' . $key : $_desc . '--' . $key;
 
-          // @todo remove, might all be just NULL here.
+          // @todo deprecate and remove, might all be just NULL here.
           $css = $nowrap || $key == 'data' ? NULL : $css;
 
           $descriptions[$key] = $this->toHtml($caption, 'div', $css);
@@ -265,7 +266,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   private function buildContent(array &$element, array &$build): void {
     /** @var array $settings */
     $settings = &$build['#settings'];
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->getBlazies($settings);
 
     if (empty($build['content'])) {
       return;
@@ -360,7 +361,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *
    * Since 2.9, many were moved into BlazyTheme to support custom work better.
    *
-   * @todo remove all these after moving item_attributes to image.attributes.
+   * @todo deprecate and remove all these after moving item_attributes to image.attributes.
    */
   private function buildMedia(array &$element, array &$build): void {
     $item  = $build['#item'];
@@ -376,7 +377,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
     // Pass item_attributes to theme_blazy():
     // https://www.drupal.org/project/blazy/issues/3374519.
-    $element['#item_attributes'] = Blazy::sanitize($attrs);
+    $element['#item_attributes'] = Sanitize::attribute($attrs);
   }
 
   /**
@@ -415,7 +416,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   private function prepareBlazy(array &$element, array $build): void {
     /** @var array $settings */
     $settings   = &$build['#settings'];
-    $blazies    = Blazy::getBlazies($settings);
+    $blazies    = $this->getBlazies($settings);
     $item       = $build['#item'];
     $attributes = &$build['#attributes'];
     $captions   = Internals::toContent($build, TRUE, ['captions', 'caption']);
@@ -440,7 +441,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Initial feature checks, URI, delta, media features, etc.
-    // @todo remove this before 3.x release.
+    // @todo deprecate and remove this before 3.x release.
     $item_attributes = &$build['#item_attributes'];
 
     // Ensures CheckItem::essentials() called once.
@@ -456,7 +457,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $this->moduleHandler->alter('blazy_item', $settings, $attributes, $item_attributes);
 
     // Update media switcher based on the hook_blazy_item_alter.
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->getBlazies($settings);
     $api_switch = $blazies->get('switch');
     if ($api_switch && $switch = $settings['media_switch'] ?? NULL) {
       if ($switch != $api_switch) {
@@ -476,13 +477,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     // Since 2.17, it is optional at Blazy UI under `Use theme_blazy()` option.
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->getBlazies($settings);
     foreach ($theme_attributes as $key) {
       $key   = $key . '_attributes';
       $attrs = $this->themeAttributes($key, $blazies, $build);
 
       // Sanitize potential user-defined attributes such as from BlazyFilter.
-      $element["#$key"] = $attrs ? Blazy::sanitize($attrs) : [];
+      $element["#$key"] = $attrs ? Sanitize::attribute($attrs) : [];
     }
 
     // Provides captions, if so configured.
@@ -494,7 +495,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Composing or layering is crucial for mixed media (icon over CTA or text
     // or lightbox links or iframe over image or CSS background over noscript
     // which cannot be simply dumped as array without elaborate arrangements).
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = $this->getBlazies($settings);
     foreach (BlazyDefault::themeContents() as $key => $default) {
       $defaults         = $this->toHashtag($build, $key, $default);
       $programs         = $blazies->get('html.' . $key, $default);
@@ -532,7 +533,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Pass common elements to theme_blazy().
-    $element['#attributes'] = Blazy::sanitize($attributes);
+    $element['#attributes'] = Sanitize::attribute($attributes);
     $element['#item']       = $build['#item'];
     $element['#settings']   = $settings;
   }
@@ -583,7 +584,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Provides captions, if any.
    */
   private function toCaption(array &$element, array &$settings, array $captions): void {
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = Internals::getBlazies($settings);
     $id      = $blazies->get('item.id', 'blazy');
     $id      = $id == 'content' ? 'blazy' : $id;
     $self    = $id == 'blazy';
@@ -593,7 +594,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     if ($output = $this->buildCaption($captions, $blazies, $prefix, $id)) {
       $element['#captions'] = $output;
 
-      // @todo remove debug:
+      // @todo deprecate and remove debug:
       // if (!$self) {
       // $element['#caption_attributes']['class'][] = 'blazy__caption';
       // }

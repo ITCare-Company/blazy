@@ -10,7 +10,7 @@ use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Media\Image;
 use Drupal\blazy\Utility\Sanitize;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatter.
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter.
  *
- * @todo remove no longer in use: ImageFactory at blazy:3.x.
+ * @todo deprecate and remove no longer in use: ImageFactory at blazy:3.x.
  */
 abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
@@ -216,11 +216,11 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
     // Extracts ImageItem data early to help new SVG with its attributes.
     $image = ['uri' => $uri];
-    if ($item instanceof ImageItem && $values = BlazyImage::toArray($item)) {
+    if ($item instanceof ImageItem && $values = Image::toArray($item)) {
       foreach ($values as $key => $value) {
         $image[$key] = $value;
       }
-      // @todo remove this pingpong at 3.x:
+      // @todo deprecate and remove this pingpong at 3.x:
       $image['item'] = $item;
     }
 

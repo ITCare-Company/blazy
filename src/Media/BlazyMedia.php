@@ -409,7 +409,7 @@ class BlazyMedia implements BlazyMediaInterface {
       ->set('is.' . $_type, TRUE)
       ->set('field.target_bundles.' . $bundle, $bundle, TRUE);
 
-    // @todo remove for is.type:
+    // @todo deprecate and remove for is.type:
     $blazies->set('is.local_audio', $source == 'audio_file')
       ->set('is.local_video', $source == 'video_file');
 

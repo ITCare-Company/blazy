@@ -115,7 +115,7 @@ class Libraries extends Config implements LibrariesInterface {
       }
     }
 
-    // @todo remove for the above once all components are set to libs.
+    // @todo deprecate and remove for the above once all components are set to libs.
     foreach (BlazyDefault::components() as $component) {
       $key = str_replace('.', '__', $component);
       if ($blazies->get('libs.' . $key, FALSE)) {
@@ -124,7 +124,7 @@ class Libraries extends Config implements LibrariesInterface {
     }
 
     // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
-    // @todo remove when VIS detaches behaviors properly like IO.
+    // @todo deprecate and remove when VIS detaches behaviors properly like IO.
     if ($blazies->use('ajax', FALSE)) {
       $load['library'][] = 'blazy/bio.ajax';
       $config['useAjax'] = TRUE;

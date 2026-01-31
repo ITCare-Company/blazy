@@ -173,4 +173,47 @@ class Initializer {
       : self::init($default);
   }
 
+  /**
+   * A wrapper for version_compare in Drupal context.
+   *
+   * @todo move it BlazyBase before 4.x.
+   * @see Drupal\Component\Utility\DeprecationHelper
+   */
+  public static function versionGreaterThan($deprecatedVersion): bool {
+    $currentVersion = \Drupal::VERSION;
+    // Normalize the version string when it's a dev version to the first point
+    // release of that minor. E.g. 10.2.x-dev and 10.2-dev both translate
+    // to 10.2.0.
+    $normalizedVersion = str_ends_with($currentVersion, '-dev')
+      ? str_replace(['.x-dev', '-dev'], '.0', $currentVersion)
+      : $currentVersion;
+
+    return version_compare($normalizedVersion, $deprecatedVersion, '>=');
+  }
+
+  /**
+   * A deprecation helper copied from D10.3 for easy migration check.
+   *
+   * @see Drupal\Component\Utility\DeprecationHelper
+   */
+  public static function backwardsCompatibleCall(
+    string $deprecatedVersion,
+    callable $currentCallable,
+    callable $deprecatedCallable,
+  ): mixed {
+    return self::versionGreaterThan($deprecatedVersion)
+      ? $currentCallable()
+      : $deprecatedCallable();
+  }
+
+  /**
+   * Returns a module installed version based on `hook_update_VERSION`.
+   */
+  public static function version($module): int {
+    if ($service = self::service('update.update_hook_registry')) {
+      return (int) $service->getInstalledVersion((string) $module);
+    }
+    return 0;
+  }
+
 }
