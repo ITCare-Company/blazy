@@ -390,10 +390,13 @@ class ResponsiveImage {
    *   The array containing fallback and items.
    *
    * @see self::dimensions()
+   *
+   * @todo add union types at 4.x:
+   * ResponsiveImageStyleInterface|null $style.
    */
   private static function sources(
     array &$settings,
-    ResponsiveImageStyleInterface|null $style = NULL,
+    $style = NULL,
   ): array {
     if (!($manager = self::breakpointManager())) {
       return [];
