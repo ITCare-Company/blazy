@@ -31,7 +31,13 @@ class Uri {
    */
   public static function isDataUri(string|null $url): bool {
     $url = trim($url ?: '');
-    return $url && mb_substr($url, 0, 10) === 'data:image';
+    if ($url === '') {
+      return FALSE;
+    }
+
+    // ASCII-safe, no mbstring (mb_substr) dependency.
+    // mb_substr($url, 0, 10) === 'data:image';.
+    return stripos($url, 'data:image') === 0;
   }
 
   /**
@@ -204,7 +210,7 @@ class Uri {
   public static function toAccessibleUri(string $uri): string {
     $abs = $uri;
     // Must be valid URI, or web-accessible url, not: /modules|themes/...
-    if (!self::isValid($abs) && mb_substr($abs, 0, 1) == '/') {
+    if (!self::isValid($abs) && substr($abs, 0, 1) == '/') {
       if ($request = Path::requestStack()) {
         $abs = $request->getCurrentRequest()->getSchemeAndHttpHost() . $abs;
       }

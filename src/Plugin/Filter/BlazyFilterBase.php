@@ -8,7 +8,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\blazy\BlazyDefault as Defaults;
 use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\blazy\Internals\Internals;
-use Drupal\blazy\Media\BlazyFile as File;
+use Drupal\blazy\Media\File;
 use Drupal\blazy\Media\Image;
 use Drupal\blazy\Media\Uri;
 // @todo use Drupal\blazy\Media\BlazyMedia;
@@ -348,18 +348,19 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     if (Uri::isDataUri($src)) {
       $uri = $src;
       $data_uri = TRUE;
+      $use_data_uri = $this->settings['use_data_uri'] ?? FALSE;
 
       // Data URI is just an URI, only monstrous.
       $blazies->set('image.uri', $uri)
         ->set('image.url', $uri)
         ->set('is.data_uri', TRUE)
-        ->set('image.trusted', TRUE);
+        ->set('image.trusted', $use_data_uri);
     }
     else {
       // 2. Uploaded files, external, etc. Might be NULL.
       // Attempts to get the correct URI with hard-coded URL if applicable, e.g:
       // /site/default/files/image.jpg into public://image.jpg.
-      $uri = File::buildUri($src);
+      $uri = Uri::build($src);
 
       if ($uri) {
         $blazies->set('entity.uuid', $uuid)
@@ -369,7 +370,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
 
     // 3. Uploaded image has UUID with file API.
-    if (File::isFile($file)) {
+    if (File::isValid($file)) {
       $uuid = $uuid ?: $file->uuid();
 
       $blazies->set('entity.uuid', $uuid)
@@ -394,9 +395,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
       // 5. External URL, or unmanaged file URL, excluding data URI.
       // Do not pass this file system URI into fake image item.
-      if (!$data_uri && !File::isValidUri($uri)) {
+      if (!$data_uri && !Uri::isValid($uri)) {
         // At least provide root URI to figure out image dimensions.
-        $uri = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
+        $uri = substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
         $blazies->set('image.uri_root', $uri);
       }
     }

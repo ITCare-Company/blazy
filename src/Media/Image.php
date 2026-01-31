@@ -341,20 +341,22 @@ class Image {
   }
 
   /**
-   * Returns TRUE if an ImageItem With lazy check upstream.
+   * Returns TRUE if an ImageItem with lazy check upstream.
    *
-   * @param object|null $item
+   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem|null $item
    *   The given image item or null.
    *
    * @return bool
    *   True if an ImageItem.
+   *
+   * @todo enable at 4.x ImageItem|null $item.
    */
   public static function isImage(object|null $item): bool {
     return $item instanceof ImageItem;
   }
 
   /**
-   * Checks if we have image item With lazy check upstream.
+   * Checks if we have image item with lazy check upstream.
    *
    * @param array|object|null $item
    *   The given image item or null.
@@ -511,13 +513,11 @@ class Image {
     }
     // A convenient API source, must be original sizes:
     else {
-      if ($config instanceof BlazySettings) {
-        $fluid  = $config->is('fluid');
-        $ratios = $config->get('css.ratio');
-        $uri    = $uri ?: ($config->get('image.uri') ?: $config->get('first.uri'));
-        $width  = $config->get('image.original.width') ?: $config->get('first.width');
-        $height = $config->get('image.original.height') ?: $config->get('first.height');
-      }
+      $fluid  = $config->is('fluid');
+      $ratios = $config->get('css.ratio');
+      $uri    = $uri ?: ($config->get('image.uri') ?: $config->get('first.uri'));
+      $width  = $config->get('image.original.width') ?: $config->get('first.width');
+      $height = $config->get('image.original.height') ?: $config->get('first.height');
     }
 
     $dim = ['width' => $width, 'height' => $height];

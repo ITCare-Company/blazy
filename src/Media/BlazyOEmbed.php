@@ -2,13 +2,14 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Utility\Sanitize;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
+
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -253,7 +254,17 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   public function checkInputUrl(array &$settings, $input): ?string {
     $blazies = Internals::getBlazies($settings);
     $privacy = $blazies->is('privacy_consent');
-    $input = Blazy::sanitizeInputUrl($input, $privacy);
+    $use_data_uri = !empty($settings['use_data_uri']);
+    $options = [
+      'filter' => $blazies->is('filter'),
+      'use_data_uri' => $use_data_uri,
+    ];
+
+    // Checks if youtube-cookie.com is enabled.
+    $input = Internals::youtube($input, $privacy);
+
+    // Sanitize UGC filter input only, not Field UI input.
+    $input = Sanitize::inputUrl($input, $options);
 
     $blazies->set('media.input_url', $input);
     return $input;

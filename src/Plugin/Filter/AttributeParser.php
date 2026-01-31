@@ -58,7 +58,7 @@ class AttributeParser {
     }
 
     // If starts with 2 slashes, it is always external.
-    if ($url && mb_substr($url, 0, 2) === '//') {
+    if ($url && substr($url, 0, 2) === '//') {
       // We need to query stored SRC for image dimensions, https is enforced.
       $url = 'https:' . $url;
     }

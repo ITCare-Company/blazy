@@ -67,20 +67,6 @@ class Blazy extends BlazyBase {
   }
 
   /**
-   * Alias for Sanitize::attribute().
-   */
-  public static function sanitize(array $attributes, $escaped = TRUE, $lowercase = FALSE): array {
-    return Sanitize::attribute($attributes, $escaped, $lowercase);
-  }
-
-  /**
-   * Sanitize media input URL.
-   */
-  public static function sanitizeInputUrl($input, $privacy = FALSE): ?string {
-    return Sanitize::inputUrl($input, $privacy);
-  }
-
-  /**
    * In case we have SVG Sanitizer alternatives, provide one door check.
    */
   public static function svgSanitizerExists(): bool {
@@ -143,7 +129,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function createUrl($uri, $relative = FALSE): string {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('createUrl is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Url::create($uri, $relative);
   }
 
@@ -154,7 +140,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function formatTitle($value, $url, array $settings): array {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('formatTitle is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::formatTitle($value, $url, $settings);
   }
 
@@ -165,7 +151,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function getService(string $key) {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('getService is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::service($key);
   }
 
@@ -176,7 +162,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function has($content, $needle): bool {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('has is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::has($content, $needle);
   }
 
@@ -187,8 +173,24 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function initSettings(array $data = []): BlazySettings {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('initSettings is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::init($data);
+  }
+
+  /**
+   * Alias for Sanitize::attribute().
+   */
+  public static function sanitize(array $attributes, $escaped = TRUE, $lowercase = FALSE): array {
+    @trigger_error('sanitize is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    return Sanitize::attribute($attributes, $escaped, $lowercase);
+  }
+
+  /**
+   * Sanitize media input URL.
+   */
+  public static function sanitizeInputUrl($input, array $options = []): ?string {
+    @trigger_error('sanitizeInputUrl is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    return Sanitize::inputUrl($input, $options);
   }
 
   /**
@@ -198,7 +200,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function toUrl(array $settings, $style = NULL, $uri = NULL): string {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('toUrl is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Url::fromAny($settings, $style, $uri);
   }
 
@@ -209,7 +211,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function url($uri, $style = NULL, array $options = []): string {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('url is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Url::fromUri($uri, $style, $options);
   }
 
@@ -220,7 +222,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function isDataUri($url): bool {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('isDataUri is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Uri::isDataUri($url);
   }
 
@@ -231,7 +233,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function isValidUri($uri): bool {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('isValidUri is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Uri::isValid($uri);
   }
 
@@ -242,7 +244,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function versionGreaterThan($deprecatedVersion): bool {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('versionGreaterThan is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::versionGreaterThan($deprecatedVersion);
   }
 
@@ -257,7 +259,7 @@ class Blazy extends BlazyBase {
     callable $currentCallable,
     callable $deprecatedCallable,
   ): mixed {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('backwardsCompatibleCall is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::backwardsCompatibleCall($deprecatedVersion, $currentCallable, $deprecatedCallable);
   }
 
@@ -268,7 +270,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function translated($entity, $langcode = NULL): object {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('translated is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Entity::translated($entity, $langcode);
   }
 
@@ -279,7 +281,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function version($module): int {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('version is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::version($module);
   }
 

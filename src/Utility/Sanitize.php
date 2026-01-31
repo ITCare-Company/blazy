@@ -86,13 +86,14 @@ final class Sanitize {
       // The most obvious (HREF and SRC) are done downstream, not upstream.
       // PHP8.0.0 numeric with whitespace ("42 ") will now return true.
       $kid = FALSE;
-      $key = trim($key);
+      $key = trim((string) $key);
 
-      // @todo use is_int() instead after another check.
-      if (!is_numeric($key)) {
+      // No need to use is_int().
+      if ($key !== '' && !is_numeric($key)) {
         $key = Html::escape($key);
         $check = strtolower($key);
-        $kid = mb_substr($check, 0, 2) === 'on' || in_array($check, $list);
+        $kid = substr($check, 0, 2) === 'on';
+        $kid = $kid || in_array($check, $list);
         $key = $kid ? 'data-' . $key : $key;
       }
 
@@ -246,16 +247,19 @@ final class Sanitize {
    *
    * @param string $input
    *   The given url.
-   * @param bool $privacy
-   *   Whether to prioritize privacy, or default.
+   * @param array $options
+   *   The provided options: use_data_uri, filter.
    *
    * @return string
    *   The sanitized input url.
    */
-  public static function inputUrl($input, $privacy = FALSE): ?string {
-    // @todo move it out of here at 3.x:
-    if ($input = Internals::youtube($input, $privacy)) {
-      $input = self::url($input);
+  public static function inputUrl($input, array $options = []): ?string {
+    $filter = $options['filter'] ?? FALSE;
+    $use_data_uri = $options['use_data_uri'] ?? FALSE;
+
+    // Only concerns about UCG, not Field UI input.
+    if ($filter) {
+      $input = self::url($input, $use_data_uri);
     }
     return $input;
   }
@@ -328,7 +332,7 @@ final class Sanitize {
     // This should be enough, unless data:image is tweakable.
     $allow = Uri::isDataUri($url) && $use_data_uri;
 
-    // @todo deprecate and remove if data:image is known untweakable.
+    // Hijack regardless.
     if (self::kid($url)) {
       $allow = FALSE;
     }
@@ -348,10 +352,6 @@ final class Sanitize {
    * @see https://en.wikipedia.org/wiki/ASCII
    */
   public static function kid($value): bool {
-    // Should use the proper filter before/after Blazy, not this naive.
-    // At least useless when already passed to self::attribute() upstream.
-    return Internals::has($value, 'data:text/html')
-      || Internals::has($value, 'script:');
     // @todo recheck, the last suspects might be innocent, just being cryptic
     // for common attribute values, normally readable. OK to strip since it
     // tests against attribute values, not HTML content after Xss::filter().
@@ -360,6 +360,10 @@ final class Sanitize {
     // || Internals::has($value, ';&#')
     // The Hex is represented with &#x0.
     // || Internals::has($value, '&#x');
+    // Should use the proper filter before/after Blazy, not this naive.
+    // At least useless when already passed to self::attribute() upstream.
+    return Internals::has($value, 'data:text/html')
+      || Internals::has($value, 'script:');
   }
 
 }

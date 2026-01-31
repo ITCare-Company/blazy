@@ -163,11 +163,22 @@ class Settings extends Initializer {
 
   /**
    * A simple wrapper for stripos().
+   *
+   * @param string $content
+   *   The $content.
+   * @param string $needle
+   *   The $needle.
+   *
+   * @return bool
+   *   Whether the content contains the needle.
+   *
+   * @todo use str_contains at 4.x.
    */
   public static function has($content, $needle): bool {
     if ($content && $needle = trim($needle ?: '')) {
       // stripos() won't work with diacritical signs.
-      $needle = strtolower($needle);
+      $content = strtolower($content);
+      $needle  = strtolower($needle);
       return strpos($content, $needle) !== FALSE;
     }
     return FALSE;
@@ -224,7 +235,7 @@ class Settings extends Initializer {
    *   The blazies instance.
    *
    * @return bool
-   *   Whether unladied.
+   *   Whether unlazied.
    */
   public static function isUnlazy($blazies): bool {
     return self::isUndata($blazies)

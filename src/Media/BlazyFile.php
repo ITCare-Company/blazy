@@ -179,7 +179,7 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * Alias for Uri::normalizeUri().
+   * Alias for Uri::toAccessibleUri().
    *
    * @todo deprecate and remove before or at 4.x.
    */
