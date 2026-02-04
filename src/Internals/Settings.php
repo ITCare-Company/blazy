@@ -362,6 +362,9 @@ class Settings extends Initializer {
       return;
     }
 
+    // Checks for Image styles, excluding Responsive image.
+    Image::styles($settings);
+
     // Checks for lightboxes.
     Check::lightboxes($settings);
 
@@ -371,8 +374,7 @@ class Settings extends Initializer {
     }
 
     // Checks for Image styles, excluding Responsive image.
-    Image::styles($settings);
-
+    // Image::styles($settings);
     // Marks it processed.
     $blazies->set('was.initialized', TRUE);
   }

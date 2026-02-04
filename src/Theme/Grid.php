@@ -39,7 +39,7 @@ class Grid {
     // If grid chunks with destroyed un(slick|splide), refresh with libraries.
     $refresh = $blazies->is('grid_refresh');
     if (!$blazies->get('namespace') || $refresh) {
-      Check::grids($settings);
+      self::check($settings);
     }
 
     // Might be called outside Blazy workflows, allows altering settings once.

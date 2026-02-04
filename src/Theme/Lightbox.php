@@ -419,7 +419,7 @@ class Lightbox {
 
       if ($style) {
         $hattrs['style'] = $style;
-        $hattrs['class'][] = 'media--ratio';
+        $hattrs['class'][] = 'media--ratio media--ratio--fluid';
       }
 
       if ($token = $blazies->get('media.token')) {
