@@ -418,7 +418,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
       // Stupid, but in case more stupidity gets in the way.
       if ($type == 'textfield') {
-        $value = strip_tags($value);
+        $value = is_string($value) ? strip_tags($value) : $value;
         $elements[$name]['#size'] = 20;
         $elements[$name]['#maxlength'] = 255;
       }

@@ -216,7 +216,7 @@ class BlazyLayoutDefault {
    * @return string
    *   The standardized layout ID.
    */
-  public static function layoutId(string|int $id): string {
+  public static function layoutId($id): string {
     return 'b-layout--' . (string) $id;
   }
 
@@ -229,7 +229,7 @@ class BlazyLayoutDefault {
    * @return string
    *   The standardized layout label.
    */
-  public static function layoutLabel(string $label): string {
+  public static function layoutLabel($label): string {
     return 'Blazy: ' . (string) $label;
   }
 
@@ -242,33 +242,33 @@ class BlazyLayoutDefault {
    * @return string
    *   The standardized region ID.
    */
-  public static function regionId(string|int $id): string {
+  public static function regionId($id): string {
     return 'blzyr_' . (string) $id;
   }
 
   /**
    * Returns region label.
    *
-   * @param string $label
+   * @param string|int $label
    *   The layout label.
    *
    * @return string
    *   The standardized region label.
    */
-  public static function regionLabel(string $label): string {
+  public static function regionLabel($label): string {
     return 'Region ' . (string) $label;
   }
 
   /**
    * Returns region label.
    *
-   * @param string $label
+   * @param string|int $label
    *   The layout label.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The translatable region label.
    */
-  public static function regionTranslatableLabel(string $label): TranslatableMarkup {
+  public static function regionTranslatableLabel($label): TranslatableMarkup {
     return new TranslatableMarkup('@label', ['@label' => $label], [
       'context' => 'layout_region',
     ]);

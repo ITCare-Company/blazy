@@ -271,6 +271,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     $definition['plugin_id'] = $this->getPluginId();
     $definition['settings'] = $this->options;
     $definition['_views'] = TRUE;
+    $definition['field_api_classes'] = $this->options['field_api_classes'] ?? FALSE;
 
     // Provides the requested fields based on available $options.
     foreach ($defined_options as $key) {

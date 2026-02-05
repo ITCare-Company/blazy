@@ -95,7 +95,9 @@ class BlazyOEmbedFormatter extends FormatterBase {
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
     $definition = $this->getScopedFormElements();
+
     $definition['_views'] = isset($form['field_api_classes']);
+    $definition['field_api_classes'] = $form['field_api_classes']['#default_value'] ?? FALSE;
 
     $this->admin()->buildSettingsForm($element, $definition);
 

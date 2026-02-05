@@ -137,6 +137,7 @@ class BlazyDefault {
       'responsive_image_style' => '',
       'use_theme_field'        => FALSE,
       'use_lb'                 => FALSE,
+      'field_api_classes'      => FALSE,
     ] + self::cherrySettings();
   }
 

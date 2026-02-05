@@ -129,6 +129,7 @@ trait TraitScopes {
       'thumbnail_style',
       'vanilla',
       '_views',
+      'field_api_classes',
     ];
 
     foreach ($bools as $bool) {

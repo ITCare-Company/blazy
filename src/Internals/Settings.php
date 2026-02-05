@@ -102,7 +102,7 @@ class Settings extends Initializer {
   /**
    * Returns minimal View data.
    *
-   * * @param \Drupal\views\Views $view
+   * * @param \Drupal\views\Views|null|false $view
    *   The Views instance.
    *
    * @return array
@@ -110,6 +110,10 @@ class Settings extends Initializer {
    */
   public static function getViewFieldData($view): array {
     $data = $names = [];
+
+    if (!$view) {
+      return [];
+    }
 
     foreach ($view->field as $field_name => $field) {
       if ($options = $field->options ?? []) {

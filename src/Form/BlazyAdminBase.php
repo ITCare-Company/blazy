@@ -535,6 +535,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['grid']['#description'] = $description . $this->nativeGridDescription();
     }
 
+    if ($scopes->is('_views')) {
+      $form['field_api_classes'] = [
+        '#type' => 'hidden',
+        '#value' => $scopes->is('field_api_classes'),
+      ];
+    }
+
     // Accounts for hook_alter additions.
     $children = Element::children($form);
     $gridsets = [];

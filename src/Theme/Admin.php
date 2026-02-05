@@ -56,7 +56,7 @@ class Admin {
    *   The form being modified.
    * @param string $form_id
    *   The form ID.
-   * @param string $region
+   * @param string|null $region
    *   The region name.
    */
   public static function tabify(array &$form, $form_id, $region): void {

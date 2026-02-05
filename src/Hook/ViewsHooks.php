@@ -109,7 +109,10 @@ class ViewsHooks {
     if ($view = $variables['view'] ?? NULL) {
       if ($fields = $view->field) {
         foreach ($fields as $field) {
-          if (isset($field->options['settings']['media_switch'])) {
+          $settings = $field->options['settings'] || [];
+          if (isset($settings['media_switch'])
+            || isset($settings['optionset'])
+            || isset($settings['grid_small'])) {
             $valid = TRUE;
             break;
           }
@@ -165,7 +168,7 @@ class ViewsHooks {
       $manager->moduleHandler()->alter('blazy_is_view', $settings, $variables);
 
       Attributes::container($variables['attributes'], $settings);
-      $variables['blazy'] = $settings;
+      $variables['#blazy'] = $settings;
       return TRUE;
     }
     return FALSE;

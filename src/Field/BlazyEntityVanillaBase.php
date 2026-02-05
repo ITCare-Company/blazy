@@ -413,7 +413,9 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    */
   protected function getScopedDefinition(array $form): array {
     $definition = $this->getScopedFormElements();
+
     $definition['_views'] = isset($form['field_api_classes']);
+    $definition['field_api_classes'] = $form['field_api_classes']['#default_value'] ?? FALSE;
 
     // @todo deprecate and remove after sub-modules.
     $definition['view_mode'] = $this->viewMode;
