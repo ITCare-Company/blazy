@@ -1,7 +1,8 @@
 
 ***
 ## <a name="optimization"> </a>STRATEGIC OPTIMIZATION CHECKLIST
-Proper configuration ensures the module works for you, not against you. Use this checklist to audit your implementation for maximum performance and technical
+Proper configuration ensures the module works for you, not against you. Use this
+checklist to audit your implementation for maximum performance and technical
 integrity.
 
 ---
@@ -34,7 +35,8 @@ integrity.
 
     1. **Image to IFRAME (Two-Click Loader):**
 
-       The gold standard for **GDPR/ePrivacy compliance**. This workflow blocks third-party tracking until "Active Opt-in" user engagement.
+       The gold standard for **GDPR/ePrivacy compliance**. This workflow blocks
+       third-party tracking until "Active Opt-in" user engagement.
 
     2. **Image to Lightbox:**
 
@@ -127,7 +129,8 @@ integrity.
 
      - **Implementation:**
 
-       Use specialized Twig templates—`block--no-wrapper.html.twig` or `views--no-wrapper.html.twig`—to strip the container to its core
+       Use specialized Twig templates—`block--no-wrapper.html.twig` or
+       `views--no-wrapper.html.twig`—to strip the container to its core
        components selectively, whenever possible. And use the
        **field/view wrapper CSS classes** for more contextual styling.
 
@@ -187,7 +190,8 @@ the "DOM surgery" of a page load.
 For components outside the Blazy ecosystem, the approach generally involves
 assigning a **min-height** or **predictive/fixed dimensions** to containers that
 may collapse. This follows the same principle used to prevent layout shifts in
-images when an aspect ratio cannot be applied, as outlined in the form items and [TROUBLESHOOTING](#troubleshooting) section.
+images when an aspect ratio cannot be applied, as outlined in the form items and
+[TROUBLESHOOTING](#troubleshooting) section.
 
 ### ⚠️ Variables Challenging Visual Stability
 Understanding the variables is vital for more targeted solutions.
@@ -212,7 +216,8 @@ Understanding the variables is vital for more targeted solutions.
 
 ### 🛡️ Strategic Solutions
 
-To maintain a perfect **Cumulative Layout Shift (CLS)** score, we must move from **reactive** loading to **predictive** spacing. While Blazy has an immediate
+To maintain a perfect **Cumulative Layout Shift (CLS)** score, we must move from
+**reactive** loading to **predictive** spacing. While Blazy has an immediate
 solution via [**Aspect ratio**](#aspect-ratio) option and
 [**Blazy Layout**](#layouts) with **CSS classes** and **Custom CSS** textarea,
 the following demands your own fixes.

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\blazy\Traits;
 
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Entity;
 use Drupal\blazy\Traits\PluginScopesTrait;
@@ -69,7 +69,7 @@ trait BlazyUnitTestTrait {
       'ratio'           => 'fluid',
       'caption'         => ['alt' => 'alt', 'title' => 'title'],
     ] + BlazyDefault::extendedSettings()
-      + Blazy::init()
+      + BlazyApi::init()
       + $this->getDefaultFieldDefinition();
 
     Entity::settings($defaults, $this->entity);

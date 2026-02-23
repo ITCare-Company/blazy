@@ -86,15 +86,18 @@ final class Sanitize {
       // The most obvious (HREF and SRC) are done downstream, not upstream.
       // PHP8.0.0 numeric with whitespace ("42 ") will now return true.
       $kid = FALSE;
-      $key = trim((string) $key);
 
-      // No need to use is_int().
-      if ($key !== '' && !is_numeric($key)) {
-        $key = Html::escape($key);
-        $check = strtolower($key);
-        $kid = substr($check, 0, 2) === 'on';
-        $kid = $kid || in_array($check, $list);
-        $key = $kid ? 'data-' . $key : $key;
+      // Ensure a non-numeric string.
+      if ($key && is_string($key) && !is_numeric($key)) {
+        $key = trim($key);
+
+        if ($key) {
+          $key = Html::escape($key);
+          $check = strtolower($key);
+          $kid = substr($check, 0, 2) === 'on';
+          $kid = $kid || in_array($check, $list);
+          $key = $kid ? 'data-' . $key : $key;
+        }
       }
 
       // Only key class is known as array.
@@ -103,7 +106,7 @@ final class Sanitize {
         if ($value) {
           $value = implode(' ', $value);
           if ($lowercase) {
-            $value = mb_strtolower($value);
+            $value = strtolower($value);
           }
           $value = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
         }
@@ -111,11 +114,11 @@ final class Sanitize {
         $output[$key] = $value;
       }
       else {
-        // Makes abused IMG title/ alt HTML usable for captions and attributes.
-        if ($value) {
+        // Make abused IMG title/ alt HTML usable for captions and attributes.
+        if ($value && is_string($value)) {
           $value = strip_tags($value);
           if ($lowercase) {
-            $value = mb_strtolower($value);
+            $value = strtolower($value);
           }
 
           $kid = $kid || self::kid($value);
@@ -342,7 +345,7 @@ final class Sanitize {
   /**
    * Returns true if it is another scary joke, relevant for UGC.
    *
-   * @param string $value
+   * @param string|null $value
    *   The given value to check for.
    *
    * @return bool
@@ -362,8 +365,11 @@ final class Sanitize {
     // || Internals::has($value, '&#x');
     // Should use the proper filter before/after Blazy, not this naive.
     // At least useless when already passed to self::attribute() upstream.
-    return Internals::has($value, 'data:text/html')
+    if ($value && is_string($value)) {
+      return Internals::has($value, 'data:text/html')
       || Internals::has($value, 'script:');
+    }
+    return FALSE;
   }
 
 }

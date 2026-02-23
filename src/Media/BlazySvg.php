@@ -120,7 +120,7 @@ class BlazySvg {
     // The viewBox can be insanely huge, 42000, depending on width/height units,
     // 42000 for 420mm, irrelevant for web displays in pixels for non-inline aka
     // embedded SVG in IMG. But width/height is more relevant.
-    if (!$width && isset($svg['viewBox'])) {
+    if (!$width && isset($svg['viewBox']) && is_string($svg['viewBox'])) {
       [,, $_width, $_height] = array_map('trim', explode(' ', $svg['viewBox']));
       $width = ceil((int) $_width);
       /* @phpstan-ignore-next-line */

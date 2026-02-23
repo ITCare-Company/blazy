@@ -2,7 +2,7 @@
 
 namespace Drupal\blazy\Internals;
 
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\BlazyDefault;
 
 /**
@@ -32,7 +32,7 @@ final class Container {
     self::checkUi($settings);
 
     // Some should be refined per item against potential mixed media items.
-    // @todo move some into Blazy::prepare() as might be called per item.
+    // @todo move some into ::prepare() as might be called per item.
     $stage = $settings['image'] ?? NULL;
     $stage = $blazies->get('field.formatter.image', $stage);
     $blazies->set('is.hires', !empty($stage))
@@ -77,7 +77,7 @@ final class Container {
     /* @phpstan-ignore-next-line */
     $is_resimage = is_callable('responsive_image_get_mime_type');
     $is_resimage = $blazies->is('resimage', $is_resimage);
-    $svg_exist   = Blazy::svgSanitizerExists();
+    $svg_exist   = BlazyApi::svgSanitizerExists();
 
     // When `defer` is chosen, overrides global `No JavaScript: lazy`, ensures
     // to not affect AMP, CKEditor, or other preview pages where nojs is a must.
@@ -101,7 +101,7 @@ final class Container {
     }
 
     // Some should be refined per item against potential mixed media items.
-    // @todo move some into Blazy::prepare() as might be called per item.
+    // @todo move some into ::prepare() as might be called per item.
     // @todo deprecate and remove some overlaps is for use.
     $blazies->set('css.ratio', $ratios, TRUE)
       ->set('image.loading', $loading)

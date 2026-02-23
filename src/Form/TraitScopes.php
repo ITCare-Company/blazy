@@ -2,9 +2,10 @@
 
 namespace Drupal\blazy\Form;
 
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Traits\PluginScopesTrait;
 
 /**
@@ -43,8 +44,8 @@ trait TraitScopes {
    */
   public function toScopes(array &$definition): BlazySettings {
     // Looks like unit test failed with manager methods given a Trait.
-    $definition += Blazy::init();
-    $blazies = Blazy::getBlazies($definition);
+    $definition += BlazyApi::init();
+    $blazies = Internals::getBlazies($definition);
     $namespace = $blazies->get('namespace') ?: ($definition['namespace'] ?? '');
 
     static::$namespace = $namespace;
@@ -89,7 +90,7 @@ trait TraitScopes {
     $namespace = static::$namespace;
     $definition['plugin_id'] = $definition['plugin_id'] ?? 'x';
     $settings = $definition['settings'] ?? [];
-    $blazies = Blazy::getBlazies($definition);
+    $blazies = Internals::getBlazies($definition);
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
     $plugin_id = $blazies->get('field.plugin_id') ?: $definition['plugin_id'];

@@ -42,10 +42,12 @@ composer require enshrined/svg-sanitize
 ```
 Read more about [SVG Sanitizer](https://github.com/darylldoyle/svg-sanitizer)
 
-Blazy intentionally does not ship this dependency in its own `composer.json` for security and maintenance reasons. If **SVG Sanitizer** is not installed, the
+Blazy intentionally does not ship this dependency in its own `composer.json` for
+security and maintenance reasons. If **SVG Sanitizer** is not installed, the
 **Inline SVG** option will be disabled.
 
-Since version 2.17, the formatter **Blazy Image with VEF (deprecated)** has been repurposed to support SVG files. It is now named **Blazy File**.
+Since version 2.17, the formatter **Blazy Image with VEF (deprecated)** has been
+repurposed to support SVG files. It is now named **Blazy File**.
 
 Drupal core’s Image widget does not support SVG files. To upload SVGs, use a
 **File**  field instead:
@@ -85,21 +87,25 @@ features, including SVG carousels.
 
 ---
 ## <a name="webp"> </a>WEBP
-* Drupal 9.2 supports WEBP conversion via **Convert WEBP** on the Image Styles administration page.
+* Drupal 9.2 supports WEBP conversion via **Convert WEBP** on the Image Styles
+  administration page.
 * Drupal 11 supports **Convert to AVIF**, with WEBP as a fallback.
 
 If support for older browsers is required, Blazy provides a WEBP polyfill in the
 Blazy UI under **No JavaScript**. Be sure to leave it **unchecked**.
 
 **Benefits**
-* Modern browsers continue using clean `<img>` markup without being forced into unnecessary `<picture>` elements for all WEBP images.
+
+* Modern browsers continue using clean `<img>` markup without being forced into
+  unnecessary `<picture>` elements for all WEBP images.
 * Older browsers receive a `<picture>` fallback only when WEBP is unsupported.
 
 ---
 
 ### <a name="animate-css"> </a>ANIMATE.CSS INTEGRATION
 The `.media` container is the primary target for animations (leveraging
-[animate.css](https://github.com/daneden/animate.css)). This ensures a unified transition regardless of the asset type (Picture, Image, or Rich Media).
+[animate.css](https://github.com/daneden/animate.css)). This ensures a unified
+transition regardless of the asset type (Picture, Image, or Rich Media).
 
 The **Blur** effect can be replaced with `animate.css`.
 

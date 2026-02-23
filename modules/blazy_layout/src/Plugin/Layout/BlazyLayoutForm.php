@@ -34,6 +34,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     $count = (int) $settings['count'];
     $hero = (int) $settings['hero'];
     $semantic_layout = Type::normalizeBool($settings['semantic_layout']);
+    $bg = Type::normalizeBool($settings['background']);
     $remove_bg = Type::normalizeBool($settings['remove_bg']);
 
     // @todo figure out a better way like blazy.schema than overriding it here.
@@ -41,14 +42,37 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       $count = 1;
     }
 
+    if ($styles = $settings['styles'] ?? []) {
+      if (isset($styles['media']['background'])) {
+        $bg = Type::normalizeBool($styles['media']['background']);
+      }
+    }
+
     $form_state->setValue(['settings', 'count'], $count);
     $form_state->setValue(['settings', 'hero'], $hero);
+    $form_state->setValue(['settings', 'background'], $bg);
     $form_state->setValue(['settings', 'remove_bg'], $remove_bg);
     $form_state->setValue(['settings', 'semantic_layout'], $semantic_layout);
 
     if (empty($settings['id'])) {
       $id = Crypt::randomBytesBase64(8);
       $form_state->setValue(['settings', 'id'], strtolower($id));
+    }
+
+    // Not crucial, just minor correction.
+    $styles = Defaults::sharedSettings()['styles'];
+    $styleset = array_keys($styles);
+    foreach ($settings as $key => $value) {
+      if ($key == 'styles') {
+        foreach ($styleset as $sk) {
+          foreach ($value[$sk] as $ssk => $ssv) {
+            if (is_bool($styles[$sk][$ssk])) {
+              $bool = Type::normalizeBool($settings['styles'][$sk][$ssk]);
+              $form_state->setValue(['settings', 'styles', $sk, $ssk], $bool);
+            }
+          }
+        }
+      }
     }
 
     // The main background color styles.

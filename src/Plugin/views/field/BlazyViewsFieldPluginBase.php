@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Plugin\views\field;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyEntityInterface;
 use Drupal\blazy\BlazyManager;
@@ -255,7 +255,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   public function getScopedFormElements() {
     /** @var array $scopes */
     $scopes = $this->getPluginScopes();
-    $scopes += Blazy::init();
+    $scopes += BlazyApi::init();
     $blazies = Internals::getBlazies($scopes);
 
     /** @var array $settings */

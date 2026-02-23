@@ -159,14 +159,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    *   The element being modified.
    * @param array $settings
    *   The settings being passed.
-   * @param array $attachments
-   *   The attachments being passed.
    */
   protected function attachments(
     array &$element,
     array $settings,
-    array $attachments = [],
   ): void {
+    $attachments = $this->manager->attach($settings);
     $this->manager->setAttachments(
       $element,
       $settings,

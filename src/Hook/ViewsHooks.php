@@ -2,7 +2,7 @@
 
 namespace Drupal\blazy\Hook;
 
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\Arrays;
@@ -109,7 +109,7 @@ class ViewsHooks {
     if ($view = $variables['view'] ?? NULL) {
       if ($fields = $view->field) {
         foreach ($fields as $field) {
-          $settings = $field->options['settings'] || [];
+          $settings = $field->options['settings'] ?? [];
           if (isset($settings['media_switch'])
             || isset($settings['optionset'])
             || isset($settings['grid_small'])) {
@@ -156,10 +156,10 @@ class ViewsHooks {
       ];
 
       /** @var array $settings */
-      $settings = Blazy::init($data);
+      $settings = BlazyApi::init($data);
 
       $settings[$lightbox] = $lightbox;
-      $blazies = Blazy::getBlazies($settings);
+      $blazies = Internals::getBlazies($settings);
       $count = count($view->result);
       $blazies->set('count', $count)
         ->set('total', $count)
@@ -198,7 +198,7 @@ class ViewsHooks {
     if ($blazy = self::viewsField($view)) {
       $plugin_id = $view->getStyle()->getPluginId();
       $settings  = $blazy->mergedSettings ?: $blazy->mergedViewsSettings();
-      $blazies   = Blazy::getBlazies($settings);
+      $blazies   = Internals::getBlazies($settings);
 
       $blazies->set('unlazy', FALSE);
 

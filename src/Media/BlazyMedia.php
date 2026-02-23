@@ -17,6 +17,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides extra utilities to work with core Media.
  *
+ * Media component services deprecated in 3.x, and is removed in 4.x or 5.x.
+ * Public access is available via @blazy.media_context  coordinating layer.
+ *
  * This class makes it possible to have a mixed display of all media entities,
  * useful for Blazy Grid, Slick Carousel, GridStack contents as mixed media.
  * This approach is alternative to regular preprocess overrides, still saner
@@ -31,7 +34,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * - TODO: replace ImageItem references into just $settings
  * - DONE, 2.17: convert this into non-static, move most BlazyOEmbed stuffs.
  * Not urgent, the important is to make it just work with minimal regressions.
- * @todo recap similiraties and make them plugins.
+ *
+ * @todo enable @trigger_error('BlazyMedia is deprecated in blazy:4.0.0 and is
+ * removed from blazy:5.0.0. Use @blazy.media_context instead.
+ * See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
  */
 class BlazyMedia implements BlazyMediaInterface {
 

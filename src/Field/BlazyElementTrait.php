@@ -3,9 +3,10 @@
 namespace Drupal\blazy\Field;
 
 use Drupal\Core\Render\Markup;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Theme\Attributes;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * A Trait for blazy element and its captions.
@@ -54,10 +55,10 @@ trait BlazyElementTrait {
     /** @var array $settings */
     $settings = $this->formatter->toHashtag($element);
     $item     = $this->formatter->toHashtag($element, 'item', NULL);
-    $blazies  = Blazy::getBlazies($settings);
+    $blazies  = Internals::getBlazies($settings);
     $inline   = $settings['svg_inline'] ?? FALSE;
     $bg       = $settings['background'] ?? FALSE;
-    $exist    = Blazy::svgSanitizerExists();
+    $exist    = BlazyApi::svgSanitizerExists();
     $valid    = $inline && $exist && !$bg;
 
     if ($valid && $uri = $blazies->get('image.uri')) {

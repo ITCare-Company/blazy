@@ -6,7 +6,7 @@ namespace Drupal\Tests\blazy\Unit;
 
 use Drupal\Tests\UnitTestCase;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\Internals\Internals;
 
 /**
@@ -45,7 +45,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
       'view_mode'    => 'default',
       'media_switch' => 'media',
       // @todo 'bundle' => 'entity_test',
-    ] + Blazy::init();
+    ] + BlazyApi::init();
 
     $blazies = Internals::getBlazies($settings);
     $info = [

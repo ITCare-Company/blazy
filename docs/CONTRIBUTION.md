@@ -3,7 +3,8 @@
 ***
 ## <a name="contribution"> </a>SUBMITTING PATCHES OR ISSUES
 
-Please use the provided issue template to ensure your reports are technically actionable. High-quality reports allow us to maintain a standard of excellence.
+Please use the provided issue template to ensure your reports are technically
+actionable. High-quality reports allow us to maintain a standard of excellence.
 
 * **Be Descriptive:**
 
@@ -125,7 +126,8 @@ We also reserve the right to remain silent—not out of discourtesy, but because
 some issues are triaged in constrained contexts (including mobile devices),
 where time, attention, and input precision are naturally limited.
 
-Open collaboration thrives on clarity, evidence, and mutual respect. We welcome thoughtful discussion, reproducible reports, and data-backed critiques. At the
+Open collaboration thrives on clarity, evidence, and mutual respect. We welcome
+thoughtful discussion, reproducible reports, and data-backed critiques. At the
 same time, to preserve maintainer focus and project sustainability, we may
 choose not to engage with speculative claims, repeated assertions without
 evidence, or discussions rooted in hearsay rather than measurable behavior.

@@ -557,11 +557,12 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     elseif ($tag == 'iframe') {
       $type = 'video';
 
-      Internals::toPlayable($blazies)
-        ->set('media.bundle', 'remote_video');
+      Internals::toPlayable($blazies);
 
-      $blazies->set('iframe.attributes', $safe_attrs);
+      $blazies->set('media.bundle', 'remote_video')
+        ->set('iframe.attributes', $safe_attrs);
     }
+
     $blazies->set('media.type', $type);
   }
 

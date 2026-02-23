@@ -106,7 +106,8 @@ If using the Colorbox module, follow its recommended library path to avoid
 duplicate folders. Blazy will automatically detect and use any valid
 installation.
 
-DOMPurify is optional. Without it, Blazy (sub-)modules will sanitize captions server-side using basic sanitization rules.
+DOMPurify is optional. Without it, Blazy (sub-)modules will sanitize captions
+server-side using basic sanitization rules.
 
 ---
 <a href="#top">Back to Top &uarr;</a>

@@ -1,8 +1,11 @@
 
 ***
 ## <a name="troubleshooting"> </a>TROUBLESHOOTING
-- **Masonry (Flexbox or Native Grid) issues**: If your layouts are broken, try uninstalling BigPipe. Before version 2.17, we attempted to maintain BigPipe compatibility, but it frequently broke Masonry on infinite pagers (VIS/IO).
+- **Masonry (Flexbox or Native Grid) issues**: If your layouts are broken, try
+uninstalling BigPipe. Before version 2.17, we attempted to maintain BigPipe
+compatibility, but it frequently broke Masonry on infinite pagers (VIS/IO).
 Since version 3.x, BigPipe should work for 99% use cases, leaving 1% for:
+
   + CSS reordering issues which can not be fixed by Blazy alone, see
   BigPipe-related JS/CSS issues in Slick or Splide, especially if you enable the
   optional sitewide custom works aka slider-driven sites
@@ -35,11 +38,13 @@ Since version 3.x, BigPipe should work for 99% use cases, leaving 1% for:
 ### 1. JavaScript Errors
 References to the `bLazy` library are no longer required for versions forked at
 2.6.
+
 **Symptoms**: "Blazy is not defined." Images are missing, and the blue loader
 spins indefinitely.
 
 **Solution**:
 Ensure no external JS errors exist. Steps:
+
 * Switch to a core theme to rule out theme-specific JS breakage.
 * Try disabling the **Disconnect** option under IO settings.
 
@@ -124,14 +129,15 @@ image be linked as required. Best of Both Worlds for real.
 
 ### 11. VIEWS GOTCHAS
 * If using Blazy formatter as a standalone Views output and encountering issues,
-check **Use field template** under **Style settings**.
+  check **Use field template** under **Style settings**.
 * Conversely, uncheck **Use field template** when Blazy is embedded inside
-another module (like Slick) to ensure the renderable array is passed correctly.
+  another module (like Slick) to ensure the renderable array is passed correctly.
 * When in doubt, toggle this setting and check the output.
 
 ### 12. NATIVE GRID MASONRY
 #### One-dimensional vs. two-dimensional native grids?
 Under **Display style**, choose **Native Grid**.
+
 - **One-dimensional (Masonry)**: Input a single number (e.g., 2, 3, 4) in the
 **Grid large** option.
 - **Two-dimensional**: Input space-delimited `WIDTHxHEIGHT` pairs (e.g.,
@@ -140,25 +146,31 @@ Under **Display style**, choose **Native Grid**.
 #### The native grid masonry has incorrect bottom gaps?
 This is often an optical illusion caused by inner divs not filling 100%
 height.
+
 - **Solutions**: Add a background color to `.grid__content` to see the actual
-even gaps.
+  even gaps.
 * Enable **CSS background** in the Blazy formatter. In Views, set field wrappers
-to "None" so the background fills the grid cell.
+  to "None" so the background fills the grid cell.
 * Manually set the height of `.grid__content` inner DIVs to 100% via CSS.
-* For complex layouts, consider **GridStack**, which handles these calculations automatically.
+* For complex layouts, consider **GridStack**, which handles these calculations
+  automatically.
 
 ### 13. IMAGES DO NOT LOAD
 If images fail to load inside hidden tabs or containers:
+
 * Enable **Load invisible** at `/admin/config/media/blazy`. Only valid for old
-bLazy library. IO and Native lazy loading don't have this issue.
+  bLazy library. IO and Native lazy loading don't have this issue.
 * For Responsive Images in lightboxes, do not use the `-empty image-` fallback.
-Edit styles at `/admin/config/media/responsive-image-style`. Note that lightbox full-size images are handled by the lightbox library, not Blazy's lazyloading.
+  Edit styles at `/admin/config/media/responsive-image-style`. Note that
+  lightbox full-size images are handled by the lightbox library, not Blazy's
+  lazyloading.
 
 ### 14. OLIVERO SUB-THEMES
 Carousels (Splide/Slick) in Views may conflict with Olivero's grid rules,
 causing "gargantuan" dimensions. This issue has been taken care of automatically
 since 2.17, however it is still mentioned to avoid similar issues with other
 themes as well. Choose one of these:
+
 * Disable `grid-template-rows: max-content;` on ancestor selectors.
 This rule often forces slides to span their full width/height regardless of the
 viewport.

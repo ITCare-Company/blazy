@@ -102,10 +102,13 @@ html:not(.js) [data-b-blur] {
 
 /* Aspect ratio element: IMG, IFRAME, DIV.
 The best things we can do to minimize layout/ reflows with dynamic DOM:
-absolute position and fixed dimensions. */
+absolute position and fixed dimensions.
+Blur image maybe laoded without a .media container, seen at IO/SLick Browser.
+*/
+img.b-blur,
 .media--ratio .media__element,
-.media--ratio svg,
-.media--fx .b-blur {
+.media--ratio svg {
+  display: block;
   position: absolute;
   z-index: 0;
   inset: 0;

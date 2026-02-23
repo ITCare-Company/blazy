@@ -41,10 +41,11 @@ long-term stability.
 ### WHAT IS THE `.blazy` CSS CLASS FOR?
 The `.blazy` class serves as a **performance boundary**. By limiting the
 script’s scan to specific containers rather than the global DOM, we achieve:
-1.  **Scope Control:** The engine ignores irrelevant nodes, reducing main-thread execution time.
+1.  **Scope Control:** The engine ignores irrelevant nodes, reducing main-thread
+    execution time.
 2.  **Architectural Flexibility:** This allows multiple containers on a single
-page to have unique features—such as one utilizing multi-breakpoint images and
-another serving image-to-iframe media—without logic collisions.
+    page to have unique features—such as one utilizing multi-breakpoint images
+    and another serving image-to-iframe media—without logic collisions.
 
 ### WHY NOT `BLAZY__LAZY` (BEM)?
 `b-lazy` is the native selector for the underlying JS logic. We prioritize
@@ -55,7 +56,8 @@ unnecessary abstraction layers.
 ---
 
 ### <a name="theme-blazy"> </a> THEME_BLAZY(): THE SINGLE SOURCE OF TRUTH
-As of 2.17, `theme_blazy()` has replaced the redundant internal logic of various sub-modules (`theme_slick_slide()`, `theme_splide_slide()`, etc.). It is not
+As of 2.17, `theme_blazy()` has replaced the redundant internal logic of various
+sub-modules (`theme_slick_slide()`, `theme_splide_slide()`, etc.). It is not
 replacing their established `theme_ITEM()`, just their contents when
 we all have dups with IMAGE/MEDIA + CAPTIONS constructs.
 

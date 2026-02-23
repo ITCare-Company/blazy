@@ -342,7 +342,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * Provides data to be consumed by Blazy::preSettings().
+   * Provides data to be consumed by ::preSettings().
    *
    * Such as to provide lazy attribute and class for Slick or Splide, etc.
    */
@@ -351,7 +351,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
-   * Overrides data massaged by Blazy::postSettings().
+   * Overrides data massaged by ::postSettings().
    */
   protected function postSettingsData(array &$settings): void {
     // Do nothing, let extenders override data at ease as needed.

@@ -11,7 +11,7 @@ use Drupal\FunctionalJavascriptTests\DrupalSelenium2Driver;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\Tests\blazy\Traits\BlazyCreationTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\filter\FilterPluginCollection;
 use Drupal\filter\FilterProcessResult;
 
@@ -108,7 +108,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
    */
   public function testFilterDisplay() {
     $text = $this->dummyText();
-    $settings = Blazy::init();
+    $settings = BlazyApi::init();
     $settings['extra_text'] = $text;
 
     $this->setUpContentTypeTest($this->bundle);

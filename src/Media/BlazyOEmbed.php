@@ -14,6 +14,17 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides OEmbed integration.
+ *
+ * Media component services deprecated in 3.x, and is removed in 4.x or 5.x.
+ * Public access is available via @blazy.media_context  coordinating layer.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module. Media integration is being reworked.
+ *
+ * @todo enable @trigger_error('BlazyMedia is deprecated in blazy:4.0.0 and is
+ * removed from blazy:5.0.0. Use @blazy.media_context instead.
+ * See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
  */
 class BlazyOEmbed implements BlazyOEmbedInterface {
 

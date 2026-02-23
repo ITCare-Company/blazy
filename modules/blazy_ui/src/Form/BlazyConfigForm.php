@@ -4,7 +4,7 @@ namespace Drupal\blazy_ui\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\Form\BlazyConfigFormBase;
 
 /**
@@ -58,7 +58,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $config = $this->config('blazy.settings');
     $doms = ['DOMPurify', 'dompurify'];
     $dom_exists = $exists = $this->manager->getLibrariesPath($doms);
-    $svg_exists = $exists = Blazy::svgSanitizerExists();
+    $svg_exists = $exists = BlazyApi::svgSanitizerExists();
     $svg_sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
     $class = $exists ? 'info' : 'warning';
     $hints = [];

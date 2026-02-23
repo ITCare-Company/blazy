@@ -12,6 +12,8 @@ use Drupal\blazy\Utility\Sanitize;
  * Implements a public facing blazy manager.
  *
  * A few modules re-use this: GridStack, Mason, Slick...
+ *
+ * @todo move theme-related into ThemeContext in 4.x.
  */
 class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, TrustedCallbackInterface {
 
@@ -110,16 +112,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Returns the contents using theme_field(), or theme_item_list().
-   *
-   * Blazy outputs can be formatted using either flat list via theme_field(), or
-   * a grid of Field items or Views rows via theme_item_list().
-   *
-   * @param array $data
-   *   The array containing: settings, children elements, or optional items.
-   *
-   * @return array
-   *   The alterable and renderable array of contents.
+   * {@inheritdoc}
    */
   public function build(array $data): array {
     /** @var array $settings */

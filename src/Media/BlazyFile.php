@@ -10,11 +10,18 @@ use Drupal\file\FileRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides file_BLAH for D9.3 - D11+.
+ * Provides file_BLAH for D11+.
  *
- * Blazy 3.x now depends on D9.4, not D9.2, safe to remove deprecated.
+ * Media component services deprecated in 3.x, and is removed in 4.x or 5.x.
+ * Public access is available via @blazy.media_context coordinating layer.
  *
- * @see https://www.drupal.org/node/2940031
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module. Media integration is being reworked.
+ *
+ * @todo enable @trigger_error('BlazyFile is deprecated in blazy:4.0.0 and is
+ * removed from blazy:5.0.0. Use @blazy.media_context instead.
+ * See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
  */
 class BlazyFile implements BlazyFileInterface {
 

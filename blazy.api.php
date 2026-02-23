@@ -22,7 +22,7 @@
  * create the object like so:
  *
  * @code
- * $settings = \Drupal\blazy\Blazy::init();
+ * $settings = \Drupal\blazy\BlazyApi::init();
  * $blazies = $settings['blazies'];
  * @endcode
  *
@@ -41,7 +41,7 @@
  *   // Put the namespaces into `use` directives, e.g.: use Drupal\blazy\Blazy;
  *   // The ::init() contains empty blazies object for convenience, and optional
  *   // initial settings data parameter to override defaults.
- *   $settings = \Drupal\blazy\Blazy::init();
+ *   $settings = \Drupal\blazy\BlazyApi::init();
  *
  *   // Pass configurable settings directly into $settings. These can also be
  *   // moved into ::init() method argument above instead.
@@ -128,7 +128,7 @@
  *   // Option init #1 at container level:
  *   // The ::init() contains empty blazies object for convenience, and optional
  *   // initial settings data parameter to override defaults.
- *   $settings = \Drupal\blazy\Blazy::init();
+ *   $settings = \Drupal\blazy\BlazyApi::init();
  *
  *   // Option init #2 at item level:
  *   // $parent_settings is the first settings setup as above, here in a loop.

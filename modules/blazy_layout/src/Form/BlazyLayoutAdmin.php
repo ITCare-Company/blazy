@@ -25,14 +25,14 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
    *
    * @var \Drupal\blazy_layout\BlazyLayoutManagerInterface
    */
-  protected $manager;
+  protected $layoutManager;
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     $instance = parent::create($container);
-    $instance->setManager($container->get('blazy_layout'));
+    $instance->setLayoutManager($container->get('blazy_layout'));
 
     return $instance;
   }
@@ -40,8 +40,8 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   /**
    * Sets manager service.
    */
-  public function setManager(BlazyLayoutManagerInterface $manager) {
-    $this->manager = $manager;
+  public function setLayoutManager(BlazyLayoutManagerInterface $layoutManager) {
+    $this->layoutManager = $layoutManager;
     return $this;
   }
 
@@ -52,12 +52,12 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $excludes = $options['excludes'] ?? [];
     $elements = [];
     $attrs    = ['class' => ['is-tooltip']];
-    $max      = (int) $this->manager->config('max_region_count');
+    $max      = (int) $this->layoutManager->config('max_region_count');
     $url      = '/admin/config/media/blazy';
 
     $this->checkDefinition($settings, $options);
 
-    if ($this->manager->moduleExists('blazy_ui')) {
+    if ($this->layoutManager->moduleExists('blazy_ui')) {
       $url = Url::fromUri('internal:/admin/config/media/blazy')->toString();
     }
 
@@ -154,7 +154,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       ];
     }
 
-    foreach ($this->manager->getKeys($colors) as $key) {
+    foreach ($this->layoutManager->getKeys($colors) as $key) {
       if ($excludes && in_array($key, $excludes)) {
         unset($colors[$key]);
         continue;
@@ -218,7 +218,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       ];
     }
 
-    foreach ($this->manager->getKeys($layouts) as $key) {
+    foreach ($this->layoutManager->getKeys($layouts) as $key) {
       if ($excludes && in_array($key, $excludes)) {
         unset($layouts[$key]);
         continue;
@@ -232,9 +232,9 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     // Media.
     $form_id = 'media';
     $help = '/admin/help/blazy_layout';
-    $exists = $this->manager->moduleExists('media_library_form_element');
+    $exists = $this->layoutManager->moduleExists('media_library_form_element');
 
-    if ($this->manager->moduleExists('help')) {
+    if ($this->layoutManager->moduleExists('help')) {
       $help = Url::fromUri('internal:/admin/help/blazy_layout')->toString();
     }
 
@@ -338,7 +338,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   public function formSettings(array &$form, array $settings, array $options = []): void {
     $excludes    = $options['excludes'] ?? [];
     $defaults    = Defaults::layoutSettings();
-    $admin_css   = $this->manager->config('admin_css', 'blazy.settings');
+    $admin_css   = $this->layoutManager->config('admin_css', 'blazy.settings');
     $attrs       = ['class' => ['is-tooltip']];
     $bottoms     = ['align_items', 'grid_auto_rows'];
     $elements    = $options = [];

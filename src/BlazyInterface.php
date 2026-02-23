@@ -7,13 +7,15 @@ use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 /**
  * Provides base blazy utility methods.
  *
- * @todo at 4.x:
- * - add return and parameter types
- * - move theme-related methods into BlazyContextInterface for
- *   ThemeInterface constructor
- * - extract grid, attributes, content into non-service instance class
- *   (ThemeInterface), relevant for the new Hook DI at D11.
- * - inject BlazyTheme into BlazyBase constructor.
+ * @todo in 4.x:
+ * - Add return and parameter types
+ * - Remove theme-related methods (grid, attributes, content) into
+ *   ThemeContextInterface, relevant for the new Hook DI at D11.
+ * - Decouple BlazyBase from this interface so it can be used as infrastructure
+ *   layer.
+ * - Mark BlazyBase as deprecated for 5.x removal, and make Blazy implements
+ *   this interface containing the most common core services only.
+ * - Remove ContainerInjectionInterface.
  */
 interface BlazyInterface extends ContainerInjectionInterface {
 
@@ -575,7 +577,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
   /**
    * Returns items wrapped by theme_item_list(), can be a grid, or plain list.
    *
-   * Alias for Blazy::grid() for sub-modules and easy organization later.
+   * Alias for ::grid() for sub-modules and easy organization later.
    * Unlike self::initGrid(), this requires item contents to process.
    *
    * @param array|\Generator $items

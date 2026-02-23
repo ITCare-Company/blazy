@@ -34,7 +34,8 @@
 ## <a name="introduction"> </a>OPTIMIZED MEDIA DELIVERY
 
 Blazy is a high-performance **media delivery** engine engineered to meet the
-rigorous demands of modern **Core Web Vitals**. By intelligently leveraging the **Intersection Observer API**, browser-native lazy loading, or the bLazy
+rigorous demands of modern **Core Web Vitals**. By intelligently leveraging the
+**Intersection Observer API**, browser-native lazy loading, or the bLazy
 library, it ensures assets are served only when necessary and in the optimal
 format for the user's device.
 
@@ -43,7 +44,8 @@ updated info.
 
 ---
 ## <a name="first"> </a>VERSION COMPATIBILITY
-Blazy and its sub-modules use a **tightly coupled architecture** to reduce code duplication (DRY principle). To ensure system stability, you must maintain
+Blazy and its sub-modules use a **tightly coupled architecture** to reduce code
+duplication (DRY principle). To ensure system stability, you must maintain
 version parity across all installed sub-modules:
 
 - **Match Release Tiers:** Always pair `DEV` with `DEV`, or `Beta` with
@@ -53,37 +55,42 @@ version parity across all installed sub-modules:
   fundamentally incompatible unless explicitly stated.
 
 **Note:** If you encounter unexpected errors, your first step should be ensuring
-all Blazy-related modules match the latest release date or version number. **Uninstallation is not needed**. While it might be true for manual FTP or GIT,
+all Blazy-related modules match the latest release date or version number.
+**Uninstallation is not needed**. While it might be true for manual FTP or GIT,
 Composer with proper constraints will install dependency tree correctly
 eliminating this issue in the first place.
 
 ### <a name="version-roadmap"> </a>VERSION ROADMAP
 1. **Blazy 3.x (Drupal ≥ 9.4)**
 
-   Ecosytem stability with lingering baggages.
-   Recommended for old websites with heavy Blazy ecosystem customization.
+   * "Just works" for convenience due to time and resource constraints.
+   * Ecosytem stability with lingering baggages.
+   * Recommended for old websites with heavy Blazy ecosystem customization.
 
 2. **Blazy 4.x (Drupal ≥ 11.0)**
 
-   Ecosytem consolidation with minimum BC and maximum FC as a bridge for D12.
-   This version intentionally exposes architectural seams to ease the transition
-   to Blazy 5.x.
-   Recommended for new/old websites with minimum Blazy ecosystem customization.
-
-   * Requires PHP ≥ 8.2
-   * Internals are strictly typed
+   * Optimized for migration.
+   * Ecosytem consolidation with minimum BC and maximum FC as a bridge for D12.
+   * This version intentionally exposes architectural seams to ease the
+     transition to Blazy 5.x.
+   * Recommended for new/old end-user websites with minimum Blazy ecosystem
+     code customization.
+   * Requires PHP ≥ 8.2.
+   * Internals are strictly typed and converted into instance classes as needed.
    * Public APIs:
-     + `blazy.api.php` remains BC-stable within the major
-     + Public classes may be tightened
+
+     + `blazy.api.php` remains BC-stable within the major, except for new
+        integration methods beyond hook_alter itself.
+     + Public classes may be tightened.
 
 3. **Blazy 5.x (Drupal ≥ 12.0)**
 
-   A breaking change phase for D11 below without BC.
-   Recommended for new websites with zero Blazy ecosystem customization or has
-   passed Blazy 4.x.
-
-   * Public APIs are tightened
-   * Full strict typing enforced
+   * Optimized for correctness.
+   * A breaking change phase for D11 below without BC.
+   * Recommended for new websites with zero Blazy ecosystem customization or
+     have passed Blazy 4.x.
+   * Public APIs are tightened.
+   * Full strict typing enforced to a great extent.
 
 ---
 ## <a name="requirements"> </a>REQUIREMENTS
@@ -179,7 +186,9 @@ high-performance experience compliant with **Core Web Vitals**.
 
     - **Native/JS Hybrid**:
 
-      Supports Native lazyloading since incubation with an optional JavaScript delegation for granular threshold control and legacy browser support. JavaScript-based solutions offer superior **adaptive intelligence**: they
+      Supports Native lazyloading since incubation with an optional JavaScript
+      delegation for granular threshold control and legacy browser support.
+      JavaScript-based solutions offer superior **adaptive intelligence**: they
       can delegate the task to the browser's native engine when available, while
       providing a robust fallback for older environments.
 
@@ -202,7 +211,8 @@ high-performance experience compliant with **Core Web Vitals**.
 
 - **Extensible Lightbox Ecosystem**:
 
-    Unified **Media switcher** for Slick Lightbox, Colorbox, PhotoSwipe, Flybox, Magnific Popup, ElevateZoom Plus, and more. See
+    Unified **Media switcher** for Slick Lightbox, Colorbox, PhotoSwipe, Flybox,
+    Magnific Popup, ElevateZoom Plus, and more. See
     [Lightbox integration](#lightboxes)
 
 - **Developer & Editor API**:
@@ -212,7 +222,8 @@ high-performance experience compliant with **Core Web Vitals**.
 
     - **Blazy Filter**:
 
-      Streamlined shortcode support for embedding rich multimedia or grid with lightboxes and media players directly within text editors. See
+      Streamlined shortcode support for embedding rich multimedia or grid with
+      lightboxes and media players directly within text editors. See
       [Text formats and editors](/admin/config/content/formats) and
       [Filter tips](/filter/tips).
 

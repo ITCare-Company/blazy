@@ -24,7 +24,8 @@ demands of the modern Hero.
 
      - **unlazy (Static Heroes):**
 
-       Optimized for single media assets. For multi-value fields, pair this with **Native Grid**, **Use CSS background**, and **Thumbnail style**. This
+       Optimized for single media assets. For multi-value fields, pair this with
+       **Native Grid**, **Use CSS background**, and **Thumbnail style**. This
        creates a hierarchy where the first media is prominent, while subsequent
        media items follow a layout pattern.
 
@@ -61,14 +62,16 @@ demands of the modern Hero.
 
 3. **Media Switcher**
 
-     Enhance the visual impact of your Hero without compromising the underlying performance logic.
+     Enhance the visual impact of your Hero without compromising the underlying
+     performance logic.
 
      - **Optimization Tip:**
 
         If your Hero uses an `<iframe>` video, displaying it directly can block
         the main thread and tank your LCP. Instead, use
         **Media switcher > Image to Iframe**. This replaces the heavy iframe
-        with a static preview image on initial load—optimizing the LCP while simultaneously ensuring **GDPR compliance** by withholding third-party
+        with a static preview image on initial load—optimizing the LCP while
+        simultaneously ensuring **GDPR compliance** by withholding third-party
         scripts until user interaction.
 
 4. **Pre-emptive Space Allocation:**
@@ -87,7 +90,8 @@ demands of the modern Hero.
      list of related feature or service items; it helps improve SEO.
 
 #### The Hero Logic: Performance by Design
-The following ensures Heroes meet LCP and CLS requirements without manual micro-management:
+The following ensures Heroes meet LCP and CLS requirements without manual
+micro-management:
 
 - **Selective Eagerness (Unlazy):**
 
@@ -95,7 +99,8 @@ The following ensures Heroes meet LCP and CLS requirements without manual micro-
     **unlazy** state). In sliders, it can be the thirdth or sixth and so on, not
     always the first media depending on `start` or `initialSlide` options. This
     ensures the asset is immediately discoverable by the browser's
-    **Preload Scanner** at the initial HTML parse. Even when using the JavaScript-delegated approach—where JS manages the native `loading`
+    **Preload Scanner** at the initial HTML parse. Even when using the
+    JavaScript-delegated approach—where JS manages the native `loading`
     attribute for broader audience compatibility—this exemption bypasses the
     script execution bottleneck, ensuring the LCP candidate is fetched with zero
     delay.

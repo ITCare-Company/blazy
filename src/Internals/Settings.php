@@ -162,7 +162,7 @@ class Settings extends Initializer {
   public static function getViewLimit($blazies): int {
     $data = $blazies->get('view.data', []);
     $name = $blazies->get('field.name', 'x');
-    return $data[$name]['limit'] ?? 0;
+    return (int) ($data[$name]['limit'] ?? 0);
   }
 
   /**

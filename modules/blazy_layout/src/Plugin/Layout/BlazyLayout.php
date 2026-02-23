@@ -11,6 +11,8 @@ class BlazyLayout extends BlazyLayoutForm {
    * {@inheritdoc}
    */
   public function build(array $regions): array {
+    // Clone the base LayoutDefinition to create a runtime variant.
+    // This prevents mutation of the discovered plugin definition.
     $this->init();
 
     $build = parent::build($regions);
@@ -48,6 +50,9 @@ class BlazyLayout extends BlazyLayoutForm {
 
   /**
    * Interpolate data from Layout Builder to extract grid attributes.
+   *
+   * This doesn't move around regions. It collects relevant attributes based on
+   * user settings and passes them back into the $build['#attributes'].
    *
    * @param array $settings
    *   The settings being modified.

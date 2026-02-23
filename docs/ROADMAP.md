@@ -30,12 +30,20 @@
 
 * [?] Blazy 4.x, D12 readiness at min D11, not D10:
 
-      24/01/2026
+      24/01/2026 (started) - ? (finished)
 
-      - Add `declare(strict_types=1);` to all .php files, excluding `.module`
+      The 4.x goal is to reduce convenience for efficiency and
+      finally correctness at 5.x.
+
+      - Add `declare(strict_types=1);` to all .php files, excluding `.module`.
       - Convert all procedural hooks into #[(Hook)] attributes.
+      - Convert most internal static into instance classes.
       - Explicit return and parameter types to a great extent.
-      - Postponed `blazy.api.php` changes till Blazy 5.x
+      - Postponed `blazy.api.php` procedural changes till Blazy 5.x, except for
+        the new method replacements relevant to 4.x major changes.
+      - Refactor public services to reduce inheritance, except for plugins.
+      - Remove method aliases to a great extent.
+      - Remove property aliases to a great extent.
 
 * [?] Maturity and stabilization.
 

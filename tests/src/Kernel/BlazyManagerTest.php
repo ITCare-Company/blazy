@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\blazy\Kernel;
 
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\BlazyTheme;
@@ -85,7 +85,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     /*
     // @todo re-check why failed since 2.9-DEV.
-    // $blazies = Blazy::getBlazies($element['#settings']);
+    // $blazies = Internals::getBlazies($element['#settings']);
     // $this->assertEquals($expected_has_responsive_image,
     // !empty($blazies->get('resimage.id')));
      */
@@ -152,7 +152,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     /** @var array $settings */
     $settings = array_merge($this->getFormatterSettings(), $settings);
-    $settings += Blazy::init();
+    $settings += BlazyApi::init();
     $blazies = Internals::getBlazies($settings);
     $id = 'blazy';
 

@@ -12,27 +12,16 @@ use Drupal\blazy\Media\Url;
 use enshrined\svgSanitize\Sanitizer;
 
 /**
- * Provides common public Blazy utilities and a limited set of aliases.
+ * Provides deprecated Blazy utilities and a limited set of aliases.
  *
- * This class acts as a small public façade to shield callers from internal
- * refactors and relocations. Aliases allow Blazy to reorganize or evolve
- * internal implementations over time without breaking existing integrations
- * (for example, the relocation of BlazyGrid or BlazySettings).
+ * Use Drupal\blazy\BlazyApi for similar methods where available instead.
+ * "No replacement" meanings: obsolete at D11, has instance class replacement,
+ * or considered as being internal and useless outside the ecosystem usage.
  *
- * Static methods are retained primarily for backward compatibility and
- * convenience. Over time, most static helpers have proven restrictive and
- * were migrated to instance-based services to better support dependency
- * injection, testability, and extensibility. New or complex functionality
- * should prefer the provided non-static manager services.
- *
- * If you are calling global methods marked as @internal, consider:
- *   - switching to the documented aliases provided here, when available.
- *   - using the appropriate injected manager or interface-based services,
- *     as static utilities may continue to be reduced in scope. Some were moved
- *     into BlazyInterface since early 2.16, and the remaining will be finally
- *     removed at Blazy 4.x or 5.x at the latest.
- *
- * @todo remove the rest of static methods for DI at 4.x or 5.x.
+ * @todo in 4.x:
+ *   - Remove all static methods for DI at 4.x.
+ *   - Make this core infrastructure layer with basic common methods.
+ *   - Remove BlazyBase, keep BlazyInterface, and make it final.
  */
 class Blazy extends BlazyBase {
 
@@ -42,34 +31,23 @@ class Blazy extends BlazyBase {
    * @todo leave it unchanged till 4.x changes blazy.api.php.
    */
   public static function init(array $data = []): array {
+    @trigger_error('init is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use BlazyApi::init() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $data + BlazyDefault::htmlSettings();
-  }
-
-  /**
-   * Alias for Entity::settings().
-   */
-  public static function entitySettings(array &$settings, $entity): void {
-    Entity::settings($settings, $entity);
   }
 
   /**
    * Alias for Internals::fileExistsReplace().
    */
   public static function fileExistsReplace() {
+    @trigger_error('fileExistsReplace is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use BlazyApi::fileExistsReplace() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::fileExistsReplace();
-  }
-
-  /**
-   * Alias for Internals::getBlazies().
-   */
-  public static function getBlazies(array &$settings, bool $merge = FALSE, string $key = 'blazies'): BlazySettings {
-    return Internals::getBlazies($settings, $merge, $key);
   }
 
   /**
    * In case we have SVG Sanitizer alternatives, provide one door check.
    */
   public static function svgSanitizerExists(): bool {
+    @trigger_error('svgSanitizerExists is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use BlazyApi::svgSanitizerExists() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return class_exists(Sanitizer::class);
   }
 
@@ -77,6 +55,7 @@ class Blazy extends BlazyBase {
    * Alias for Uri::normalize().
    */
   public static function normalizeUri($path): string {
+    @trigger_error('normalizeUri is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use BlazyApi::normalizeUri() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Uri::normalize($path);
   }
 
@@ -84,6 +63,7 @@ class Blazy extends BlazyBase {
    * Alias for Uri::fromImage().
    */
   public static function uri($item, array $settings = []): string {
+    @trigger_error('uri is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use BlazyApi::uri() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Uri::fromImage($item, $settings);
   }
 
@@ -91,6 +71,7 @@ class Blazy extends BlazyBase {
    * Alias for Image::transformDimensions().
    */
   public static function transformDimensions($style, $data, $uri = NULL): array {
+    @trigger_error('transformDimensions is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use BlazyApi::transformDimensions() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Image::transformDimensions($style, $data, $uri);
   }
 
@@ -98,28 +79,16 @@ class Blazy extends BlazyBase {
    * Alias for Uri::transformRelative().
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
+    @trigger_error('transformRelative is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use BlazyApi::transformRelative() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Uri::transformRelative($uri, $style, $options);
   }
 
   /**
    * Alias for Attributes::container().
-   *
-   * @todo deprecate and remove before or at 4.x after sub-modules.
-   * @see https://www.drupal.org/node/3367291
    */
   public static function containerAttributes(array &$attributes, array $settings): void {
+    @trigger_error('containerAttributes is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use BlazyApi::containerAttributes() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     Attributes::container($attributes, $settings);
-  }
-
-  /**
-   * Alias for Internals::autoplay().
-   *
-   * @todo deprecate and remove before or at 4.x.
-   * @see https://www.drupal.org/node/3367291
-   */
-  public static function autoplay($url, $check = TRUE): string {
-    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
-    return Internals::autoplay($url, $check);
   }
 
   /**
@@ -129,8 +98,19 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function createUrl($uri, $relative = FALSE): string {
-    @trigger_error('createUrl is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('createUrl is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Url::create($uri, $relative);
+  }
+
+  /**
+   * Alias for Entity::settings().
+   *
+   * @todo deprecate and remove before or at 4.x.
+   * @see https://www.drupal.org/node/3367291
+   */
+  public static function entitySettings(array &$settings, $entity): void {
+    @trigger_error('entitySettings is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    Entity::settings($settings, $entity);
   }
 
   /**
@@ -140,8 +120,16 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function formatTitle($value, $url, array $settings): array {
-    @trigger_error('formatTitle is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('formatTitle is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::formatTitle($value, $url, $settings);
+  }
+
+  /**
+   * Alias for Internals::getBlazies().
+   */
+  public static function getBlazies(array &$settings, bool $merge = FALSE, string $key = 'blazies'): BlazySettings {
+    @trigger_error('getBlazies is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    return Internals::getBlazies($settings, $merge, $key);
   }
 
   /**
@@ -151,7 +139,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function getService(string $key) {
-    @trigger_error('getService is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('getService is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. Use \Drupal::service() or BlazyManager::service() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::service($key);
   }
 
@@ -162,7 +150,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function has($content, $needle): bool {
-    @trigger_error('has is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('has is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::has($content, $needle);
   }
 
@@ -173,7 +161,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function initSettings(array $data = []): BlazySettings {
-    @trigger_error('initSettings is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('initSettings is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::init($data);
   }
 
@@ -200,7 +188,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function toUrl(array $settings, $style = NULL, $uri = NULL): string {
-    @trigger_error('toUrl is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('toUrl is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Url::fromAny($settings, $style, $uri);
   }
 
@@ -211,7 +199,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function url($uri, $style = NULL, array $options = []): string {
-    @trigger_error('url is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('url is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Url::fromUri($uri, $style, $options);
   }
 
@@ -233,8 +221,41 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function isValidUri($uri): bool {
-    @trigger_error('isValidUri is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('isValidUri is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Uri::isValid($uri);
+  }
+
+  /**
+   * Alias for Entity::translated().
+   *
+   * @todo deprecate and remove before or at 4.x.
+   * @see https://www.drupal.org/node/3367291
+   */
+  public static function translated($entity, $langcode = NULL): object {
+    @trigger_error('translated is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement till 4.x. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    return Entity::translated($entity, $langcode);
+  }
+
+  /**
+   * Alias for Internals::version().
+   *
+   * @todo deprecate and remove before or at 4.x.
+   * @see https://www.drupal.org/node/3367291
+   */
+  public static function version($module): int {
+    @trigger_error('version is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement, always set once. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    return Internals::version($module);
+  }
+
+  /**
+   * Alias for Internals::autoplay().
+   *
+   * @todo deprecate and remove before or at 4.x.
+   * @see https://www.drupal.org/node/3367291
+   */
+  public static function autoplay($url, $check = TRUE): string {
+    @trigger_error('autoplay is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement due to being internal. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    return Internals::autoplay($url, $check);
   }
 
   /**
@@ -244,7 +265,7 @@ class Blazy extends BlazyBase {
    * @see https://www.drupal.org/node/3367291
    */
   public static function versionGreaterThan($deprecatedVersion): bool {
-    @trigger_error('versionGreaterThan is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('versionGreaterThan is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement due to being obselete at D11. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::versionGreaterThan($deprecatedVersion);
   }
 
@@ -259,30 +280,8 @@ class Blazy extends BlazyBase {
     callable $currentCallable,
     callable $deprecatedCallable,
   ): mixed {
-    @trigger_error('backwardsCompatibleCall is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('backwardsCompatibleCall is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement due to being obselete at D11. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::backwardsCompatibleCall($deprecatedVersion, $currentCallable, $deprecatedCallable);
-  }
-
-  /**
-   * Alias for Entity::translated().
-   *
-   * @todo deprecate and remove before or at 4.x.
-   * @see https://www.drupal.org/node/3367291
-   */
-  public static function translated($entity, $langcode = NULL): object {
-    @trigger_error('translated is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
-    return Entity::translated($entity, $langcode);
-  }
-
-  /**
-   * Alias for Internals::version().
-   *
-   * @todo deprecate and remove before or at 4.x.
-   * @see https://www.drupal.org/node/3367291
-   */
-  public static function version($module): int {
-    @trigger_error('version is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
-    return Internals::version($module);
   }
 
 }

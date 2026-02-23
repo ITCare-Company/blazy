@@ -7,8 +7,9 @@ namespace Drupal\Tests\blazy\Unit;
 use Drupal\Tests\UnitTestCase;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Theme\BlazyTheme;
 
@@ -47,10 +48,10 @@ class BlazyUnitTest extends UnitTestCase {
     $variables = ['attributes' => [], 'image' => []];
 
     /** @var array $settings */
-    $settings  = Blazy::init();
+    $settings  = BlazyApi::init();
     $uri       = 'public://example.jpg';
     $embed_url = '//www.youtube.com/watch?v=E03HFA923kw';
-    $blazies   = Blazy::getBlazies($settings);
+    $blazies   = Internals::getBlazies($settings);
 
     $blazies->set('media.embed_url', $embed_url)
       ->set('media.bundle', 'remote_video')
@@ -109,8 +110,8 @@ class BlazyUnitTest extends UnitTestCase {
 
     /** @var array $settings */
     $settings = array_merge($build['#settings'], $settings);
-    $settings += Blazy::init();
-    $blazies = Blazy::getBlazies($settings);
+    $settings += BlazyApi::init();
+    $blazies = Internals::getBlazies($settings);
     $embed_url = $settings['embed_url'] ?? '';
 
     $settings['image_style']     = '';
@@ -141,7 +142,7 @@ class BlazyUnitTest extends UnitTestCase {
     $this->assertTrue($image);
     $this->assertTrue($iframe);
 
-    $processed = Blazy::getBlazies($settings);
+    $processed = Internals::getBlazies($settings);
     $this->assertEquals($blazies->get('lazy.id'), $processed->get('lazy.id'));
   }
 
@@ -220,8 +221,8 @@ class BlazyUnitTest extends UnitTestCase {
     $build = $this->data;
 
     /** @var array $settings */
-    $settings += Blazy::init();
-    $blazies = Blazy::getBlazies($settings);
+    $settings += BlazyApi::init();
+    $blazies = Internals::getBlazies($settings);
     $settings['box_style'] = '';
     $settings['box_media_style'] = '';
 
@@ -240,7 +241,7 @@ class BlazyUnitTest extends UnitTestCase {
 
     /** @var array $element */
     $element = $this->doPreRenderImage($build);
-    $blazies = Blazy::getBlazies($build['#settings']);
+    $blazies = Internals::getBlazies($build['#settings']);
 
     if ($settings['media_switch'] == 'content') {
       $this->assertEquals($blazies->get('entity.url'), $element['#url']);

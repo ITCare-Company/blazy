@@ -4,7 +4,6 @@ namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Internals\Check;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Utility\Arrays;
 

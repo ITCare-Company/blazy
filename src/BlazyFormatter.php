@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Internals\Check;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides common image, file, media formatter-related methods.
@@ -128,7 +129,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   public function postBuildElements(array &$build, $items, array $entities = []) {
     /** @var array $settings */
     $settings = &$build['#settings'];
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = Internals::getBlazies($settings);
 
     // The last method before being passed to each manager builders.
     // Supports lightbox gallery if using Blazy formatter.
@@ -145,7 +146,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
         $data = $item['#build'] ?? $fallback;
 
         if ($data = array_filter($data)) {
-          $blazy = Blazy::getBlazies($data['#settings']);
+          $blazy = Internals::getBlazies($data['#settings']);
           if ($uri = $blazy->get('image.uri')) {
             $blazies->set('first.data', $data)
               ->set('first.uri', $uri);

@@ -22,7 +22,7 @@ final class Check {
   /**
    * Checks for Blazy formatter such as from within a Views style plugin.
    *
-   * @see \Drupal\blazy\Blazy::preserve()
+   * @see \Drupal\blazy\BlazyManager::preserve()
    * @see \Drupal\blazy\BlazyManager::isBlazy()
    */
   public static function blazyOrNot(array &$settings, array $data = []): void {

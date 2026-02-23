@@ -4,7 +4,6 @@ namespace Drupal\blazy\Hook;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\Placeholder;
@@ -140,7 +139,7 @@ class ThemeHooks {
     // We do this because Blazy has no special themes for containers, but
     // reusing core theme_field() + theme_item_list(). The trouble is when
     // things changed, as seen at self::formatterSettings().
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = Internals::getBlazies($settings);
     if (!$blazies->is('grid')) {
       Attributes::container($variables['attributes'], $settings);
     }

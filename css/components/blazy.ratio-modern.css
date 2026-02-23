@@ -13,6 +13,10 @@
   .media.media--ratio:not(.media--ratio--fluid) {
     /* @todo remove !important after proper migrations */
     padding-bottom: 0 !important; /* csslint allow: known-properties, important */
+  }
+
+  /* Do not override Native Grid. */
+  .blazy:not(.b-nativegrid) .media--ratio:not(.media--ratio--fluid) {
     height: auto;
   }
 

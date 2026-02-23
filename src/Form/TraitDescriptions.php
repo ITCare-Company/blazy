@@ -16,13 +16,6 @@ trait TraitDescriptions {
   use StringTranslationTrait;
 
   /**
-   * The Blazy manager service.
-   *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
-  protected $blazyManager;
-
-  /**
    * {@inheritdoc}
    */
   public function nativeGridDescription() {
@@ -66,7 +59,7 @@ Use one line per row (100% total or 12 columns) for readability.
   <li>
     <strong>Two-dimensional</strong>:
     <br>Column x row pairs (maximum 12):
-    <br><code>4x4 4x3 2x2 2x4</code>
+    <br><code>4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2</code>
     <br>Single values repeat uniformly.
     <br><em>Best when:</em>
     <ul>
@@ -216,7 +209,7 @@ Helps prevent layout shifts (CLS), excess whitespace, and collapsed containers.
 <li><b>Empty</b>: manage ratios manually (e.g. GridStack, Native Grid, custom works).</li>
 </ul>
 
-Image styles and video dimensions must match the ratio, or distortion will occur, <a href=":ratio">learn more</a>.',
+Image styles, including thumbnail for Blur, and video dimensions must match the ratio, or distortion will occur, <a href=":ratio">learn more</a>.',
         [
           ':ratio' => $help . '#aspect-ratio',
         ]

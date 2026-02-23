@@ -16,7 +16,8 @@ browser's native engine when available, while providing a robust fallback for
 older environments.
 
 ### Core Implementation Logic
-The system now utilizes a **Modern-First** strategy (v3.0.17+) with intelligent fallbacks to ensure cross-browser stability:
+The system now utilizes a **Modern-First** strategy (v3.0.17+) with intelligent
+fallbacks to ensure cross-browser stability:
 
 - **Modern CSS `aspect-ratio`**:
 
@@ -65,7 +66,8 @@ The `TRUE` flag ensures to append, not nullify, the existing ones:
 
   ``['1:1', '3:2', '4:3', '8:5', '9:16', '16:9', '16:10', '21:9']``
 
-See [**blazy.api.php**](https://git.drupalcode.org/project/blazy/blob/3.0.x/blazy.api.php) for the available `hook_alter`.
+See [**blazy.api.php**](https://git.drupalcode.org/project/blazy/blob/3.0.x/blazy.api.php)
+for the available `hook_alter`.
 
 #### 3. Image Styles
 For the best results, create Image Styles that match your defined aspect ratios

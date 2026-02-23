@@ -7,9 +7,10 @@ use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Render\Element;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\Internals\Internals;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -55,6 +56,20 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   const STATE_IMAGE_RENDERED_ENABLED = 5;
 
   /**
+   * The Blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $blazyManager;
+
+  /**
+   * The Blazy manager for consistency with submodules and extra features.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $manager;
+
+  /**
    * Constructs a BlazyAdminBase object.
    *
    * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
@@ -76,6 +91,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $this->typedConfig             = $typed_config;
     $this->dateFormatter           = $date_formatter;
     $this->blazyManager            = $blazy_manager;
+    $this->manager                 = $blazy_manager;
   }
 
   /**
@@ -316,7 +332,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function baseForm(array &$definition): array {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes       = $this->toScopes($definition);
-    $blazies      = Blazy::getBlazies($definition);
+    $blazies      = Internals::getBlazies($definition);
     $form         = [];
     $no_image     = $scopes->is('no_image_style');
     $disabled     = $scopes->is('no_view_mode');
@@ -610,7 +626,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       // Trying to be compact with gazillion options.
       if ($admin_css) {
         if ($gridsets) {
-          $blazy = Blazy::getBlazies($gridsets)->reset($gridsets);
+          $blazy = Internals::getBlazies($gridsets)->reset($gridsets);
           $blazy->set('delta', $delta);
         }
 
@@ -739,7 +755,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *   The scopes being passed.
    */
   protected function lightboxForm(array &$form, array $definition, $scopes): void {
-    $blazies    = Blazy::getBlazies($definition);
+    $blazies    = Internals::getBlazies($definition);
     $multimedia = $scopes->is('multimedia');
     $is_token   = $this->blazyManager->moduleExists('token');
 
@@ -862,7 +878,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $base  = str_replace('svg_', '', $key);
       $name  = str_replace('_', ' ', $base);
       $title = Unicode::ucfirst($name);
-      $exist = Blazy::svgSanitizerExists();
+      $exist = BlazyApi::svgSanitizerExists();
       $desc  = $this->svgDescriptions()[$base] ?? '';
 
       $form[$key] = [

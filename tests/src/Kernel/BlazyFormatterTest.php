@@ -6,7 +6,7 @@ namespace Drupal\Tests\blazy\Kernel;
 
 // @todo use Drupal\Core\Render\Element;
 use Drupal\Core\Form\FormState;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyApi;
 use Drupal\blazy\Internals\Internals;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -140,7 +140,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    * Tests the Blazy formatter view display.
    */
   public function testFormatterViewDisplay() {
-    $build['#settings'] = Blazy::init();
+    $build['#settings'] = BlazyApi::init();
     $formatter_settings = $this->formatterInstance->buildSettings($build, NULL);
     $this->assertArrayHasKey('blazies', $formatter_settings);
 
@@ -243,9 +243,9 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
         'view_mode'       => 'default',
         'thumbnail_style' => 'thumbnail',
         'uri'             => $this->uri,
-      ] + Blazy::init();
+      ] + BlazyApi::init();
 
-      $blazies = Blazy::getBlazies($settings);
+      $blazies = BlazyApi::getBlazies($settings);
       $info = [
         'bundle'       => $this->bundle,
         'input_url'    => $input_url,

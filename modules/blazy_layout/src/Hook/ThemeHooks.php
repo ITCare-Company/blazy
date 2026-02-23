@@ -4,7 +4,6 @@ namespace Drupal\blazy_layout\Hook;
 
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Internals\Internals;
 use Drupal\blazy_layout\BlazyLayoutDefault;
 
@@ -54,7 +53,7 @@ class ThemeHooks {
       return;
     }
 
-    $blazies = Blazy::getBlazies($settings);
+    $blazies = Internals::getBlazies($settings);
     $wrappers = $content['#wrapper_attributes'] ?? [];
     $variables['wrapper_attributes'] = new Attribute($wrappers);
     $in_preview = $variables['in_preview'];
@@ -151,7 +150,7 @@ class ThemeHooks {
    */
   public static function preprocessBlock(array &$variables): void {
     if ($settings = $variables['elements']['#blazy'] ?? []) {
-      $blazies = Blazy::getBlazies($settings);
+      $blazies = Internals::getBlazies($settings);
       $variables['blazies'] = $blazies->storage();
     }
   }
@@ -169,7 +168,7 @@ class ThemeHooks {
     if ($blazy || isset($element['#blazy'])
     || !empty($element['#third_party_settings']['blazy']['blazy'])) {
       if ($settings = $element['#blazy'] ?? []) {
-        $blazies = Blazy::getBlazies($settings);
+        $blazies = Internals::getBlazies($settings);
 
         // @fixme might be 0 even has one if embedded inside LB blocks.
         if ($blazies->total() == 0) {
@@ -236,7 +235,7 @@ class ThemeHooks {
       }
 
       if ($settings && !empty($settings['use_lb'])) {
-        $blazies = Blazy::getBlazies($settings);
+        $blazies = Internals::getBlazies($settings);
         if ($blazies->use('bg') || $blazies->count() == 1) {
           $suggestions[] = $hook . '__blazy';
         }

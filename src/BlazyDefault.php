@@ -363,7 +363,7 @@ class BlazyDefault {
    * The first error was identified with BVEF due to being out of sync when
    * given an extra property `entity` as seen at BlazyEntity::build().
    * No issues so far with all these, yet conversions will eliminate any.
-   * Initial effort was via Blazy::toHashtag() checkpoint till full migration.
+   * Initial effort was via ::toHashtag() checkpoint till full migration.
    */
   public static function themeProperties() {
     return [

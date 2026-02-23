@@ -8,11 +8,12 @@
    * [Media Background](#media-background)
    * [Linkable and Mixed Media](#mixed-media)
    * [Semantic Layout](#semantic-layout)
+   * [Core Expectations](#core-expectations)
  * [Known Issues/Limitations](#issues)
  * [Maintainers](#maintainers)
 
 
----
+***
 ## <a name="introduction"> </a>BLAZY LAYOUT: THE ARCHITECT’S CHOICE
 
 **Blazy Layout** provides a single layout template with dynamic regions for
@@ -28,17 +29,17 @@ infinite expression.
 > In an era of over-engineering, **Blazy Layout** honors the original intent of
 > the web: _clean, fast, and infinitely adaptable_.
 
----
+***
 ## <a name="requirements"> </a>REQUIREMENTS
 * Core Layout Discovery.
 * [Media library form element](https://www.drupal.org/project/media_library_form_element) to have builtin Media library integration
   (Optional).
 
----
+***
 ## <a name="installation"> </a>INSTALLATION
 * [Installing Drupal Modules](https://drupal.org/node/1897420).
 
----
+***
 ## <a name="configuration"> </a>CONFIGURATION
 
 - **Integration:**
@@ -55,14 +56,14 @@ infinite expression.
 
     Read the provided descriptions and adjust any relevant options accordingly.
 
----
+***
 ### <a name="mastering-layout"> </a>MASTERING THE DYNAMIC LAYOUT
 The **dynamic** part refers to **configurable regions**, not the actual
 **layout** itself which is basically just a single **static** template under the
 hood. Within this framework, they are known as **layout variants** similar to
 **separated block layout variants**, and so on; only in the **Blazy Layout**,
-they are **unified and modifiable at the same time** without touching it, unlike regular
-**multiple layout templates**.
+they are **unified and modifiable at the same time** without touching it, unlike
+regular **multiple layout templates**.
 
 Whether you require Flexbox, CSS3 Columns, or Native Grid—including their
 Masonry counterparts—**Blazy Layout** delivers a "one for all" solution. It is hyper-efficient, leveraging modern browser capabilities with a remarkably small
@@ -176,7 +177,7 @@ engine, they refer to a region or sub-section in layout terminology.
   Experience the power of a single, refined layout engine that offers
   unlimited possibilities with unparalleled efficiency.
 
----
+***
 ### <a name="media-background"> </a>MEDIA BACKGROUND
 Three ways to add Media (image, local|remote video, audio) as CSS backgrounds:
 
@@ -240,7 +241,7 @@ Three ways to add Media (image, local|remote video, audio) as CSS backgrounds:
 
 Please refer to [Mixed Media](/admin/help/blazy_ui#mixed-media) section.
 
----
+***
 ## <a name="semantic-layout"> </a>SEMANTIC LAYOUT
 
 Enabling the **Semantic Layout** option replaces generic `<div>` wrappers with a semantic, structural list (`<ul>`)
@@ -420,7 +421,83 @@ Semantic Layout focuses on clarity rather than enforcement: it helps make
 structure explicit, accessibility more natural, and performance considerations
 easier to reason about in progressively rendered pages.
 
----
+***
+
+##  <a name="core-expectations"> </a>Is a Single Layout Template with Dynamic Regions Breaking Core Expectations?
+
+**Short answer: No.**
+
+Blazy Layout uses a single Twig template and dynamically adjusts region
+definitions at runtime. This approach does not alter Drupal core behavior,
+violate layout plugin contracts or move around regions on the fly.
+
+### What This Approach Does
+
+- Clones the discovered `LayoutDefinition` at runtime.
+- Modifies region definitions on the cloned instance only.
+- Modifies attributes of the rigid layout structure impressing different region
+  structure or composition while under the hood it is intact once defined.
+- Leaves the original plugin discovery definition untouched.
+- Uses standard render arrays and Layout Builder pipelines.
+- Preserves compatibility with Drupal’s caching and rendering systems.
+
+### What This Approach Does *Not* Do
+
+- It does **not** alter plugin discovery.
+- It does **not** mutate cached core definitions.
+- It does **not** override or bypass Layout Builder APIs.
+- It does **not** change expected render array structures.
+- It does **not** introduce global state into Drupal core.
+- It does **not** move around regions on the fly. The only time it "moves" a
+  region is when **Semantic Layout** is enabled for **Hero**. It conditionally
+  moves **Background** server-side out of the list to comply with
+  **Core Web Vitals** and semantic markup expectations, similar to how a
+  checkbox is placed either before or after the label. No DOM mutation is
+  invited.
+
+### What This Layout Differs from Regular Layout Templates
+
+- Regular template files hard-code classes and attributes for each template
+  file with limited set of regions, Blazy Layout makes them configurable
+  server-side and feed them into a single template file containing dynamic
+  amount of regions conditionally removing the need for hard-coded attributes
+  while maintaining Twig expectations.
+
+- The dynamic amount of regions is similar to how the amount of blocks may
+  occupy a region as defined at `/admin/structure/block`, or a Media field may
+  have different amount images, or multiple sections of layouts are added and
+  removed at Layout Builder pages.
+
+- Since the very beginning, Core has done what Blazy Layout does, except for
+  a few hard-coded template files such as layout templates.
+
+### Why This Pattern Is Used
+
+Instead of maintaining multiple nearly identical layout definitions and template
+files, dynamic regions allow:
+
+- Reduced duplication
+- Easier long-term maintenance
+- A single source of truth for markup structure
+- Predictable runtime behavior
+- Making the best out of what Core already supports from the start
+
+This follows a common prototype-style pattern:
+
+`clone → adjust → render`
+
+### Compatibility Notes
+
+The layout:
+
+- Returns standard render arrays.
+- Maintains expected `#layout`, `#attributes`, and region structures.
+- Operates within Drupal’s plugin and caching systems.
+
+As long as layout instances remain isolated and do not share mutable state, this approach behaves consistently with core expectations.
+
+***
+
 ## <a name="issues"> </a>KNOWN ISSUES/ LIMITATIONS
 * This module does not provide a CSS framework integration aka framework
   agnostic. Instead using the existing grid solutions with few tweaks to support
@@ -429,12 +506,12 @@ easier to reason about in progressively rendered pages.
   options.
 * Background images are not draggable, simply replace and reuse them.
 
----
+***
 ## <a name="maintainers"> </a>AUTHOR/MAINTAINER/CREDITS
 * [Gaus Surahman](https://www.drupal.org/user/159062)
 * CHANGELOG.txt for helpful souls with their patches, suggestions and reports.
 
----
+***
 ## READ MORE
 See the project page on drupal.org for more updated info:
 
