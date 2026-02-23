@@ -125,7 +125,6 @@ final class BlazyApi {
    * @todo delete after submodules at 4.x.
    */
   public static function entitySettings(array &$settings, $entity): void {
-    @trigger_error('entitySettings is deprecated in blazy:3.0.17 and is removed from blazy:4.0.0. No replacement. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     Entity::settings($settings, $entity);
   }
 
