@@ -103,6 +103,11 @@ Public access in 4.x is available through:
 This acts as the coordinating layer.
 Direct access to deprecated services in 4.x may result in runtime errors.
 
+The `@blazy.media_render` is loaded as required such as in entity or media
+related formatters, Views styles and fields. This is never a dependency for
+`BlazyManager` which operates more on translating generic data or inputs rather
+than dealing with any renderer directly.
+
 ### 3. Namespace & Property Deprecations
 
 #### Namespace Reorganization

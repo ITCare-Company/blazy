@@ -106,20 +106,25 @@ class Multimedia extends Settings {
    * @fixme somewhere else.
    */
   public static function provider($blazies, $provider = NULL): ?string {
-    if (!$provider && $input = $blazies->get('media.input_url')) {
-      // parse_url() may return NULL for PHP_URL_HOST (e.g. schemeless or
-      // malformed URLs). Avoid passing NULL to str_ireplace() (deprecated on
-      // PHP 8.1+). Try a safe fallback for schemeless URLs.
-      $host = parse_url($input, PHP_URL_HOST);
+    if (!$provider) {
+      $provider = $blazies->get('media.provider');
 
-      // Fallback: support schemeless URLs like "example.com/path".
-      if (!$host && is_string($input)) {
-        $host = parse_url('https://' . ltrim($input, '/'), PHP_URL_HOST);
-      }
+      // Anything will do, no problem, no validation is required for CSS class.
+      if (!$provider && $input = $blazies->get('media.input_url')) {
+        // parse_url() may return NULL for PHP_URL_HOST (e.g. schemeless or
+        // malformed URLs). Avoid passing NULL to str_ireplace() (deprecated on
+        // PHP 8.1+). Try a safe fallback for schemeless URLs.
+        $host = parse_url($input, PHP_URL_HOST);
 
-      // Only run replacements when a valid host string is available.
-      if (is_string($host) && $host !== '') {
-        $provider = str_ireplace(['www.', '.com'], '', $host);
+        // Fallback: support schemeless URLs like "example.com/path".
+        if (!$host && is_string($input)) {
+          $host = parse_url('https://' . ltrim($input, '/'), PHP_URL_HOST);
+        }
+
+        // Only run replacements when a valid host string is available.
+        if (is_string($host) && $host !== '') {
+          $provider = str_ireplace(['www.', '.com'], '', $host);
+        }
       }
     }
     return $provider;
