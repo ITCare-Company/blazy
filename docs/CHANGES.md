@@ -1,56 +1,146 @@
 
 ***
+
 ## <a name="changes"> </a>NOTABLE CHANGES
-Always check out release notes, if any issues with the latest changes.
 
-- _Blazy 4.0.0_, 2026-01-31:
+Always review the release notes before upgrading to identify potential
+backward-compatibility breaks or behavioral changes.
 
-  * Initial 4.x works with initial tentative hints for those concerned.
+---
 
-  * The `@blazy` and `@blazy.manager.base` are decoupled from `@blazy.base`.
+### Blazy 4.0.0 — 2026-01-31
 
-  * The `@blazy` service now contains core infrastructural services and methods
-    common to all Blazy ecosystem. Its static methods were deprecated and
-    removed into `\Drupal\blazy\BlazyApi` since 3.0.18. Its property is `$core`.
+Blazy 4.x introduces architectural refinements, service decoupling, namespace
+reorganization and improved forward-compatibility patterns. Several legacy
+services, properties, and shorthand methods deprecated in 3.0.18 are now removed
+or scheduled for removal.
 
-  * The `@blazy.base` is marked for deprecations in 3.0.18, and is removed in
-    later 4.0.3 or 5.0.0 at the latest. If extending, use `@blazy.manager.base`
-    instead. Its methods were moved into and now become aliases of
-    `BlazyInterface` and `WithInterface` to avoid issues with inheritance and
-    circular references, relevant for the D11 Hook arguments.
-    Both classes are made `final` to satify the purpose.
+#### Blazy 4.x Revamp, Deprecation and Removal Window
 
-    Within `BlazyManagerBaseInterface`, calling `$this->core->method()` or
-    `$this->with->method()` is more future-proof than current
-    duplicate methods with short-hand `$this->method()`. Non-essential and
-    non-frequently-called duplicate methods (including `BlazyBase` and
-    `BlazyBaseInterface` - 4.x BC only) are being deprecated and
-    removed in favor of `::core()` and `::with()` method equivalents.
+- Marked deprecated in **3.0.18** and **4.0.0**.
+- Removed in **4.0.3** or **5.0.0** at the latest.
+- Anything marked `@internal` or considered so may immediately apply to
+  encourage smooth 4.x revamp.
+- Any potential BC misses may be fixed or refined along the revamp; however
+  these are not crucial since we aim for D12 maximum FC.
 
-  * Media component services are marked for deprecations in 3.0.18, and is
-    removed in later 4.0.3 or 5.0.0 at the latest. Use `@blazy.media_render`
-    instead:
+---
 
-    - `@blazy.file` -> `@blazy.file_renderer`
-    - `@blazy.svg` -> `@blazy.svg_renderer`
-    - `@blazy.media` -> `@blazy.media_renderer`
-    - `@blazy.oembed` -> `@blazy.oembed_renderer`
-    - `@blazy.entity` -> `@blazy.entity_renderer`
+### 1. Service & Infrastructure Deprecations
 
-    Public access in 4.x is available via `@blazy.media_render` coordinating
-    layer. Direct access to the deprecated services in 4.x may result in errors.
+#### Core Service Separation
 
-  * The following namespaces are moved into `src/Infra` fo organization:
+- `@blazy` and `@blazy.manager.base` are decoupled from `@blazy.base`.
 
-    - `Drupal\blazy\Asset` => `Drupal\blazy\Infra`
-    - `Drupal\blazy\Config` => `Drupal\blazy\Infra\Config`
-    - `Drupal\blazy\Field` => `Drupal\blazy\Infra\Field`
-    - `Drupal\blazy\Views` => `Drupal\blazy\Infra\Views`
+- The `@blazy` service now contains
+  **core infrastructural services and shared logic** for the Blazy ecosystem.
+  - Static methods were deprecated and moved to `\Drupal\blazy\BlazyApi`.
+  - Its core container is accessible via `$core` property.
 
-  * Settings array is now cloned into `BlazySettings::config` for convenient
-    customizations and operations. See
-    [**blazy.api.php**](https://git.drupalcode.org/project/blazy/blob/4.0.x/blazy.api.php)
-    for details.
+---
 
-- _Blazy 3.0.0_, 2023/09/18:
-  * Initial works.
+#### `@blazy.base` Deprecation
+
+- If extending, use `@blazy.manager.base` instead.
+
+Methods were moved into and aliased via:
+
+- `BlazyInterface`
+- `ContextInterface`
+- `WithInterface`
+
+This avoids inheritance pitfalls and circular references (notably relevant to
+Drupal 11 hook argument handling).
+
+Classes are now `final` to enforce architectural intent.
+
+---
+
+#### Duplicate Method Removal
+
+Within `BlazyManagerBaseInterface`:
+
+Prefer:
+
+```php
+$this->core->method();
+$this->context->method();
+$this->with->method();
+```
+
+Instead of legacy shorthand:
+
+```php
+$this->method();
+```
+
+Non-essential duplicate methods (including BlazyBase and BlazyBaseInterface kept
+only for 4.x BC) are deprecated and will be removed in favor of:
+
+```php
+::core()
+::context()
+::with()
+```
+
+### 2. Media Component Service Deprecations
+Media component services were deprecated.
+
+Use the renderer-based services instead:
+
+| 3.x Service        | 4.x Replacement          |
+|--------------------|--------------------------|
+| `@blazy.file`      | `@blazy.file_renderer`   |
+| `@blazy.svg`       | `@blazy.svg_renderer`    |
+| `@blazy.media`     | `@blazy.media_renderer`  |
+| `@blazy.oembed`    | `@blazy.oembed_renderer` |
+| `@blazy.entity`    | `@blazy.entity_renderer` |
+
+Public access in 4.x is available through:
+```
+@blazy.media_render
+```
+This acts as the coordinating layer.
+Direct access to deprecated services in 4.x may result in runtime errors.
+
+### 3. Namespace & Property Deprecations
+
+#### Namespace Reorganization
+To improve structure, the following namespaces moved to `src/Infra`:
+
+| 3.x Namespace            | 4.x Namespace              |
+|--------------------------|----------------------------|
+| `Drupal\blazy\Asset`     | `Drupal\blazy\Infra`       |
+| `Drupal\blazy\Config`    | `Drupal\blazy\Infra\Config`|
+| `Drupal\blazy\Field`     | `Drupal\blazy\Infra\Field` |
+| `Drupal\blazy\Views`     | `Drupal\blazy\Infra\Views` |
+
+#### Deprecated BlazyBase Properties → $core Accessors
+
+| 3.x Property            | 4.x Equivalent                    |
+|-------------------------|-----------------------------------|
+| `$root`                 | `$core->root()`                   |
+| `$cache`                | `$core->cache()`                  |
+| `$configFactory`        | `$core->configFactory()`          |
+| `$entityRepository`     | `$core->entityRepository()`       |
+| `$entityTypeManager`    | `$core->entityTypeManager()`      |
+| `$languageManager`      | `$core->languageManager()`        |
+| `$moduleHandler`        | `$core->moduleHandler()`          |
+| `$renderer`             | `$core->renderer()`               |
+| `$libraries`            | `$with->libraries()`              |
+
+### 4. Settings Handling Change
+The settings array is now cloned into:
+
+`BlazySettings::config`
+
+This allows safer customization and operations without mutating the original
+settings array.
+
+See:
+[blazy.api.php](https://git.drupalcode.org/project/blazy/blob/4.0.x/blazy.api.php)
+
+---
+
+### Blazy 3.0.0 — 2023-09-18
+Initial 3.x stable architecture.

@@ -74,7 +74,7 @@ eliminating this issue in the first place.
    * This version intentionally exposes architectural seams to ease the
      transition to Blazy 5.x.
    * Recommended for new/old end-user websites with minimum Blazy ecosystem
-     code customization.
+     PHP customization.
    * Requires PHP ≥ 8.2.
    * Internals are strictly typed and converted into instance classes as needed.
    * Public APIs:
@@ -87,7 +87,7 @@ eliminating this issue in the first place.
 
    * Optimized for correctness.
    * A breaking change phase for D11 below without BC.
-   * Recommended for new websites with zero Blazy ecosystem customization or
+   * Recommended for new websites with zero Blazy ecosystem PHP customization or
      have passed Blazy 4.x.
    * Public APIs are tightened.
    * Full strict typing enforced to a great extent.

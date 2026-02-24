@@ -114,7 +114,7 @@ class Shortcode {
    * @see https://www.drupal.org/node/3103018
    */
   public static function unwrap($string, $container = 'blazy', $item = 'item'): string {
-    // @todo @trigger_error('unwrap is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::parse() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    // @todo @trigger_error('unwrap is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::parse() instead. See https://www.drupal.org/node/3575429', E_USER_DEPRECATED);
     return self::parse($string, $container, $item);
   }
 

@@ -57,33 +57,46 @@ visible first. Native lazyloading without [LCP optimization](#heroes) is simply
 
 **Architectural Continuity & Refinement**
 
-These positions are not retrospective interpretations of modern metrics, but the
-result of long-standing architectural constraints and real-world usage.
+These architectural positions are not retrospective interpretations of modern
+performance or privacy metrics. They emerged from long-standing design
+constraints, practical integration challenges, and real-world usage across
+diverse environments.
 
 With the introduction of the Blazy [media player](#media-architecture)—initially
 integrated with Slick in 2014—the ecosystem operated without unsolicited
-tracking or external dependencies. In practice, this aligned with what would
-later become strict **GDPR** requirements, years before formal enforcement.
+tracking or external third-party dependencies. This approach was motivated by
+performance predictability and integration clarity. In later years, these same
+principles aligned naturally with the stricter expectations formalized under the
+**General Data Protection Regulation (GDPR)**.
 
-Likewise, Blazy’s emphasis on **selective enhancement**, explicit
-[layout reservation](#aspect-ratio), and a deliberate avoidance of global
-“auto-lazy” strategies addressed [layout stability](#layouts) and
-[perceptual timing concerns](#optimization) that were later formalized as
-**Core Web Vitals**—well before those metrics were defined.
+Similarly, Blazy’s emphasis on **selective enhancement**, explicit
+[layout reservation](#aspect-ratio), and the deliberate avoidance of global
+“auto-lazy” strategies addressed concerns around layout stability and perceptual
+loading behavior. These concerns were eventually formalized within
+**Core Web Vitals**, but the underlying architectural decisions predated those
+metrics.
 
-**Refinement phase (2026)**
+Rather than reacting to new standards, the architecture evolved in continuity
+with its original constraints—many of which later proved durable under formal
+measurement frameworks.
 
-By 2026, the architectural focus shifts from _capability_ to _constraint
-enforcement_. Patterns that were previously configurable—such as preloading,
-priority hints, and early media discovery—are now being tightened with stronger
-defaults and clearer limits to prevent overuse, even when explicit warnings
-already exist.
+**Refinement Phase (2026)**
 
-This refinement reflects maturity, not reversal: lessons from large-scale,
-real-world usage are translated into guardrails that reduce accidental misuse
-while preserving intentional, expert-level control.
+By 2026, the architectural focus shifts from _capability expansion_ to
+_constraint enforcement_.
 
-> _2026 marks the transition from enabling performance to enforcing it._
+Patterns that were previously configurable—such as preloading strategies,
+priority hints, and early media discovery—are being consolidated with stronger
+defaults and clearer boundaries. The goal is not to reduce flexibility, but to
+reduce accidental misuse and over-optimization in complex environments.
+
+This refinement reflects operational maturity rather than reversal. Insights
+gained from large-scale, real-world deployments are translated into guardrails
+that preserve intentional, expert-level control while improving predictability
+for broader usage.
+
+> _2026 represents a transition from enabling performance patterns to
+> formalizing performance discipline._
 
 #### <a name="resource-manager"> </a>II. Resource Consolidation
 

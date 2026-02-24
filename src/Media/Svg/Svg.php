@@ -22,7 +22,7 @@ use enshrined\svgSanitize\Sanitizer;
  * @todo make this class also functional for SVG blur.
  * @todo enable @trigger_error('Svg is deprecated in blazy:4.0.0 and is
  * removed from blazy:5.0.0. Use @blazy.media_context instead.
- * See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+ * See https://www.drupal.org/node/3575429', E_USER_DEPRECATED);
  */
 class Svg extends BlazyFile implements SvgInterface {
 
