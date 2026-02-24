@@ -1,5 +1,7 @@
 Blazy 3.0.x-dev, 2026-02-24
 ---------------------------
+- Issue #3572391 by filipeabreu: PHP 8.1+: Fix deprecated str_ireplace() warning
+  in Multimedia::provider() when URL host is NULL.
 - Added deprecation notices for 4.x smooth revamp.
 
 Blazy 3.0.x-dev, 2026-02-11
