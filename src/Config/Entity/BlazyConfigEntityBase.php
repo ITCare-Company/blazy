@@ -8,10 +8,6 @@ use Drupal\blazy\Utility\Arrays;
 
 /**
  * Defines the common configuration entity.
- *
- * @internal
- *   This is an internal part of the Blazy system and should only be used by
- *   blazy-related code in Blazy module, or its sub-modules.
  */
 abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyConfigEntityBaseInterface {
 

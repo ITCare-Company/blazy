@@ -116,6 +116,7 @@ If you do not have access to Drush, follow these steps in strict order.
    your site.
 
 ---
+
 ## <a name="wsod"> </a>Emergency Recovery (WSOD)
 This might or might not be related to Blazy updates. If you encounter a
 **White Screen of Death** (WSOD) that a standard cache clear cannot fix, perform
@@ -134,6 +135,47 @@ a total environment rebuild:
 Alpha, Beta, and DEV releases are for development environments. Always align
 your versions (Dev-to-Dev, Stable-to-Stable) as outlined in the
 [Version compatibility](#first).
+
+---
+
+## <a name="d11-compat"> </a>Drupal 11 Compatibility
+
+Blazy 3.x continues to operate reliably on Drupal 11 in many environments and
+remains suitable for existing projects that are already stable.
+
+Blazy 4.x, however, is the branch officially aligned with Drupal 11. It
+formalizes compatibility by:
+
+- Updating hook implementations to follow current Drupal 11 standards
+- Removing deprecated APIs
+- Streamlining and modernizing internal architecture
+
+While immediate migration is not required for sites where Blazy 3.x is
+functioning well, projects planning long-term Drupal 11 development are
+encouraged to evaluate Blazy 4.x.
+
+Adopting 4.x ensures alignment with the current Drupal API direction and
+positions projects for future enhancements and ongoing maintenance improvements.
+
+---
+
+##  <a name="4x-upgrade"> </a>Upgrade Path: 3.x → 4.x
+
+Blazy 4.x is a major release that formalizes Drupal 11 alignment and removes
+previously deprecated APIs. While most runtime behavior remains consistent, some
+internal classes and deprecated methods introduced in 3.x have been cleaned up
+as part of this release.
+
+For many sites using default configurations, upgrading from 3.x to 4.x should be
+straightforward. Projects with custom integrations or extensions are encouraged
+to review the documented deprecations and API adjustments before upgrading.
+
+A detailed list of changes, deprecated components, and their replacements is
+available in the Change Record:
+
+→ See the full <a href="https://www.drupal.org/node/3575429">Change Record</a>
+  for 4.x.
+
 
 ---
 <a href="#top">Back to Top &uarr;</a>

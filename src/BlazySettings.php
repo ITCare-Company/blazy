@@ -9,8 +9,8 @@ use Drupal\blazy\Utility\Type;
 /**
  * Provides settings object.
  *
- * If you would like to pass this into Twig, be sure to call self::storage(),
- * e.g.: $variables['blazies'] = $blazies->storage(); This results in array
+ * If you would like to pass this into Twig, be sure to call self::toArray(),
+ * e.g.: $variables['blazies'] = $blazies->toArray(); This results in array
  * which works great with Twig dot notation.
  * Do not dump it directly as an object, e.g.: $variables['blazies'] = $blazies;
  * This may mangle methods of the same names as array keys due to how Twig dot
@@ -55,7 +55,7 @@ class BlazySettings implements \Countable {
    * Returns values from a key.
    *
    * @param string $key
-   *   The storage key, if empty, similar to self::storage().
+   *   The storage key, if empty, similar to self::toArray().
    * @param mixed $default_value
    *   The default value.
    *
@@ -307,7 +307,7 @@ class BlazySettings implements \Countable {
           $found = isset($this->storage[$group][$key]);
         }
         elseif ($group instanceof BlazySettings) {
-          $found = isset($group->storage()[$key]);
+          $found = isset($group->toArray()[$key]);
         }
       }
       else {
@@ -348,8 +348,17 @@ class BlazySettings implements \Countable {
 
   /**
    * Returns the whole array.
+   *
+   * @todo deprecate for ::toArray() for clarity.
    */
   public function storage(): array {
+    return $this->storage;
+  }
+
+  /**
+   * Returns the whole array.
+   */
+  public function toArray(): array {
     return $this->storage;
   }
 
