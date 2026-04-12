@@ -194,7 +194,8 @@ img.b-blur,
 .blazy .box,
 .blazy .slide {
   /* Schedule loads to reduce initial render cost dramatically for large media.
-  Best paired with contain-intrinsic-size as required */
-  content-visibility: auto;
+  Best paired with contain-intrinsic-size as required.
+  ontent-visibility is bad for admin form, hiding descriptions.
+  content-visibility: auto; */
   margin-block-end: 0;
 }
