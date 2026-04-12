@@ -108,15 +108,15 @@ Blur image maybe laoded without a .media container, seen at IO/SLick Browser.
 img.b-blur,
 .media--ratio .media__element,
 .media--ratio svg {
-  display: block;
   position: absolute;
   z-index: 0;
-  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   min-height: 1px;
   /** Temp fix, also to fix the VIDEO element to max width, not only IMG. */
   object-fit: cover;
+  inset: 0;
 }
 
 .media--ratio audio.media__element {
@@ -195,7 +195,7 @@ img.b-blur,
 .blazy .slide {
   /* Schedule loads to reduce initial render cost dramatically for large media.
   Best paired with contain-intrinsic-size as required.
-  ontent-visibility is bad for admin form, hiding descriptions.
+  content-visibility is bad for admin form, clipping descriptions.
   content-visibility: auto; */
   margin-block-end: 0;
 }

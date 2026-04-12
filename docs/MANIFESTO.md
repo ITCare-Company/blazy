@@ -499,6 +499,7 @@ externally sourced assets.
 - Browser metrics (CLS/LCP)
 - Steps to reproduce
 - **Console** tab output (via browser developer tools)
+- (Un-)install BigPipe to fully understand layout rendering strategies
 
 Reports are not dismissed; evidence is required to evaluate and resolve issues.
 Without reproducible context, the underlying cause cannot be determined.

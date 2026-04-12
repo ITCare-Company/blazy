@@ -45,7 +45,7 @@ or scheduled for removal.
 
 #### `@blazy.base` Deprecation
 
-- If extending, use `@blazy.manager.base` instead.
+- If extending `@blazy.base`, use `@blazy.manager.base` instead.
 
 Methods were moved into and aliased via:
 
@@ -128,6 +128,7 @@ To improve structure, the following namespaces moved to `src/Infra`:
 | `Drupal\blazy\Asset`     | `Drupal\blazy\Infra`       |
 | `Drupal\blazy\Config`    | `Drupal\blazy\Infra\Config`|
 | `Drupal\blazy\Field`     | `Drupal\blazy\Infra\Field` |
+| `Drupal\blazy\Form`      | `Drupal\blazy\Infra\Form`  |
 | `Drupal\blazy\Views`     | `Drupal\blazy\Infra\Views` |
 
 #### Deprecated BlazyBase Properties → $core Accessors
