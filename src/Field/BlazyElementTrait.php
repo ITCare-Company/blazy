@@ -96,7 +96,7 @@ trait BlazyElementTrait {
   /**
    * Builds the item using theme_blazy(), if so-configured.
    */
-  private function themeBlazy(array $data, array $captions, $delta): array {
+  protected function themeBlazy(array $data, array $captions, $delta): array {
     $internal = $data;
 
     // Allows sub-modules to use theme_blazy() as their theme_ITEM() contents.

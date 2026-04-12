@@ -1541,7 +1541,11 @@
    *   True if the image is loaded.
    */
   function isDecoded(img) {
-    return img.decoded || img.complete;
+    // Fixed for inconsistent img.complete on reload.
+    if (img.naturalWidth !== 0) {
+      return true;
+    }
+    return img.complete && img.naturalWidth !== 0;
   }
 
   /**
@@ -2009,7 +2013,7 @@
       img.onload = function () {
         resolve(img);
       };
-      img.onerror = reject();
+      img.onerror = reject;
     });
   };
 

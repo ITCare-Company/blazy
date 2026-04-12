@@ -209,12 +209,16 @@ class Preloader {
 
       // Responsive image.
       $suffix = '';
-      if ($srcset = ($item['srcset'] ?? NULL)) {
+      if ($srcset = $item['srcset'] ?? NULL) {
         $suffix = '_responsive';
         $attrs['imagesrcset'] = $srcset->value();
 
-        if ($sizes = ($item['sizes'] ?? NULL)) {
+        if ($sizes = $item['sizes'] ?? NULL) {
           $attrs['imagesizes'] = $sizes->value();
+        }
+
+        if ($media = $item['media'] ?? NULL) {
+          $attrs['media'] = $media->value();
         }
       }
 

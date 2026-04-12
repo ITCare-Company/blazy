@@ -15,6 +15,10 @@ reorganization and improved forward-compatibility patterns. Several legacy
 services, properties, and shorthand methods deprecated in 3.0.18 are now removed
 or scheduled for removal.
 
+#### 4.x Change Records
+
+- See [4.x Change Records](https://www.drupal.org/node/3575429) for details.
+
 #### Blazy 4.x Revamp, Deprecation and Removal Window
 
 - Marked deprecated in **3.0.18** and **4.0.0**.
@@ -53,6 +57,12 @@ This avoids inheritance pitfalls and circular references (notably relevant to
 Drupal 11 hook argument handling).
 
 Classes are now `final` to enforce architectural intent.
+
+---
+
+#### `@blazy.config` Deprecation
+
+- If calling `@blazy.config`, use `@blazy` and `@blazy.with` instead.
 
 ---
 
@@ -139,8 +149,8 @@ The settings array is now cloned into:
 
 `BlazySettings::config`
 
-This allows safer customization and operations without mutating the original
-settings array.
+This allows safer and more convenient customization and operations without
+mutating the original settings array directly.
 
 See:
 [blazy.api.php](https://git.drupalcode.org/project/blazy/blob/4.0.x/blazy.api.php)
@@ -148,4 +158,4 @@ See:
 ---
 
 ### Blazy 3.0.0 — 2023-09-18
-Initial 3.x stable architecture.
+Initial 3.x stable architecture up to Drupal 11.

@@ -196,8 +196,8 @@
       };
 
       // Fix for LB, infinite scroll, or AJAX in general integration.
-      $.on('blazy:ajaxSuccess.' + ID, function (e, ctx, response, status) {
-        if (response && response.length) {
+      $.on('blazy:ajaxSuccess.' + ID, function (_, ctx, response) {
+        if (response && response.status === 200) {
           watch(true);
         }
       });

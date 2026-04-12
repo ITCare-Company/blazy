@@ -433,15 +433,15 @@ class Attributes {
       }
 
       // Native, or unlazy, has .blazy--nojs at container to fix issues, if any.
-      // BG is not supported by Native lazyload, enforce ir.
-      if (!$unlazy || $bg && !$unlazy_bg) {
+      // BG is not supported by Native lazyload, enforce lazy.
+      if (!$unlazy || $bg) {
         // @todo put it back up above if any issues.
         $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
         $attribute = $blazies->get('lazy.attribute', 'src');
         $attributes['data-' . $attribute] = $url;
       }
 
-      // If BG in static AMP or sandboxed.
+      // If BG in static AMP, sandboxed, or hero.
       if ($bg && $unlazy_bg) {
         self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
       }

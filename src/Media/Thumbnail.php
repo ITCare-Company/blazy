@@ -119,6 +119,7 @@ class Thumbnail {
       '#attributes' => [
         'decoding' => 'async',
         'loading'  => 'lazy',
+        'fetchpriority' => 'low',
       ],
     ];
 

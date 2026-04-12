@@ -177,7 +177,7 @@ trait TraitConfigDescriptions {
       ),
 
       'rootMargin' => $this->t(
-        'Defines margins around the root element, similar to CSS margin syntax (e.g. <code>10px 20px 30px 40px</code>). Values may be percentages. Expands or shrinks the root bounding box before intersection calculations. Defaults to all zeros.'
+        'Defines margins around the root element, similar to CSS margin syntax (e.g. <code>10px 20px 30px 40px</code> or top right bottom left). Values may be percentages. Expands or shrinks the root bounding box before intersection calculations. The default is conservative based on the system. To improve perceived speed with the preloading and decoding, try: 200px 0px, or just 200px, if having horizontal or vertical sliders. Meaning: trigger loading 200px earlier before element enters viewport, either vertically or horizontally. Do not set it too high, otherwise blur, animation, etc, it may be executed too early making such features useless. Defaults to all zeros.'
       ),
 
       'threshold' => $this->t(
