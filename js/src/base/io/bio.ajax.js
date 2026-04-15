@@ -15,10 +15,9 @@
 
   var VARS = {
     id: 'b-ajax',
-    bRoot: 'b-root',
     selector: 'body',
     eventName: 'ajaxSuccess',
-    revTimer: null
+    revRAF: null
   };
 
   /**
@@ -34,43 +33,45 @@
       }
 
       // Clear any pending timer.
-      clearTimeout(VARS.revTimer);
+      if (VARS.revRAF) {
+        cancelAnimationFrame(VARS.revRAF);
+        VARS.revRAF = null;
+      }
 
       // DOM ready fix.
-      VARS.revTimer = setTimeout(function () {
+      VARS.revRAF = requestAnimationFrame(function () {
+        Promise.resolve().then(function () {
+          var bio = me.init;
 
-        var bio = me.init;
+          // 1. Ensure we have Bio loaded.
+          if (!bio) {
+            return;
+          }
 
-        // Ensure we have Bio loaded.
-        if (bio) {
           var opts = me.options;
           var el = $.find(_doc, $.selector(opts, true));
-          var dataOnce = $.attr(_doc.body, 'data-once');
 
           // See blazy.load.js.
-          // Ensure we have lazy elements after AJAX.
-          if (el && $.contains(dataOnce, VARS.bRoot)) {
+          // 2. Ensure we have lazy elements after AJAX.
+          if (el) {
+            var context = _doc.body;
+            var prev = $.once.unload;
             $.once.unload = true;
 
-            Drupal.detachBehaviors(_doc.body);
-
-            $.once.removeSafely(VARS.bRoot, VARS.selector, _doc);
-
-            Drupal.attachBehaviors(_doc.body);
+            Drupal.attachBehaviors(context, Drupal.settings);
 
             $.trigger('blazy:ajaxSuccess', [me, response, ajax]);
+
+            // Reset flag.
+            $.once.unload = prev;
           }
-        }
 
-        // Remove listener.
-        jq(_doc).off(VARS.eventName, revalidate);
-        $.once.unload = false;
-
-      }, 101);
+        });
+      });
 
     };
 
-    // jQuery owned document, cannot use dBlazy.
+    // jQuery owned document, cannot use dBlazy. Keep it alive.
     jq(_doc).on(VARS.eventName, revalidate);
   }
 

@@ -141,6 +141,8 @@
   };
 
   $.selector = function (opts, suffix) {
+    opts = opts || $._defaults;
+
     var selector = opts.selector;
     // @todo recheck, troubled for onresize: + ':not(.' + opts.successClass + ')'.
     if (suffix && $.isBool(suffix)) {
