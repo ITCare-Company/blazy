@@ -145,6 +145,7 @@ class ResponsiveImage {
       return;
     }
 
+    $dimensions = [];
     $styles = self::styles($resimage);
     $names = $ratios = [];
     foreach (array_values($styles['styles']) as $style) {

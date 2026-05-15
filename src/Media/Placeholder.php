@@ -270,7 +270,16 @@ class Placeholder {
     $uri     = $blazies->get('image.uri');
     $tn_uri  = $settings['thumbnail_uri'] ?? NULL;
     $tn_uri  = $blazies->get('thumbnail.uri') ?: $tn_uri;
+    $switch  = $settings['media_switch'] ?? '';
     $tn_url  = '';
+
+    // Fixed for reversed thumbnail when using elevatezoomplus.
+    // @todo move it to elevatezoomplus if doable.
+    if ($style && $switch === 'elevatezoomplus') {
+      if ($image_style = $blazies->get('image.style')) {
+        $style = $image_style;
+      }
+    }
 
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.

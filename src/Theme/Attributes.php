@@ -432,11 +432,16 @@ class Attributes {
         $attributes['class'][] = 'b-filter';
       }
 
+      // Required by ratio, or to fix broken 404 data URI Views rewrite.
+      // Can be refined for BG, Audio, Video, HTML beyond IMG/IFRAME, but not
+      // worth the effort, and inevitable complexity: AMP, sandboxed, lazy, etc.
+      // If No Javascript enabled, heavy lifting is taken care of by Native lazy
+      // except for things it doesn't solve: BG, Audio, Video, HTML.
+      $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
+
       // Native, or unlazy, has .blazy--nojs at container to fix issues, if any.
       // BG is not supported by Native lazyload, enforce lazy.
       if (!$unlazy || $bg) {
-        // @todo put it back up above if any issues.
-        $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
         $attribute = $blazies->get('lazy.attribute', 'src');
         $attributes['data-' . $attribute] = $url;
       }

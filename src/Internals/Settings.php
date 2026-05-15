@@ -467,9 +467,11 @@ class Settings extends Initializer {
    *   The blazies instance.
    */
   public static function tokenize($blazies): void {
-    $url = $blazies->get('media.embed_url') ?: $blazies->get('image.url');
-    $uri = $blazies->get('image.uri');
-    $token = substr(md5($uri . $url), 0, 11);
+    $id    = $blazies->get('css.id', 'blazy');
+    $url   = $blazies->get('media.embed_url') ?: $blazies->get('image.url', '');
+    $uri   = $blazies->get('image.uri', '');
+    $delta = $blazies->get('delta', 0);
+    $token = substr(md5($id . $delta . $uri . $url), 0, 11);
 
     self::scriptable($blazies);
 

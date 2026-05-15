@@ -190,7 +190,8 @@ class Preloader {
       // Suppress useless warning of likely failing initial image generation.
       // Better than checking file exists.
       // Each field may have different mime types for each image just like URIs.
-      $mime = @mime_content_type($uri_style) ?: '';
+      // Non-transliterated URL with weird characters may fail, add fallback.
+      $mime = @mime_content_type($uri_style) ?: 'image/jpeg';
 
       // Responsive image.
       if ($item && $item_type = $item['type'] ?? NULL) {
@@ -209,16 +210,14 @@ class Preloader {
 
       // Responsive image.
       $suffix = '';
-      if ($srcset = $item['srcset'] ?? NULL) {
-        $suffix = '_responsive';
-        $attrs['imagesrcset'] = $srcset->value();
+      if ($item) {
+        if ($srcset = $item['srcset'] ?? NULL) {
+          $suffix = '_responsive';
+          $attrs['imagesrcset'] = $srcset->value();
 
-        if ($sizes = $item['sizes'] ?? NULL) {
-          $attrs['imagesizes'] = $sizes->value();
-        }
-
-        if ($media = $item['media'] ?? NULL) {
-          $attrs['media'] = $media->value();
+          if ($sizes = $item['sizes'] ?? NULL) {
+            $attrs['imagesizes'] = $sizes->value();
+          }
         }
       }
 
@@ -234,7 +233,7 @@ class Preloader {
       }
 
       // Checks for external URI.
-      if (UrlHelper::isExternal($uri ?: $url)) {
+      if (UrlHelper::isExternal($url)) {
         $attrs['crossorigin'] = TRUE;
       }
 

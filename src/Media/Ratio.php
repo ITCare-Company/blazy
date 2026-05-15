@@ -33,7 +33,6 @@ class Ratio {
     $_none    = ($settings['svg_attributes'] ?? NULL) == 'none';
     $ratio    = $disabled ? '' : $settings['ratio'] ?? NULL;
     $hack     = $ratio && $fluid;
-    $resimage = $blazies->get('resimage.id');
     $provider = $blazies->get('media.provider');
     $noratio  = Internals::irrational($provider);
     $lightbox = $blazies->is('lightbox');
@@ -41,10 +40,11 @@ class Ratio {
     // Skip padding hacks if fluid is supported by plain CSS, to avoid JS.
     if ($hack) {
       // Do not mess up with responsive image for now, or you'll be sorry.
-      if (!$resimage && $check = $blazies->get('image.fluid')) {
-        $ratio = $check;
-        $hack  = FALSE;
-      }
+      // $resimage = $blazies->get('resimage.id');
+      // if (!$resimage && $check = $blazies->get('image.fluid')) {
+      // $ratio = $check;
+      // $hack  = FALSE;
+      // }
       // If using image_style or defaults, even SVG can be padding-hacked for
       // consistency. If using none, then disable aspect ratio altogether.
       // @todo recheck against responsive image, gif, apng, alike.

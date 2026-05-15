@@ -103,7 +103,9 @@ final class CheckItem {
   public static function insanity(array &$settings): void {
     $blazies    = Internals::getBlazies($settings);
     $ratio      = $settings['ratio'] ?? '';
+    $loading    = $blazies->get('image.loading', 'lazy');
     $heroes     = $blazies->is('slider') || $blazies->is('unloading');
+    $heroes     = in_array($loading, ['slider', 'unlazy']) || $heroes;
     $lcp        = $heroes && $blazies->is('initial');
     $siblings   = $heroes && !$blazies->is('initial');
     $unlazy     = $blazies->is('unlazy');
