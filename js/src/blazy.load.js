@@ -185,12 +185,12 @@
       $.once(process.bind(me), ID_ONCE, S_ELEMENT, context);
 
       // Initializes blazy once as a global observer, not per container.
-      $.once(init.bind(me), ID_ONCE_GLOBAL, S_GLOBAL, context);
+      $.once(init.bind(me), ID_ONCE_GLOBAL, S_GLOBAL, _doc);
     },
-    detach: function (context, setting, trigger) {
+    detach: function (context, _, trigger) {
       if (trigger === 'unload') {
         $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
-        $.once.removeSafely(ID_ONCE_GLOBAL, S_GLOBAL, context);
+        $.once.removeSafely(ID_ONCE_GLOBAL, S_GLOBAL, _doc);
       }
     }
   };

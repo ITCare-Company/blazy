@@ -9,7 +9,7 @@
  * @todo remove once bio.js plays nice for media, VIS, blocks.
  */
 
-(function ($, jq, Drupal, _doc) {
+(function ($, jq, Drupal, drupalSettings, _doc) {
 
   'use strict';
 
@@ -58,7 +58,9 @@
             var prev = $.once.unload;
             $.once.unload = true;
 
-            Drupal.attachBehaviors(context, Drupal.settings);
+            $.once.remove('b-root', 'body', _doc);
+
+            Drupal.attachBehaviors(context, drupalSettings);
 
             $.trigger('blazy:ajaxSuccess', [me, response, ajax]);
 
@@ -86,18 +88,18 @@
    * @type {Drupal~behavior}
    */
   Drupal.behaviors.blazyAjax = {
-    attach: function (context) {
+    attach: function () {
 
       var me = Drupal.blazy;
 
-      $.once(process.bind(me), VARS.id, VARS.selector, context);
+      $.once(process.bind(me), VARS.id, VARS.selector, _doc);
 
     },
     detach: function (context, _, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(VARS.id, VARS.selector, context);
+        $.once.removeSafely(VARS.id, VARS.selector, _doc);
       }
     }
   };
 
-})(dBlazy, jQuery, Drupal, this.document);
+})(dBlazy, jQuery, Drupal, drupalSettings, this.document);

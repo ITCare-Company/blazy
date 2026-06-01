@@ -61,16 +61,47 @@ class BlazyDefault {
   protected static $id = NULL;
 
   /**
+   * The processing check.
+   *
+   * @var bool
+   */
+  protected static bool $processing = FALSE;
+
+  /**
+   * The alteredSettings check.
+   *
+   * @var array|null
+   */
+  protected static ?array $alteredSettings = NULL;
+
+  /**
    * Returns alterable plugin settings to pass the tests.
    *
    * @param array $settings
    *   The settings being modified.
+   *
+   * @todo remove hook_alter out of here in 4.x.
    */
   public static function alterableSettings(array &$settings) {
+    if (self::$processing) {
+      return;
+    }
+
+    if (self::$alteredSettings !== NULL) {
+      $settings = self::$alteredSettings;
+      return;
+    }
+
+    self::$processing = TRUE;
+
     $context = ['class' => get_called_class()];
     if ($manager = Internals::blazy()) {
       $manager->moduleHandler()->alter('blazy_base_settings', $settings, $context);
     }
+
+    self::$processing = FALSE;
+
+    self::$alteredSettings = $settings;
   }
 
   /**

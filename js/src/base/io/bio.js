@@ -85,9 +85,7 @@
 
     // Only destroy if no use for is-b-visible class.
     if (VARS.bioTick === count - 1) {
-      $.trigger(_win, VARS.nick + ':done', {
-        options: opts
-      });
+      $.trigger(_win, VARS.nick + ':done', [me, opts]);
 
       if (!watching) {
         me.destroyQuietly();
@@ -122,21 +120,19 @@
       // Makes sure to have media loaded beforehand.
       me.lazyLoad(el, VARS.winData);
 
-      // If not extending/ overriding, at least provide the option.
-      if ($.isFun(opts.intersecting)) {
-        opts.intersecting(el, opts);
-      }
-
-      // If not extending/ overriding, also allows to listen to.
-      $.trigger(el, VARS.eIntersecting, {
-        options: opts
-      });
-
       VARS.hitTick++;
 
       // Marks it hit/ requested, not necessarily loaded.
       el.bhit = true;
     }
+
+    // If not extending/ overriding, at least provide the option.
+    if ($.isFun(opts.intersecting)) {
+      opts.intersecting(el, opts);
+    }
+
+    // If not extending/ overriding, also allows to listen to.
+    $.trigger(el, VARS.eIntersecting, [me, opts]);
   }
 
   // This function is called by two observers: IO and RO.

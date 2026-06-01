@@ -90,9 +90,11 @@
       };
 
       // If any event, or modification.
-      if (e === opts.unload || e.matches || grid.mod) {
+      var mq = e && e.matches;
+      if (e === opts.unload || mq || grid.mod) {
         $.addClass(grid._el, IS_LOADING);
-        if (e.matches) {
+
+        if (mq) {
           if (!grid.matches) {
             update(grid, grid.md);
             grid.matches = true;
