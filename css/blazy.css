@@ -162,13 +162,14 @@ img.b-blur,
   min-width: 100% !important; /* csslint allow: known-properties, important */
 }
 
-/** @todo re-check various use-cases. */
+/** @todo re-check various use-cases.
+@fixme bad for broken SoundCloud as a lightbox.
 .b-html.b-loaded > img {
   position: absolute;
   z-index: -1;
   visibility: hidden;
   opacity: 0;
-}
+} */
 
 .blazy .grid__content,
 .blazy .region__content {

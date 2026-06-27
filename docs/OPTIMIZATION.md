@@ -166,6 +166,8 @@ integrity.
     - Enable **Use client-side blur** with **Store blur in localStorage**
     - Leverage `hook_blazy_settings_alter` to switch **Blue**, **Blur**, and
       **Animate CSS** animation effects conditionally
+    - If using **Blur**, ensure to fill in **Blur min-width** to prevent 
+      thumbnail/preview or small images from adding more unnecessary weight.
 
     They signifantly reduce the page weight by shaving off **Blur** large bytes.
 

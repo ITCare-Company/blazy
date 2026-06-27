@@ -153,8 +153,12 @@ class Attributes {
         if (!$blazies->get('bgs')) {
           $attributes['data-src'] = '';
         }
+
         $attributes['data-b-html'] = Internals::DATA_TEXT . $html;
         $attributes['class'][] = 'b-lazy';
+
+        // @fixme recheck against lightbox whether to load it in supported
+        // lightboxes or direct render here.
         $attributes['class'][] = 'b-html';
 
         // @todo recheck and remove, already checked upstream.

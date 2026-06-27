@@ -1,6 +1,6 @@
 
 ***
-## <a name="mixed-media"> </a>LLINKABLE AND MIXED-MEDIA
+## <a name="mixed-media"> </a>LINKABLE AND MIXED-MEDIA
 
 To have a custom hi-res image/poster for (local|remote) video and audio, etc.:
 
