@@ -69,13 +69,13 @@ eliminating this issue in the first place.
 1. **Blazy 3.x (Drupal ≥ 9.4)**
 
    - "Just works" for convenience due to time and resource constraints.
-   - Ecosytem stability with lingering baggages.
+   - Ecosystem stability with lingering baggages.
    - Recommended for old websites with heavy Blazy ecosystem customization.
 
 2. **Blazy 4.x (Drupal ≥ 11.0)**
 
    - Optimized for migration.
-   - Ecosytem consolidation with minimum BC and maximum FC as a bridge for D12.
+   - Ecosystem consolidation with minimum BC and maximum FC as a bridge for D12.
    - This version intentionally exposes architectural seams to ease the
      transition to Blazy 5.x.
    - Recommended for new/old end-user websites with minimum Blazy ecosystem
