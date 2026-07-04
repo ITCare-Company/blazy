@@ -180,7 +180,7 @@ class ThemeHooks {
           /** @var \Drupal\Core\Template\Attribute $source */
           foreach ((array) $sources as &$source) {
             $source->setAttribute('data-srcset', $source['srcset']->value());
-            $source->setAttribute('srcset', Placeholder::BLANK);
+            $source->setAttribute('srcset', Placeholder::DATA . ' 1x');
           }
         }
 

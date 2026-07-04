@@ -1,3 +1,8 @@
+Blazy 3.0.x-dev, 2026-07-04
+---------------------------
+- fix: #3401623 Blazy library not firing correctly sometimes on responsive
+  images
+
 Blazy 3.0.x-dev, 2026-02-24
 ---------------------------
 - Issue #3572391 by filipeabreu: PHP 8.1+: Fix deprecated str_ireplace() warning
