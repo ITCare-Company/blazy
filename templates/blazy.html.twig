@@ -62,13 +62,14 @@
  * @ingroup themeable
  */
 #}
+{% set use_player = blazies.use.player and blazies.media.embed_url %}
 {%
   set classes = [
     content ? 'media--rendered',
     blazies.namespace ? 'media--' ~ blazies.namespace|clean_class,
     blazies.media.provider ? 'media--' ~ blazies.media.provider|clean_class,
     settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
-    blazies.use.player ? 'media--player',
+    use_player ? 'media--player',
     blazies.media.bundle ? 'media--bundle--' ~ blazies.media.bundle|clean_class,
     blazies.media.type ? 'media--' ~ blazies.media.type|clean_class,
     blazies.resimage.id and not content ? 'media--responsive',
@@ -78,7 +79,6 @@
     settings.classes ? settings.classes|join(' ')|clean_class,
   ]
 %}
-{% set use_player = blazies.use.player and blazies.media.embed_url %}
 {% if use_player %}
   {% set attributes = attributes.setAttribute('aria-live', 'polite') %}
 
