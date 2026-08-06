@@ -587,17 +587,24 @@
     return x && 'getAttribute' in x;
   }
 
+  // BigPipe compat methods.
   function isBigPipe() {
-    return 'bigPipePlaceholderIds' in _ds;
+    return !!(_ds && _ds.bigPipePlaceholderIds);
   }
 
   // Checks if BigPipe replacement jobs are done.
   function wwoBigPipeDone() {
-    if (isBigPipe()) {
-      return isEmpty(_ds.bigPipePlaceholderIds);
+    if (!isBigPipe()) {
+      return true;
     }
-    // If BigPipe is not installed, always done.
-    return true;
+
+    // D10.3+ fast path.
+    if (isEmpty(_ds.bigPipePlaceholderIds)) {
+      return true;
+    }
+
+    // D9.x / D10.0-10.2 compatibility.
+    return !find(_doc, '[data-big-pipe-placeholder-id]');
   }
 
   // Wait for BigPipe to be done before calling a function, not really once.
