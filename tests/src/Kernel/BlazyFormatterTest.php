@@ -141,6 +141,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    */
   public function testFormatterViewDisplay() {
     $build['#settings'] = BlazyApi::init();
+
     $formatter_settings = $this->formatterInstance->buildSettings($build, NULL);
     $this->assertArrayHasKey('blazies', $formatter_settings);
 

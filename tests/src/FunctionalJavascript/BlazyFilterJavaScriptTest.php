@@ -156,9 +156,10 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
 
     // Already sanitized by text editor since D 10.6.2.
     // $this->assertSession()->elementExists('css', 'img[data-src^=alert]');
-    // Verifies that we have data URI disallowed.
-    $this->assertSession()->elementNotExists('css', 'img[src^=data]');
-    $this->assertSession()->elementNotExists('xpath', '//img[contains(@src, "data:image")]');
+    // Verifies that we have data URI disallowed. Ensure to not too broad given
+    // valid Blazy lazy-load post-processed placeholder.
+    $this->assertSession()->elementNotExists('css', 'img[src^="data:image/jpg;base64"]');
+    $this->assertSession()->elementNotExists('xpath', '//img[contains(@src, "data:image/jpg;base64")]');
 
     $this->assertSession()->elementExists('xpath', '//img[contains(@class, "width-full")]');
 
