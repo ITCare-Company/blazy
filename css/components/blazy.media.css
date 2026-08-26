@@ -155,10 +155,6 @@ button.media__icon--close {
   opacity: 0;
 }
 
-.media.media--switch.is-playing iframe {
-  position: relative;
-}
-
 .media--switch.is-playing img.media__element {
   top: 0;
   left: 0;
