@@ -426,7 +426,21 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function loadByUuid($uuid, $type = 'file'): ?object {
-    return $this->entityRepository->loadEntityByUuid($type, $uuid);
+    $entity = NULL;
+    try {
+      $entity = $this->entityRepository->loadEntityByUuid($type, $uuid);
+
+      if (
+        $entity instanceof EntityInterface &&
+        !$entity->access('view')
+      ) {
+        return NULL;
+      }
+    }
+    catch (\Exception $ignore) {
+      // Do nothing, likely broken file.
+    }
+    return $entity;
   }
 
   /**
