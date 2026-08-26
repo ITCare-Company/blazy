@@ -130,10 +130,15 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     $entity = $this->manager->load($id, $entity_type);
 
+    // The referenced entity must be viewable by the current user.
+    if (!$entity || !$entity->access('view')) {
+      return NULL;
+    }
+
     $blazies = Internals::getBlazies($settings);
     $id = (int) $id;
 
-    if ($entity && $entity->hasField($field_name)) {
+    if ($entity->hasField($field_name)) {
       $bundle = $entity->bundle();
 
       // @todo check \Drupal\file\Plugin\Field\FieldType\FileFieldItemList.
