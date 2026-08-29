@@ -30,6 +30,7 @@
 - [Maintainers](#maintainers)
 - [Notable changes](#changes)
 - [Scope & Responsibilities](#scope-and-responsibilities)
+- [AI Assistance Disclosure](#ai-assistance)
 
 ---
 
@@ -66,7 +67,7 @@ eliminating this issue in the first place.
 
 ### <a name="version-roadmap"> </a>VERSION ROADMAP
 
-1. **Blazy 3.x (Drupal ≥ 9.4)**
+1. **Blazy 3.x (Drupal ≥ 9.4 && <= 11+)**
 
    - "Just works" for convenience due to time and resource constraints.
    - Ecosystem stability with lingering baggages.
@@ -85,7 +86,7 @@ eliminating this issue in the first place.
    - Public APIs:
 
      - `blazy.api.php` remains BC-stable within the major, except for new
-       integration methods beyond hook_alter itself.
+       integration methods beyond `hook_alter` itself.
      - Public classes may be tightened.
 
 3. **Blazy 5.x (Drupal ≥ 12.0)**
@@ -319,6 +320,14 @@ See the bLazy docs at:
 - [gambry](https://www.drupal.org/u/gambry)
 - [Contributors](https://www.drupal.org/node/2663268/committers)
 - CHANGELOG.txt for helpful souls with their patches, suggestions and reports.
+
+---
+
+## <a name="ai-assistance"> </a>AI Assistance Disclosure
+Since 3.17, parts of this documentation and a small portion of the codebase were
+developed with AI assistance to improve documentation readability and code
+quality. All AI-assisted content has been reviewed and integrated by the project
+maintainer.
 
 ---
 

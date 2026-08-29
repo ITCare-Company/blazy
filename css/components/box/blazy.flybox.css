@@ -29,9 +29,9 @@ body.is-flybox--open {
 .b-flybox .blazybox__html,
 .b-flybox .blazybox__media,
 .b-flybox .media {
-  /* left: 0;
+  left: 0;
   top: 0;
-  transform: none; */
+  transform: none;
   max-width: 100%;
 }
 

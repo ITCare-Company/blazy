@@ -93,8 +93,8 @@ Alternatively, DOMPurify can be downloaded directly from:
 The Composer method installs the full package by default.
 
 Blazy lightboxes support captions inside lightbox overlays. When HTML captions
-are used, the DOMPurify library is required. Place one of the following files
-inside your libraries directory:
+are used, the DOMPurify library is **required* to sanitize the caption content
+safely. Place one of the following files inside your libraries directory:
 
 * `DOMPurify/dist/purify.min.js`
 * `dompurify/dist/purify.min.js`
@@ -106,8 +106,11 @@ If using the Colorbox module, follow its recommended library path to avoid
 duplicate folders. Blazy will automatically detect and use any valid
 installation.
 
-DOMPurify is optional. Without it, Blazy (sub-)modules will sanitize captions
-server-side using basic sanitization rules.
+**DOMPurify** is optional only when HTML captions are not used. Without
+**DOMPurify**, Blazy (sub-)modules fall back to server-side/basic sanitization,
+which does not provide the full protection of **DOMPurify** for HTML captions.
+The fallback is only relevant for personal or self-managed company websites
+which do not accept UGC lightbox captions.
 
 ---
 <a href="#top">Back to Top &uarr;</a>

@@ -13,7 +13,7 @@ mandatory.
 | Scenario | Primary Command / Action |
 | --- | --- |
 | **Major Upgrade (2.x to 3.x)** | `composer require drupal/blazy:^3.0 -W -n` <br /> See Blazy project home [**Upgrade Path**](https://www.drupal.org/project/blazy#blazy-upgrade) |
-| **Standard Update (Drush)** | `drush cr && drush updb && drush cr` |
+| **Blazy Standard Update (Drush)** | `drush cr && drush updb && drush cr` |
 | **Asset Issues (CSS/JS UI)** | Toggle Aggregation in [**Performance Page**](/admin/config/development/performance) with **Clearing all caches** button |
 | **WSOD Emergency Recovery** | Delete `composer.lock` & `/vendor`, then `composer install -W -n` |
 
@@ -47,6 +47,13 @@ For major version upgrades (e.g., 2.x to 3.x), you must perform a
 smooth, automated update of the entire tree.
 
 #### 2. Update via Drush (The Preferred Method)
+
+Please follow the official **Update SOP**:
+
+[Drupal.org — Drush: Updating Drupal the correct way from the command line](https://www.drupal.org/docs/develop/development-tools/drush#s-updating-drupal-the-correct-way-from-the-command-line)
+
+Only if the above has unexpected errors, please proceed as below.
+
 Once composer is done, ​execute this specific sequence to ensure the container
 and database are synchronized:
 
@@ -54,8 +61,30 @@ and database are synchronized:
 drush cr && drush updb && drush cr
 ```
 
-The first `drush cr` ensures the new code is (re-)mapped correctly in
-`../files/php`. Failing to do this is the major error reason.
+The initial `drush cr` is intentionally included because Blazy updates have
+historically encountered failures caused by stale service containers, plugin
+discovery, or generated PHP/container files after new module code has been
+deployed. In those cases, rebuilding caches before the database updates has
+resolved the reported update failures.
+
+**Important:**
+This is Blazy-specific operational guidance and should not be interpreted as a
+universal Drupal update rule. Drupal's general deployment documentation uses a
+different sequence, with database updates performed without an automatic cache
+clear:
+
+```bash
+drush updatedb --no-cache-clear
+drush cache:rebuild
+drush config:import
+drush cache:rebuild
+```
+
+The appropriate order can therefore depend on the update being performed. In
+particular, if a new release introduces database schema changes that the newly
+deployed code requires before it can safely rebuild caches, a pre-update
+**drush cr** may encounter a database schema error. If that occurs, follow the
+error and apply the pending database updates before retrying the cache rebuild.
 
 #### 3. Update via UI (Manual / No-Drush)
 If you do not have access to Drush, follow these steps in strict order.
