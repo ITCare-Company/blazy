@@ -6,6 +6,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
+use Drupal\blazy\Attribute\BlazySkin;
 use Drupal\blazy\BlazyInterface;
 use Drupal\blazy\Plugin\SkinPluginInterface;
 
@@ -103,7 +104,7 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
     ModuleHandlerInterface $module_handler,
     BlazyInterface $manager,
   ) {
-    parent::__construct(static::$path, $namespaces, $module_handler, static::$interface, static::$annotation);
+    parent::__construct(static::$path, $namespaces, $module_handler, static::$interface, BlazySkin::class, static::$annotation);
 
     $this->manager = $manager;
     $this->root = $manager->root();
