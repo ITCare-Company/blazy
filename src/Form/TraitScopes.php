@@ -92,7 +92,7 @@ trait TraitScopes {
     $settings = $definition['settings'] ?? [];
     $blazies = Internals::getBlazies($definition);
     $lightboxes = $this->blazyManager->getLightboxes();
-    $is_responsive = function_exists('responsive_image_get_image_dimensions');
+    $is_responsive = function_exists('responsive_image_get_image_dimensions') || class_exists('\Drupal\responsive_image\ResponsiveImageBuilder');
     $plugin_id = $blazies->get('field.plugin_id') ?: $definition['plugin_id'];
     $target_type = $blazies->get('field.target_type') ?: ($definition['target_type'] ?? '');
     $entity_type = $blazies->get('field.entity_type') ?: ($definition['entity_type'] ?? '');

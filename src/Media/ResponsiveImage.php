@@ -446,6 +446,18 @@ class ResponsiveImage {
           }
         }
       }
+      elseif (class_exists('\Drupal\responsive_image\ResponsiveImageBuilder')) {
+        // D12: the procedural _responsive_image_* helpers were replaced with
+        // \Drupal\responsive_image\ResponsiveImageBuilder (CR#3548329).
+        $builder = \Drupal::service(\Drupal\responsive_image\ResponsiveImageBuilder::class);
+        $fallback = $builder->getImageStyleUrl($id, $uri);
+
+        foreach ($style->getKeyedImageStyleMappings() as $bid => $multipliers) {
+          if (isset($breakpoints[$bid])) {
+            $sources[] = $builder->buildSourceAttributes($variables, $breakpoints[$bid], $multipliers);
+          }
+        }
+      }
 
       $blazies->set('resimage.fallback.id', $id)
         ->set('resimage.fallback.url', $fallback);

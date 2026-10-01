@@ -75,7 +75,7 @@ final class Container {
     $is_nojs      = $is_unload || $is_static;
 
     /* @phpstan-ignore-next-line */
-    $is_resimage = is_callable('responsive_image_get_mime_type');
+    $is_resimage = is_callable('responsive_image_get_mime_type') || class_exists('\Drupal\responsive_image\ResponsiveImageBuilder');
     $is_resimage = $blazies->is('resimage', $is_resimage);
     $svg_exist   = BlazyApi::svgSanitizerExists();
 
