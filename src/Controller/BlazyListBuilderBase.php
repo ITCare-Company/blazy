@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Controller;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\Entity\DraggableListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -20,14 +21,9 @@ abstract class BlazyListBuilderBase extends DraggableListBuilder {
 
   /**
    * {@inheritdoc}
-   *
-   * @todo Uncomment new method parameters before drupal:12.0.0.
-   * @see https://www.drupal.org/project/drupal/issues/3533078
-   *
-   * @phpstan-ignore-next-line
    */
-  public function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
-    $operations = parent::getDefaultOperations($entity);
+  public function getDefaultOperations(EntityInterface $entity, CacheableMetadata $cacheability) {
+    $operations = parent::getDefaultOperations($entity, $cacheability);
 
     if (isset($operations['edit'])) {
       $operations['edit']['title'] = $this->t('Configure');
