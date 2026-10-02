@@ -2,6 +2,7 @@ name: Blazy
 type: module
 description: "Provides media lazy loading."
 core_version_requirement: '>=9.4 || ^12'
+version: '3.0.19'
 package: Blazy
 dependencies:
   - drupal:filter
