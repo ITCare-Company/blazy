@@ -31,14 +31,12 @@ class LibraryHooks {
 
     static $bajax;
 
-    // @todo deprecate and remove if core changed, right below core/drupal for being generic,
-    // and dependency-free and a dependency for many other generic ones.
-    // @todo watch out for core @todo to remove drupal namespace for debounce.
-    $debounce = 'drupal.debounce';
+    // core/drupal.debounce depends on core/drupal (see core.libraries.yml),
+    // so it is not dependency-free: forcing a negative weight here made it
+    // sort before core/drupal itself once AssetResolver's final (group,
+    // weight) sort stopped deferring to the dependency-resolved order for
+    // ties, throwing "Drupal is not defined" on every page.
     if ($extension === 'core') {
-      if (isset($libraries[$debounce])) {
-        $libraries[$debounce]['js']['misc/debounce.js'] = ['weight' => -16];
-      }
       if (!isset($bajax) && isset($libraries['drupal.ajax'])) {
         $bajax = TRUE;
       }
